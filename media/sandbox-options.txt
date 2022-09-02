@@ -1,0 +1,9 @@
+VERSION = 1,
+
+option AshenMPRanking.MainUITitle
+{
+	type = string,
+	default = AshenMPRanking,
+	page = TimeOptions,
+	translation = AshenMPRanking_MainUITitle,
+}

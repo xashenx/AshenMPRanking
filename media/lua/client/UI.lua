@@ -3,6 +3,7 @@ AshenMPRanking = AshenMPRanking or {}
 local listUI, descUI
 local items = {}
 local player, username
+local ladderLength = 5
 survLabel = getText("UI_aliveFor")
 survAbsLabel = getText("UI_aliveForAbs")
 zKillsLabel = getText("UI_zKills")
@@ -32,17 +33,18 @@ local function openJobDesc(_, item)
     -- listUI["ladderText"]:setText(item)
 end
     
-local function onCreateUI()
+local function onCreateUI(main_ui_title)
     player = getSpecificPlayer(0)
     username = player:getUsername();
 
     -- List UI
     listUI = NewUI() -- Create UI
-    listUI:setTitle(getText("UI_MainWTitle"))
+    -- listUI:setTitle(getText("UI_MainWTitle"))
+    listUI:setTitle(main_ui_title)
     -- listUI:setWidthPercent(0.1)
     listUI:setWidthPixel(200)
     listUI:setKeyMN(184)
-    listUI:setBorderToAllElements(true);
+    listUI:setBorderToAllElements(true)
     listUI:addText("onlinePlayers", "", "", "Center")
     listUI:nextLine()
     listUI:addScrollList("list", items); -- Create list
@@ -76,10 +78,9 @@ local function writeLadder(ladder, label, ladder_name, server_name)
     -- text = label .. "\n\n"
     text = label .. ": "
 
-    -- TODO add an option for the max number of players to show
-    for i=1,math.min(#ladder,AshenMPRanking.Options.ladderLength) do
+    for i=1,math.min(#ladder,ladderLength) do
         if i > 1 then
-            if i < math.min(#ladder,AshenMPRanking.Options.ladderLength) then
+            if i < math.min(#ladder,ladderLength) then
                 text = text .. ";"
             end
             -- text = text .. "\n"
@@ -169,11 +170,16 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
     end
 end
 
+local onServerConfig = function(module, command, configs)
+    onCreateUI(configs.main_ui_title)
+end
+
 local onLadderUpdate = function(module, command, ladder)
     if module ~= "AshenMPRanking" then
         return
     end
 
+    listUI:setTitle(ladder.main_ui_title)
     items[survLabel] = survLabel .. " <LINE><LINE>"
     items[survAbsLabel] = survAbsLabel .. " <LINE><LINE>"
     items[zKillsLabel] = zKillsLabel .. " <LINE><LINE>"
@@ -182,9 +188,12 @@ local onLadderUpdate = function(module, command, ladder)
     items[sKillsAbsLabel] = sKillsAbsLabel .. " <LINE><LINE>"
     items[deathsLabel] = deathsLabel .. " <LINE><LINE>"
 
+    ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
+    if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
+
     if command == "LadderUpdate" then
         listUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": ".. ladder.onlineplayers)
-		for i=1,#ladder.zKills do
+		for i=1,math.min(#ladder.zKills,ladderLength) do
             updateRankingItems("daysSurvived", survLabel, ladder.daysSurvived[i][1], i, ladder.daysSurvived[i][2])
             updateRankingItems("daysSurvivedAbs", survAbsLabel, ladder.daysSurvivedAbs[i][1], i, ladder.daysSurvivedAbs[i][2])
             updateRankingItems("zKills", zKillsLabel, ladder.zKills[i][1], i, ladder.zKills[i][2])
@@ -194,13 +203,6 @@ local onLadderUpdate = function(module, command, ladder)
             if #ladder.deaths >= i then
                 updateRankingItems("deaths", deathsLabel, ladder.deaths[i][1], i, ladder.deaths[i][2])
             end
-            -- items[survLabel] = items[survLabel] .. "(" .. i .. ") " .. ladder.daysSurvived[i][1] .. " -> " .. string.format("%." .. 1 .. "f", ladder.daysSurvived[i][2]) .. " <LINE>"
-            -- items[survAbsLabel] = items[survAbsLabel] .. "(" .. i .. ") " .. ladder.daysSurvivedAbs[i][1] .. " -> " .. string.format("%." .. 1 .. "f", ladder.daysSurvivedAbs[i][2]) .. " <LINE>"
-            -- items[zKillsLabel] = items[zKillsLabel] .. "(" .. i .. ") " .. ladder.zKills[i][1] .. " -> " .. ladder.zKills[i][2] .. " <LINE>"
-            -- items[zKillsAbsLabel] = items[zKillsAbsLabel] .. "(" .. i .. ") " .. ladder.zKillsAbs[i][1] .. " -> " .. ladder.zKillsAbs[i][2] .. " <LINE>"
-            -- items[sKillsLabel] = items[sKillsLabel] .. "(" .. i .. ") " .. ladder.sKills[i][1] .. " -> " .. ladder.sKills[i][2] .. " <LINE>"
-            -- items[sKillsAbsLabel] = items[sKillsAbsLabel] .. "(" .. i .. ") " .. ladder.sKillsAbs[i][1] .. " -> " .. ladder.sKillsAbs[i][2] .. " <LINE>"
-            -- items[deathsLabel] = items[deathsLabel] .. "(" .. i .. ") " .. ladder.deaths[i][1] .. " -> " .. ladder.deaths[i][2] .. " <LINE>"
 		end
     end
 
@@ -218,6 +220,7 @@ local function onPlayerDeathReset(player)
     sendClientCommand(player, "AshenMPRanking", "PlayerIsDead", data);
 end
 
+Events.OnServerCommand.Add(onServerConfig)
 Events.OnServerCommand.Add(onLadderUpdate)
-Events.OnCreateUI.Add(onCreateUI)
+-- Events.OnCreateUI.Add(onCreateUI)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)

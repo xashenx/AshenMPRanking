@@ -22,8 +22,7 @@ local function SendPlayerData()
     playerData.survivorKills = player:getSurvivorKills();
     playerData.daysSurvived = player:getHoursSurvived() / 24;
     playerData.receiveData = AshenMPRanking.Options.receiveData;
-    
-    -- print("ASPDClient: Sending " .. username .. " data to server!");
+
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData);
 end
 

@@ -2,7 +2,7 @@ AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.Options = AshenMPRanking.Options or {}
 
 AshenMPRanking.Options.receiveData = false;
-AshenMPRanking.Options.ladderLength = 5;
+AshenMPRanking.Options.ladderLength = 2;
 
 if ModOptions and ModOptions.getInstance then
     local function onModOptionsApply(optionValues)
@@ -19,16 +19,18 @@ if ModOptions and ModOptions.getInstance then
                 OnApplyInGame = onModOptionsApply,
             },
             ladderLength = {
+                "3", "5", "10",
+
                 name = getText("Options_ladderLength"),
-                default = 5,
+                default = 2,
                 OnApplyMainMenu = onModOptionsApply,
                 OnApplyInGame = onModOptionsApply,
             },
         },
 
         mod_id = 'AshenMPRanking',
-        mod_shortname = 'Ashen\'s MP Ranking',
-        mod_fullname = 'Ashen\'s MP Ranking',
+        mod_shortname = 'Ashen MP Ranking',
+        mod_fullname = 'Ashen MP Ranking',
     }
     
     local optionsInstance = ModOptions:getInstance(SETTINGS)

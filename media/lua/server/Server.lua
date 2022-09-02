@@ -25,6 +25,13 @@ local function initLadder()
     oLadder.deaths = {};
     oLadder.onlineplayers = "";
     oLadder.server_name = getServerName();
+    if SandboxVars.AshenMPRanking.MainUITitle then
+        oLadder.main_ui_title = SandboxVars.AshenMPRanking.MainUITitle
+        print("Ecco la config: " .. oLadder.main_ui_title)
+        print(SandboxVars.WorldItemRemovalList)
+    -- else
+    --     oLadder.main_ui_title = getText("UI_MainWTitle")
+    end
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -64,11 +71,11 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
         -- print(v,k)
     end
 
-    if inverse then
-        for i=1,#ordered_ladder do
-            print("(" .. tostring(i) .. ") " .. ordered_ladder[i][1] .. " -> ".. ordered_ladder[i][2])
-        end
-    end
+    -- if inverse then
+    --     for i=1,#ordered_ladder do
+    --         print("(" .. tostring(i) .. ") " .. ordered_ladder[i][1] .. " -> ".. ordered_ladder[i][2])
+    --     end
+    -- end
 
     return ordered_ladder
 end
@@ -126,7 +133,7 @@ local function SaveToFile()
     text = ""
     local counter = 0
     for k,v in pairs(ladder.daysSurvived) do
-        print("writing " .. k)
+        -- print("writing " .. k)
         if counter ~= 0 then
             text = text .. "\n" .. k
         else
@@ -149,9 +156,9 @@ end
 -- executed when a client(player) sends its information to the server
 local function onPlayerData(player, playerData)
     parsedPlayers = parsedPlayers + 1;
-    if playerData.isAlive then
+    if playerData.isAlive and  player:getAccessLevel() == "None" then
         local username = playerData.username;
-        print("AMPRServer: Player " .. username .. " received!");
+        print("AMPRServer: Player " .. username .. " received!")
         if ladder.daysSurvivedAbs[username] == nil then
             ladder.daysSurvivedAbs[username] = playerData.daysSurvived;
             ladder.zKillsAbs[username] = playerData.zombieKills;
@@ -182,7 +189,7 @@ local function onPlayerData(player, playerData)
     -- send the update when data are received from all clients
     if parsedPlayers == getOnlinePlayers():size() then
         oLadder.onlineplayers = tostring(parsedPlayers)
-        print('AMPRServer: sending ladders to players ...');
+        -- print('AMPRServer: sending ladders to players ...')
         sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
         SaveToFile()
         -- reset parsedPlayersCounter
@@ -196,7 +203,7 @@ end
 
 local function onPlayerDeathReset(player)
     username = player:getUsername();
-    print(username .. ' è morto!');
+    -- print(username .. ' è morto!');
     ladder.deaths[username] = ladder.deaths[username] + 1
     ladder.daysSurvivedAbs[username] = 0
     ladder.zKills[username] = 0

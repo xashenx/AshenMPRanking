@@ -1,0 +1,3 @@
+Sandbox_IT = {
+	Sandbox_AshenMPRanking_MainUITitle = "Main UI Windows Title"
+}
