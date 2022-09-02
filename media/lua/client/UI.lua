@@ -55,6 +55,7 @@ local function onCreateUI(main_ui_title)
     -- listUI:addEmpty(_, _, _, 10); -- Margin only for rich text
     -- listUI:nextLine()
     listUI:saveLayout() -- Create window
+    listUI:setPositionPercent(0.1, 0.1)
 
     -- Description UI
     descUI = NewUI()
@@ -134,7 +135,7 @@ end
 
 -- executed when a change in the rank of the player is detected
 local function onRankChange(movement, ladder_label)
-    print("ASPDClient: RankChange update");
+    -- print("ASPDClient: RankChange update")
     if movement == "up" then
         HaloTextHelper.addTextWithArrow(player, ladder_label, true, HaloTextHelper.getColorGreen());
     else
@@ -209,7 +210,7 @@ local onLadderUpdate = function(module, command, ladder)
     listUI["list"]:setItems(items)
 
     if AshenMPRanking.Options.receiveData then
-        print('writing data')
+        -- print('writing data')
         writeToFile(ladder)
     end
 end 

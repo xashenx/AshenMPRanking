@@ -40,7 +40,7 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
     ordered_ladder={}
     for v,k in pairs(ladder) do
         -- tablelenth=tablelenth+1
-        if not inverse or (inverse and daysSurvived[v] > 4) then
+        if not inverse or (daysSurvived[v] > 4 or k > 0) then
             if #ordered_ladder > 0 then
                 -- local numbertable = #zombierank_clientsucc
                 -- print(k)
