@@ -1,0 +1,14 @@
+UI_EN = {
+    UI_MainWTitle = "Ashen MP Ranking",
+    UI_LadderTitle = "Classifica",
+    UI_aliveFor ="Sopravvivenza (giorni)",
+    UI_aliveForAbs ="Sopravvivenza Assoluta (giorni)",
+    UI_zKills = "Zombie Uccisi",
+    UI_zKillsABS = "Zombie Uccisi Assoluti",
+    UI_sKills = "Sopravvissuti Uccisi",
+    UI_sKillsABS = "Sopravvissuti Uccisi Assoluti",
+    UI_deaths = "Morti",
+    UI_OnlinePlayers = "Giocatori connessi",
+    Options_receive = "ricevi i dati (scrittura file per streamers)",
+    Options_ladderLength = "lunghezza classifica nei file (la ricezione deve essere abilitata!)"
+}

@@ -1,0 +1,14 @@
+UI_EN = {
+    UI_MainWTitle = "Ashen MP Ranking",
+    UI_LadderTitle = "Ladder",
+    UI_aliveFor ="Time Alive (days)",
+    UI_aliveForAbs ="Absolute Time Alive (days)",
+    UI_zKills = "Zombie Kills",
+    UI_zKillsABS = "Absolute Zombie Kills",
+    UI_sKills = "Survivor Kills",
+    UI_sKillsABS = "Absolute Survivor Kills",
+    UI_deaths = "Deaths",
+    UI_OnlinePlayers = "Online Players",
+    Options_receive = "receive data (writing files for streamers)",
+    Options_ladderLength = "length of ladder in file (reception has to be enabled!)"
+}
