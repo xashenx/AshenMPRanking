@@ -86,7 +86,12 @@ end
 local function loadFromFile()
     -- reading current run ladder
     local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
-    local dataFile = getFileReader(file, true)
+    local dataFile = getFileReader(file, false)
+    if dataFile == nil then
+        print("No ladder file found, the file will be created as soon as the first player connects")
+        return
+    end
+
     line = dataFile:readLine()
 
     while line ~= nil do
