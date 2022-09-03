@@ -4,7 +4,8 @@ local parsedPlayers = 0;
 local write_required = false;
 local ladder = {};
 local oLadder = {};
-local streamers = {};
+local streamers = {}
+local configs = {}
 
 local function initLadder()
     ladder.daysSurvived = {};
@@ -22,15 +23,11 @@ local function initLadder()
     oLadder.zKillsAbs = {};
     oLadder.sKills = {};
     oLadder.sKillsAbs = {};
-    oLadder.deaths = {};
-    oLadder.onlineplayers = "";
-    oLadder.server_name = getServerName();
+    oLadder.deaths = {}
+    oLadder.onlineplayers = ""
+    oLadder.server_name = getServerName()
     if SandboxVars.AshenMPRanking.MainUITitle then
-        oLadder.main_ui_title = SandboxVars.AshenMPRanking.MainUITitle
-        print("Ecco la config: " .. oLadder.main_ui_title)
-        print(SandboxVars.WorldItemRemovalList)
-    -- else
-    --     oLadder.main_ui_title = getText("UI_MainWTitle")
+        configs.main_ui_title = SandboxVars.AshenMPRanking.MainUITitle
     end
 end
 
@@ -39,14 +36,9 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
     daysSurvived = daysSurvived or {}
     ordered_ladder={}
     for v,k in pairs(ladder) do
-        -- tablelenth=tablelenth+1
         if not inverse or (daysSurvived[v] > 4 or k > 0) then
             if #ordered_ladder > 0 then
-                -- local numbertable = #zombierank_clientsucc
-                -- print(k)
                 for i=1,#ordered_ladder do
-                    -- TODO invertire ordinamento per kills!
-                    -- if k <= ordered_ladder[#ordered_ladder -i+1][2] then
                     if inverse then
                         if k > ordered_ladder[#ordered_ladder -i+1][2] then
                             table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
@@ -133,7 +125,6 @@ local function SaveToFile()
     text = ""
     local counter = 0
     for k,v in pairs(ladder.daysSurvived) do
-        -- print("writing " .. k)
         if counter ~= 0 then
             text = text .. "\n" .. k
         else
@@ -158,7 +149,7 @@ local function onPlayerData(player, playerData)
     parsedPlayers = parsedPlayers + 1;
     if playerData.isAlive and  player:getAccessLevel() == "None" then
         local username = playerData.username;
-        print("AMPRServer: Player " .. username .. " received!")
+        -- print("AMPRServer: Player " .. username .. " received!")
         if ladder.daysSurvivedAbs[username] == nil then
             ladder.daysSurvivedAbs[username] = playerData.daysSurvived;
             ladder.zKillsAbs[username] = playerData.zombieKills;
@@ -189,7 +180,6 @@ local function onPlayerData(player, playerData)
     -- send the update when data are received from all clients
     if parsedPlayers == getOnlinePlayers():size() then
         oLadder.onlineplayers = tostring(parsedPlayers)
-        -- print('AMPRServer: sending ladders to players ...')
         sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
         SaveToFile()
         -- reset parsedPlayersCounter
@@ -197,18 +187,17 @@ local function onPlayerData(player, playerData)
     end
 end
 
-local function onConnectUpdate()
-    sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
+local function getServerConfig(player)
+    sendServerCommand(player, "AshenMPRanking", "ServerConfigs", configs);
+    sendServerCommand(player, "AshenMPRanking", "LadderUpdate", oLadder);
 end
 
 local function onPlayerDeathReset(player)
     username = player:getUsername();
-    -- print(username .. ' è morto!');
     ladder.deaths[username] = ladder.deaths[username] + 1
     ladder.daysSurvivedAbs[username] = 0
     ladder.zKills[username] = 0
     ladder.sKills[username] = 0
-    -- sendClientCommand(player, "AshenServerPlayersData", "PlayerIsDead", data);
 end
 
 local clientCommandDispatcher = function(module, command, player, args)
@@ -217,9 +206,11 @@ local clientCommandDispatcher = function(module, command, player, args)
     end;
     
     if command == "PlayerData" then 
-        onPlayerData(player, args);
+        onPlayerData(player, args)
     elseif command == "PlayerIsDead" then
-        onPlayerDeathReset(player, args);
+        onPlayerDeathReset(player, args)
+    elseif command == "getServerConfig" then
+        getServerConfig(player)
     end
 end
 
@@ -281,4 +272,3 @@ initLadder();
 Events.OnServerStarted.Add(loadFromFile)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnClientCommand.Add(clientCommandDispatcher)
-Events.OnConnected.Add(onConnectUpdate)
