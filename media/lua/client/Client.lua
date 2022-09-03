@@ -26,37 +26,5 @@ local function SendPlayerData()
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData);
 end
 
--- executed when server request an update
-local onPlayerDataRequest = function(module, command, player, args)
-    if module ~= "AshenMPRanking" then
-        return;
-    end;
-    
-    if command == "PlayerDataRequest" then      
-        print("ASPDClient: Update requested");
-        SendPlayerData();
-    end
-end
-
--- executed when server sends a RankChange
-local onRankChange = function(module, command, args)
-    if module ~= "AshenMPRanking" then
-        return;
-    end
-    
-    if command == "RankChange" then
-        print("ASPDClient: RankChange update");
-        local player = getPlayer();
-        local username = player:getUsername();
-
-        if args.current == username then
-            HaloTextHelper.addTextWithArrow(player, args.category, true, HaloTextHelper.getColorGreen());
-        elseif args.previous == username then
-            HaloTextHelper.addTextWithArrow(player, 'Best zombie killer (run)', false, HaloTextHelper.getColorRed());
-        end
-    end
-end
-
-Events.EveryTenMinutes.Add(SendPlayerData);
-Events.OnPlayerDeath.Add(SendPlayerData);
-Events.OnServerCommand.Add(onRankChange);
+Events.EveryTenMinutes.Add(SendPlayerData)
+Events.OnPlayerDeath.Add(SendPlayerData)
