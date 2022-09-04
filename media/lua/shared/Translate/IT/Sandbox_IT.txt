@@ -1,3 +1,9 @@
 Sandbox_IT = {
-	Sandbox_AshenMPRanking_MainUITitle = "Titolo della UI principale"
-}
+	Sandbox_AshenMPRanking_MainUiTitle = "Titolo della UI principale",
+	Sandbox_AshenMPRanking_daysSurvived = "Abilita Classifica Sopravvivenza",
+	Sandbox_AshenMPRanking_daysSurvivedAbs = "Abilita Classifica Sopravvivenza Assoluta",
+	Sandbox_AshenMPRanking_zKills = "Abilita Classifica Zombie Uccisi",
+	Sandbox_AshenMPRanking_zKillsAbs = "Abilita Classifica Zombie Uccisi Assoluta",
+	Sandbox_AshenMPRanking_sKills = "Abilita Classifica Sopravvissuti Uccisi",
+	Sandbox_AshenMPRanking_sKillsAbs = "Abilita Classifica Sopravvissuti Uccisi Assoluta",
+	Sandbox_AshenMPRanking_deaths = "Abilita Classifica Morti"

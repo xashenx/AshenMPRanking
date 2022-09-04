@@ -1,4 +1,5 @@
 AshenMPRanking = AshenMPRanking or {}
+AshenMPRanking.sandboxSettings = {}
 if isServer() then return end;
 
 -- getGameTime():getModData().test = getGameTime():getModData().test or {}
@@ -6,7 +7,6 @@ local listUI, descUI
 local items = {}
 local player, username
 local ladderLength = 5
-local main_ui_title = "AshenMPRanking"
 survLabel = getText("UI_aliveFor")
 survAbsLabel = getText("UI_aliveForAbs")
 zKillsLabel = getText("UI_zKills")
@@ -39,7 +39,7 @@ local function onCreateUI()
     -- List UI
     listUI = NewUI() -- Create UI
     -- listUI:setTitle(getText("UI_MainWTitle"))
-    listUI:setTitle(main_ui_title)
+    listUI:setTitle(AshenMPRanking.sandboxSettings.mainUiTitle)
     -- listUI:setWidthPercent(0.1)
     listUI:setWidthPixel(200)
     listUI:setKeyMN(157)
@@ -240,14 +240,15 @@ local function PlayerUpdateGetServerConfigs(player)
     sendClientCommand(player, "AshenMPRanking", "getServerConfig", {})
 end
 
-local onServerConfig = function(module, command, configs)
+local onServerConfig = function(module, command, sandboxSettings)
     if module ~= "AshenMPRanking" or command ~= "ServerConfigs" then
         return;
     end;
     Events.OnServerCommand.Remove(onServerConfig)
     Events.OnPlayerUpdate.Remove(PlayerUpdateGetServerConfigs)
     
-    main_ui_title = configs.main_ui_title
+    AshenMPRanking.sandboxSettings = sandboxSettings
+    
     if initUI then
         onCreateUI()
         initUI = false

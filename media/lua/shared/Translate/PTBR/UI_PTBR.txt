@@ -1,5 +1,5 @@
 UI_EN = {
-    UI_MainWTitle = "Ashen MP Ranking",
+    UI_MainWTitle = "Available Rankings",
     UI_LadderTitle = "Ladder",
     UI_aliveFor ="Time Alive (days)",
     UI_aliveForAbs ="Absolute Time Alive (days)",

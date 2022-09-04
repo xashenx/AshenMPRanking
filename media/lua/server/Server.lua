@@ -1,4 +1,7 @@
 if not isServer() then return end;
+AshenMPRanking = AshenMPRanking or {};
+AshenMPRanking.sandboxSettings = {}
+AshenMPRanking.server = {};
 
 local parsedPlayers = 0;
 local write_required = false;
@@ -7,7 +10,19 @@ local oLadder = {};
 local streamers = {}
 local configs = {}
 
-local function initLadder()
+-- function fetchSandboxVars()
+AshenMPRanking.server.fetchSandboxVars = function()
+    AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
+    AshenMPRanking.sandboxSettings.daysSurvived = SandboxVars.AshenMPRanking.daysSurvived
+    AshenMPRanking.sandboxSettings.daysSurvivedAbs = SandboxVars.AshenMPRanking.daysSurvivedAbs
+    AshenMPRanking.sandboxSettings.zKills = SandboxVars.AshenMPRanking.zKills
+    AshenMPRanking.sandboxSettings.zKillsAbs = SandboxVars.AshenMPRanking.zKillsAbs
+    AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
+    AshenMPRanking.sandboxSettings.sKillsAbs = SandboxVars.AshenMPRanking.sKillsAbs
+    AshenMPRanking.sandboxSettings.deaths = SandboxVars.AshenMPRanking.deaths
+end
+
+local function initServer()
     ladder.daysSurvived = {};
     ladder.daysSurvivedAbs = {};
     ladder.zKills = {};
@@ -26,9 +41,8 @@ local function initLadder()
     oLadder.deaths = {}
     oLadder.onlineplayers = ""
     oLadder.server_name = getServerName()
-    if SandboxVars.AshenMPRanking.MainUITitle then
-        configs.main_ui_title = SandboxVars.AshenMPRanking.MainUITitle
-    end
+
+    AshenMPRanking.server.fetchSandboxVars();
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -193,7 +207,7 @@ local function onPlayerData(player, playerData)
 end
 
 local function getServerConfig(player)
-    sendServerCommand(player, "AshenMPRanking", "ServerConfigs", configs);
+    sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings);
     sendServerCommand(player, "AshenMPRanking", "LadderUpdate", oLadder);
 end
 
@@ -266,14 +280,7 @@ function file_exists(file)
     return f ~= nil
 end
 
--- TODO gestione evento morte personaggio:
--- 1) reset statistiche se del player
--- 1b) effettuare richiesta di aggiornamento
--- Events.EveryTenMinutes.Add(updateLadder);
--- Events.EveryHours.Add(requestUpdate);
--- Events.EveryTenMinutes.Add(requestUpdate);
-
-initLadder();
+Events.OnServerStarted.Add(initServer);
 Events.OnServerStarted.Add(loadFromFile)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnClientCommand.Add(clientCommandDispatcher)
