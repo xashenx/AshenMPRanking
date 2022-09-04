@@ -1,10 +1,5 @@
 Sandbox_IT = {
+	Sandbox_AshenMPRanking = "Ashen MP Ranking",
 	Sandbox_AshenMPRanking_MainUiTitle = "Main UI Windows Title",
-	Sandbox_AshenMPRanking_daysSurvived = "Enable Alive Time Ladder",
-	Sandbox_AshenMPRanking_daysSurvivedAbs = "Enable Absolute Alive Time Ladder",
-	Sandbox_AshenMPRanking_zKills = "Enable Zombie Kills  Ladder",
-	Sandbox_AshenMPRanking_zKillsAbs = "Enable Absolute Zombie Kills Ladder",
 	Sandbox_AshenMPRanking_sKills = "Enable Survivor Kills  Ladder",
-	Sandbox_AshenMPRanking_sKillsAbs = "Enable Absolute Survivor Kills Ladder",
-	Sandbox_AshenMPRanking_deaths = "Enable Deaths Ladder"
 }

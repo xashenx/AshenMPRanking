@@ -4,40 +4,10 @@ VERSION = 1,
 option AshenMPRanking.mainUiTitle
 {
 	type = string, default = Ranking,
-	page = AshenMPRanking, translation = AshenMPRanking_mainUiTitle,
-}
-option AshenMPRanking.daysSurvived
-{
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = AshenMPRanking_daysSurvived,
-}
-option AshenMPRanking.daysSurvivedAbs
-{
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = AshenMPRanking_daysSurvivedAbs,
-}
-option AshenMPRanking.zKills
-{
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = AshenMPRanking_zKills,
-}
-option AshenMPRanking.zKillsAbs
-{
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = AshenMPRanking_zKillsAbs,
+	page = AshenMPRanking, translation = AshenMPRanking_MainUiTitle,
 }
 option AshenMPRanking.sKills
 {
 	type = boolean, default = true,
-	page = AshenMPRanking, translation = sKills,
-}
-option AshenMPRanking.sKillsAbs
-{
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = sKillsAbs,
-}
-option AshenMPRanking.deaths
-{
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = AshenMPRanking_deaths,
+	page = AshenMPRanking, translation = AshenMPRanking_sKills,
 }

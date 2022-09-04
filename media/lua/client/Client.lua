@@ -7,21 +7,8 @@ local listUI, descUI
 local items = {}
 local player, username
 local ladderLength = 5
-survLabel = getText("UI_aliveFor")
-survAbsLabel = getText("UI_aliveForAbs")
-zKillsLabel = getText("UI_zKills")
-zKillsAbsLabel = getText("UI_zKillsABS")
-sKillsLabel = getText("UI_sKills")
-sKillsAbsLabel = getText("UI_sKillsABS")
-deathsLabel = getText("UI_deaths")
-items[survLabel] = ""
-items[survAbsLabel] = ""
-items[zKillsLabel] = ""
-items[zKillsAbsLabel] = ""
-items[sKillsLabel] = ""
-items[sKillsAbsLabel] = ""
-items[deathsLabel] = ""
-current_ranking = {}
+local labels = {}
+local current_ranking = {}
 
 local initUI = true
 
@@ -74,7 +61,7 @@ local function onCreateUI()
     descUI:close()
 end
 
-local function writeLadder(ladder, label, ladder_name, server_name)
+local function writeLadder(ladder, label, ladder_name)
     -- text = label .. "\n\n"
     text = label .. ": "
 
@@ -95,7 +82,7 @@ local function writeLadder(ladder, label, ladder_name, server_name)
         end
     end
 
-    local dataFile = getFileWriter("/AshenMPRanking/" .. server_name .. "/" .. ladder_name .. ".txt", true, false);
+    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/" .. ladder_name .. ".txt", true, false);
     dataFile:write(text);
     dataFile:close();
 end
@@ -105,7 +92,7 @@ local function writeToFile(ladder)
     local daysSurvived = player:getHoursSurvived() / 24
     -- write file
     text = string.format('%.01f', daysSurvived) .. ' giorni';
-    local dataFile = getFileWriter("/AshenMPRanking/" .. ladder.server_name .. "/self_survive.txt", true, false);
+    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false);
     dataFile:write(text);
     dataFile:close();
     -- write file
@@ -118,18 +105,16 @@ local function writeToFile(ladder)
     else
         text = '-';
     end
-    local dataFile = getFileWriter("/AshenMPRanking/" .. ladder.server_name .. "/self_zkills.txt", true, false);
+    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false);
     dataFile:write(text);
     dataFile:close();
 
     -- write ladders
-    writeLadder(ladder.daysSurvived, survLabel, 'daysSurvived', ladder.server_name)
-    writeLadder(ladder.daysSurvivedAbs, survAbsLabel, 'daysSurvivedAbs', ladder.server_name)
-    writeLadder(ladder.zKills, zKillsLabel, 'zKills', ladder.server_name)
-    writeLadder(ladder.zKillsAbs, zKillsAbsLabel, 'zKillsAbs', ladder.server_name)
-    writeLadder(ladder.sKills, sKillsLabel, 'sKills', ladder.server_name)
-    writeLadder(ladder.sKillsAbs, sKillsAbsLabel, 'sKillsAbs', ladder.server_name)
-    writeLadder(ladder.deaths, deathsLabel, 'deaths', ladder.server_name)
+    for k,v in pairs(ladder) do
+        if k ~= "onlineplayers" then
+            writeLadder(v, labels[k], k)
+        end
+    end
 end
 
 -- executed when a change in the rank of the player is detected
@@ -174,30 +159,25 @@ local onLadderUpdate = function(module, command, ladder)
         return
     end
 
-    items[survLabel] = survLabel .. " <LINE><LINE>"
-    items[survAbsLabel] = survAbsLabel .. " <LINE><LINE>"
-    items[zKillsLabel] = zKillsLabel .. " <LINE><LINE>"
-    items[zKillsAbsLabel] = zKillsAbsLabel .. " <LINE><LINE>"
-    items[sKillsLabel] = sKillsLabel .. " <LINE><LINE>"
-    items[sKillsAbsLabel] = sKillsAbsLabel .. " <LINE><LINE>"
-    items[deathsLabel] = deathsLabel .. " <LINE><LINE>"
+    for k,v in pairs(ladder) do
+        if k ~= "onlineplayers" then
+            items[labels[k]] = labels[k] .. " <LINE><LINE>"
+        end
+    end
 
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
     if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
 
-    if command == "LadderUpdate" then
-        listUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
-		for i=1,math.min(#ladder.zKills,ladderLength) do
-            updateRankingItems("daysSurvived", survLabel, ladder.daysSurvived[i][1], i, ladder.daysSurvived[i][2])
-            updateRankingItems("daysSurvivedAbs", survAbsLabel, ladder.daysSurvivedAbs[i][1], i, ladder.daysSurvivedAbs[i][2])
-            updateRankingItems("zKills", zKillsLabel, ladder.zKills[i][1], i, ladder.zKills[i][2])
-            updateRankingItems("zKillsAbs", zKillsAbsLabel, ladder.zKillsAbs[i][1], i, ladder.zKillsAbs[i][2])
-            updateRankingItems("sKills", sKillsLabel, ladder.sKills[i][1], i, ladder.sKills[i][2])
-            updateRankingItems("sKillsAbs", sKillsAbsLabel, ladder.sKillsAbs[i][1], i, ladder.sKillsAbs[i][2])
-            if #ladder.deaths >= i then
-                updateRankingItems("deaths", deathsLabel, ladder.deaths[i][1], i, ladder.deaths[i][2])
+    listUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
+    for i=1,math.min(#ladder.daysSurvivedAbs,ladderLength) do
+        for k,v in pairs(ladder) do
+            if k ~= "onlineplayers" then
+                -- if the count of elements in v is greater than 0 then
+                if #v >= i then
+                    updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
+                end
             end
-		end
+        end
     end
 
     listUI["list"]:setItems(items)
@@ -248,6 +228,19 @@ local onServerConfig = function(module, command, sandboxSettings)
     Events.OnPlayerUpdate.Remove(PlayerUpdateGetServerConfigs)
     
     AshenMPRanking.sandboxSettings = sandboxSettings
+
+    labels.daysSurvived = getText("UI_aliveFor")
+    labels.daysSurvivedAbs = getText("UI_aliveForAbs")
+
+    labels.zKills = getText("UI_zKills")
+    labels.zKillsAbs = getText("UI_zKillsABS")
+    
+    if AshenMPRanking.sandboxSettings.sKills then
+        labels.sKills = getText("UI_sKills")
+        labels.sKillsAbs = getText("UI_sKillsABS")
+    end
+
+    labels.deaths = getText("UI_deaths")
     
     if initUI then
         onCreateUI()

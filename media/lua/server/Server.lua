@@ -13,36 +13,35 @@ local configs = {}
 -- function fetchSandboxVars()
 AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
-    AshenMPRanking.sandboxSettings.daysSurvived = SandboxVars.AshenMPRanking.daysSurvived
-    AshenMPRanking.sandboxSettings.daysSurvivedAbs = SandboxVars.AshenMPRanking.daysSurvivedAbs
-    AshenMPRanking.sandboxSettings.zKills = SandboxVars.AshenMPRanking.zKills
-    AshenMPRanking.sandboxSettings.zKillsAbs = SandboxVars.AshenMPRanking.zKillsAbs
     AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
-    AshenMPRanking.sandboxSettings.sKillsAbs = SandboxVars.AshenMPRanking.sKillsAbs
-    AshenMPRanking.sandboxSettings.deaths = SandboxVars.AshenMPRanking.deaths
 end
 
 local function initServer()
-    ladder.daysSurvived = {};
-    ladder.daysSurvivedAbs = {};
-    ladder.zKills = {};
-    ladder.zKillsAbs = {};
-    ladder.sKills = {};
-    ladder.sKillsAbs = {};
-    ladder.deaths = {};
-    ladder.onlineplayers = "";
-    -- ordered ladders
-    oLadder.daysSurvived = {};
-    oLadder.daysSurvivedAbs = {};
-    oLadder.zKills = {};
-    oLadder.zKillsAbs = {};
-    oLadder.sKills = {};
-    oLadder.sKillsAbs = {};
-    oLadder.deaths = {}
-    oLadder.onlineplayers = ""
-    oLadder.server_name = getServerName()
+    AshenMPRanking.server.fetchSandboxVars()
 
-    AshenMPRanking.server.fetchSandboxVars();
+    ladder.daysSurvived = {}
+    oLadder.daysSurvived = {}
+
+    ladder.daysSurvivedAbs = {}
+    oLadder.daysSurvivedAbs = {}
+
+    ladder.zKills = {}
+    oLadder.zKills = {}
+
+    ladder.zKillsAbs = {}
+    oLadder.zKillsAbs = {}
+
+    if AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills = {}
+        oLadder.sKills = {}
+        ladder.sKillsAbs = {}
+        oLadder.sKillsAbs = {}
+    end
+
+    ladder.deaths = {}
+    oLadder.deaths = {}
+
+    AshenMPRanking.sandboxSettings.server_name = getServerName()
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -87,13 +86,9 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
 end
 
 local function sort_ladders()
-    oLadder.daysSurvived = sort_my_ladder(ladder.daysSurvived)
-    oLadder.daysSurvivedAbs = sort_my_ladder(ladder.daysSurvivedAbs)
-    oLadder.zKills = sort_my_ladder(ladder.zKills)
-    oLadder.zKillsAbs = sort_my_ladder(ladder.zKillsAbs)
-    oLadder.sKills = sort_my_ladder(ladder.sKills)
-    oLadder.sKillsAbs = sort_my_ladder(ladder.sKillsAbs)
-    oLadder.deaths = sort_my_ladder(ladder.deaths, true, ladder.daysSurvivedAbs)
+    for k,v in pairs(ladder) do
+        oLadder[k] = sort_my_ladder(v, k == "deaths", ladder.daysSurvivedAbs)
+    end
 end
 
 -- load last stats from file on load
@@ -122,10 +117,15 @@ local function loadFromFile()
 
         ladder.daysSurvived[username] = tonumber(daysSurvived)
         ladder.daysSurvivedAbs[username] = tonumber(daysSurvivedAbs)
+
         ladder.zKills[username] = tonumber(zKills)
         ladder.zKillsAbs[username] = tonumber(zKillsAbs)
-        ladder.sKills[username] = tonumber(sKills)
-        ladder.sKillsAbs[username] = tonumber(sKillsAbs)
+
+        if AshenMPRanking.sandboxSettings.sKills then
+            ladder.sKills[username] = tonumber(sKills)
+            ladder.sKillsAbs[username] = tonumber(sKillsAbs)
+        end
+
         ladder.deaths[username] = tonumber(deaths)
 
         line = dataFile:readLine()
@@ -165,32 +165,34 @@ end
 
 -- executed when a client(player) sends its information to the server
 local function onPlayerData(player, playerData)
-    parsedPlayers = parsedPlayers + 1;
+    parsedPlayers = parsedPlayers + 1
     if playerData.isAlive and  player:getAccessLevel() == "None" then
-        local username = playerData.username;
-        -- print("AMPRServer: Player " .. username .. " received!")
+        local username = playerData.username
         if ladder.daysSurvivedAbs[username] == nil then
-            ladder.daysSurvivedAbs[username] = playerData.daysSurvived;
-            ladder.zKillsAbs[username] = playerData.zombieKills;
-            ladder.sKillsAbs[username] = playerData.survivorKills;
+            ladder.daysSurvivedAbs[username] = playerData.daysSurvived
+            ladder.zKillsAbs[username] = playerData.zombieKills
+            if AshenMPRanking.sandboxSettings.sKills then
+                ladder.sKillsAbs[username] = playerData.survivorKills
+            end
             ladder.deaths[username] = 0
         end
 
+        ladder.daysSurvived[username] = playerData.daysSurvived
         if playerData.daysSurvived > ladder.daysSurvivedAbs[username] then
             ladder.daysSurvivedAbs[username] = playerData.daysSurvived;
         end
-
+        
+        ladder.zKills[username] = playerData.zombieKills
         if playerData.zombieKills > ladder.zKillsAbs[username] then
-            ladder.zKillsAbs[username] = playerData.zombieKills;
+            ladder.zKillsAbs[username] = playerData.zombieKills
         end
-
-        if playerData.survivorKills > ladder.sKillsAbs[username] then
-            ladder.sKillsAbs[username] = playerData.survivorKills;
+        
+        if AshenMPRanking.sandboxSettings.sKills then
+            if playerData.survivorKills > ladder.sKillsAbs[username] then
+                ladder.sKillsAbs[username] = playerData.survivorKills
+            end
+            ladder.sKills[username] = playerData.survivorKills
         end
-
-        ladder.daysSurvived[username] = playerData.daysSurvived;
-        ladder.zKills[username] = playerData.zombieKills;
-        ladder.sKills[username] = playerData.survivorKills;
     end
 
     -- sort ladders
