@@ -113,8 +113,9 @@ local function loadFromFile()
         local sKills
         local sKillsAbs
         local deaths
-        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
 
+        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
+            
         ladder.daysSurvived[username] = tonumber(daysSurvived)
         ladder.daysSurvivedAbs[username] = tonumber(daysSurvivedAbs)
 
@@ -154,8 +155,15 @@ local function SaveToFile()
         text = text .. ";" .. ladder.daysSurvivedAbs[k]
         text = text .. ";" .. ladder.zKills[k]
         text = text .. ";" .. ladder.zKillsAbs[k]
-        text = text .. ";" .. ladder.sKills[k]
-        text = text .. ";" .. ladder.sKillsAbs[k]
+        
+        if AshenMPRanking.sandboxSettings.sKills then
+            text = text .. ";" .. ladder.sKills[k]
+            text = text .. ";" .. ladder.sKillsAbs[k]
+        else
+            text = text .. ";" .. 0
+            text = text .. ";" .. 0
+        end
+
         text = text .. ";" .. ladder.deaths[k]
         counter = counter + 1
     end
