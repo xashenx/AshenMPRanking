@@ -195,8 +195,10 @@ local onLadderUpdate = function(module, command, ladder)
 
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
     if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
-
-    AshenMPRanking.mainUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
+    
+    if ladder.onlineplayers ~= nil then
+        AshenMPRanking.mainUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
+    end
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
             if k ~= "onlineplayers" then
@@ -275,11 +277,12 @@ local onServerConfig = function(module, command, sandboxSettings)
         initUI = false
     end
     Events.OnServerCommand.Add(onLadderUpdate)
+
+    Events.EveryOneMinute.Add(SendPlayerData)
 end
 
 Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
 Events.OnServerCommand.Add(onServerConfig)
 -- Events.EveryTenMinutes.Add(SendPlayerData)
-Events.EveryOneMinute.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
