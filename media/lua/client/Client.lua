@@ -75,7 +75,7 @@ local function onCreateUI()
 
     AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
     AshenMPRanking.descUI:addRichText("ladderText", "")
-    AshenMPRanking.descUI:setLineHeightPercent(0.2)
+    AshenMPRanking.descUI:setLineHeightPercent(0.3)
     AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
     AshenMPRanking.descUI:nextLine()
 
@@ -279,6 +279,7 @@ end
 
 Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
 Events.OnServerCommand.Add(onServerConfig)
-Events.EveryTenMinutes.Add(SendPlayerData)
+-- Events.EveryTenMinutes.Add(SendPlayerData)
+Events.EveryOneMinute.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
