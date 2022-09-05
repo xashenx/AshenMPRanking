@@ -91,7 +91,7 @@ local function writeToFile(ladder)
     local zombieKills = player:getZombieKills()
     local daysSurvived = player:getHoursSurvived() / 24
     -- write file
-    text = string.format('%.01f', daysSurvived) .. ' giorni';
+    text = string.format('%.01f', daysSurvived) .. ' ' .. getText("UI_days");
     local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false);
     dataFile:write(text);
     dataFile:close();
@@ -132,7 +132,12 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
     end
 
     if player_username == username then
-        items[ladder_label] = items[ladder_label] .. "<GREEN>"
+        if position > ladderLength then
+            items[ladder_label] = items[ladder_label] .. "... <LINE><GREEN>"
+        else
+            items[ladder_label] = items[ladder_label] .. "<GREEN>"
+        end
+
         if current_ranking[ladder_name] ~= nil then
             if position > current_ranking[ladder_name] then
                 onRankChange("down", ladder_label)
@@ -169,11 +174,11 @@ local onLadderUpdate = function(module, command, ladder)
     if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
 
     listUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
-    for i=1,math.min(#ladder.daysSurvivedAbs,ladderLength) do
+    for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
             if k ~= "onlineplayers" then
                 -- if the count of elements in v is greater than 0 then
-                if #v >= i then
+                if #v >= i and (i <= ladderLength or v[i][1] == username) then
                     updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
                 end
             end

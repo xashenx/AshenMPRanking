@@ -9,6 +9,7 @@ UI_EN = {
     UI_sKillsABS = "Absolute Survivor Kills",
     UI_deaths = "Deaths",
     UI_OnlinePlayers = "Online Players",
+    UI_days = "days",
     Options_receive = "receive data (writing files for streamers)",
     Options_ladderLength = "length of ladder in file (reception has to be enabled!)"
 }

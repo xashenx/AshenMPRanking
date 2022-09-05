@@ -9,6 +9,7 @@ UI_EN = {
     UI_sKillsABS = "Sopravvissuti Uccisi Assoluti",
     UI_deaths = "Morti",
     UI_OnlinePlayers = "Giocatori connessi",
+    UI_days = "giorni",
     Options_receive = "ricevi i dati (scrittura file per streamers)",
     Options_ladderLength = "lunghezza classifica nei file (la ricezione deve essere abilitata!)"
 }
