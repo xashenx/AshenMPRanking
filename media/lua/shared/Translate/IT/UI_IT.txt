@@ -11,5 +11,6 @@ UI_EN = {
     UI_OnlinePlayers = "Giocatori connessi",
     UI_days = "giorni",
     Options_receive = "ricevi i dati (scrittura file per streamers)",
-    Options_ladderLength = "lunghezza classifica nei file (la ricezione deve essere abilitata!)"
+    Options_ladderLength = "lunghezza classifica nei file (la ricezione deve essere abilitata!)",
+    Options_hotkey = "hotkey da utilizzare visualizzare/nascondere la finestra"
 }

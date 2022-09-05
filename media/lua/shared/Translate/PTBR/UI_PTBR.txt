@@ -12,4 +12,5 @@ UI_EN = {
     UI_days = "days",
     Options_receive = "receive data (writing files for streamers)",
     Options_ladderLength = "length of ladder in file (reception has to be enabled!)"
+    Options_hotkey = "hotkey used to toggle the main window"
 }

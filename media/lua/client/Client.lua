@@ -1,9 +1,12 @@
+if isServer() then return end;
 AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.sandboxSettings = {}
-if isServer() then return end;
+AshenMPRanking.textureOff = getTexture("media/textures/icon_off.png")
+AshenMPRanking.textureOn = getTexture("media/textures/icon_on.png")
+AshenMPRanking.mainUI = {}
+AshenMPRanking.descUI = {}
 
 -- getGameTime():getModData().test = getGameTime():getModData().test or {}
-local listUI, descUI
 local items = {}
 local player, username
 local ladderLength = 5
@@ -11,54 +14,74 @@ local labels = {}
 local current_ranking = {}
 
 local initUI = true
+local toolbarButton = {}
 
 local function openLadderDesc(_, item)
-    descUI:open()
-    descUI:setPositionPixel(listUI:getX() + listUI:getWidth(), listUI:getY())
-    descUI["ladderText"]:setText(item)
-    -- listUI["ladderText"]:setText(item)
+    AshenMPRanking.descUI:open()
+    AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
+    AshenMPRanking.descUI["ladderText"]:setText(item)
+    -- AshenMPRanking.mainUI["ladderText"]:setText(item)
 end
-    
+
+local function showWindowToolbar()
+    if AshenMPRanking.mainUI and AshenMPRanking.mainUI:getIsVisible() then
+        AshenMPRanking.mainUI:close()
+        toolbarButton:setImage(AshenMPRanking.textureOff)
+    else
+        AshenMPRanking.mainUI:open()
+        toolbarButton:setImage(AshenMPRanking.textureOn)
+    end
+end
+
 local function onCreateUI()
     player = getSpecificPlayer(0)
     username = player:getUsername()
 
+	toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
+	toolbarButton:setImage(AshenMPRanking.textureOff)
+	toolbarButton:setDisplayBackground(false)
+	toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
+
+	ISEquippedItem.instance:addChild(toolbarButton)
+	ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
+
     -- List UI
-    listUI = NewUI() -- Create UI
-    -- listUI:setTitle(getText("UI_MainWTitle"))
-    listUI:setTitle(AshenMPRanking.sandboxSettings.mainUiTitle)
-    -- listUI:setWidthPercent(0.1)
-    listUI:setWidthPixel(250)
-    listUI:setKeyMN(157)
-    listUI:setBorderToAllElements(true)
-    listUI:addText("onlinePlayers", "", "", "Center")
-    listUI:nextLine()
-    listUI:addScrollList("list", items); -- Create list
-    listUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
-    -- listUI:addEmpty(_, _, _, 10); -- Margin only for rich text
-    -- listUI:addRichText("ladderText", "")
-    -- listUI:setLineHeightPercent(0.2)
-    -- listUI:addEmpty(_, _, _, 10); -- Margin only for rich text
-    -- listUI:nextLine()
-    listUI:saveLayout() -- Create window
-    listUI:setPositionPercent(0.1, 0.1)
+    AshenMPRanking.mainUI = NewUI() -- Create UI
+    -- AshenMPRanking.mainUI:setTitle(getText("UI_MainWTitle"))
+    AshenMPRanking.mainUI:setTitle(AshenMPRanking.sandboxSettings.mainUiTitle)
+    -- AshenMPRanking.mainUI:setWidthPercent(0.1)
+    AshenMPRanking.mainUI:setWidthPixel(250)
+    AshenMPRanking.mainUI:setKeyMN(157)
+    AshenMPRanking.mainUI:setBorderToAllElements(true)
+    AshenMPRanking.mainUI:addText("onlinePlayers", "", "", "Center")
+    AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
+    AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
+    -- AshenMPRanking.mainUI:addEmpty(_, _, _, 10); -- Margin only for rich text
+    -- AshenMPRanking.mainUI:addRichText("ladderText", "")
+    -- AshenMPRanking.mainUI:setLineHeightPercent(0.2)
+    -- AshenMPRanking.mainUI:addEmpty(_, _, _, 10); -- Margin only for rich text
+    -- AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:saveLayout() -- Create window
+    AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
+    AshenMPRanking.mainUI:close()
 
     -- Description UI
-    descUI = NewUI()
-    descUI:setTitle(getText("UI_LadderTitle"))
-    descUI:isSubUIOf(listUI)
-    -- descUI:setWidthPercent(0.1)
-    descUI:setWidthPixel(250)
+    AshenMPRanking.descUI = NewUI()
+    AshenMPRanking.descUI:setTitle(getText("UI_LadderTitle"))
+    AshenMPRanking.descUI:isSubUIOf(AshenMPRanking.mainUI)
+    -- AshenMPRanking.descUI:setWidthPercent(0.1)
+    AshenMPRanking.descUI:setWidthPixel(250)
 
-    descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
-    descUI:addRichText("ladderText", "")
-    descUI:setLineHeightPercent(0.2)
-    descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
-    descUI:nextLine()
+    AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
+    AshenMPRanking.descUI:addRichText("ladderText", "")
+    AshenMPRanking.descUI:setLineHeightPercent(0.2)
+    AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
+    AshenMPRanking.descUI:nextLine()
 
-    -- descUI:addButton("b1", "Accept ?", choose);
-    descUI:saveLayout()
-    descUI:close()
+    -- AshenMPRanking.descUI:addButton("b1", "Accept ?", choose);
+    AshenMPRanking.descUI:saveLayout()
+    AshenMPRanking.descUI:close()
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -173,7 +196,7 @@ local onLadderUpdate = function(module, command, ladder)
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
     if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
 
-    listUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
+    AshenMPRanking.mainUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
             if k ~= "onlineplayers" then
@@ -185,7 +208,7 @@ local onLadderUpdate = function(module, command, ladder)
         end
     end
 
-    listUI["list"]:setItems(items)
+    AshenMPRanking.mainUI["list"]:setItems(items)
 
     if AshenMPRanking.Options.receiveData then
         writeToFile(ladder)
