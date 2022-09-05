@@ -9,39 +9,12 @@ local ladder = {};
 local oLadder = {};
 local streamers = {}
 local configs = {}
+local lastUpdate = {}
 
 -- function fetchSandboxVars()
 AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
     AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
-end
-
-local function initServer()
-    AshenMPRanking.server.fetchSandboxVars()
-
-    ladder.daysSurvived = {}
-    oLadder.daysSurvived = {}
-
-    ladder.daysSurvivedAbs = {}
-    oLadder.daysSurvivedAbs = {}
-
-    ladder.zKills = {}
-    oLadder.zKills = {}
-
-    ladder.zKillsAbs = {}
-    oLadder.zKillsAbs = {}
-
-    if AshenMPRanking.sandboxSettings.sKills then
-        ladder.sKills = {}
-        oLadder.sKills = {}
-        ladder.sKillsAbs = {}
-        oLadder.sKillsAbs = {}
-    end
-
-    ladder.deaths = {}
-    oLadder.deaths = {}
-
-    AshenMPRanking.sandboxSettings.server_name = getServerName()
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -113,23 +86,40 @@ local function loadFromFile()
         local sKills
         local sKillsAbs
         local deaths
+        local updated
 
-        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
-            
-        ladder.daysSurvived[username] = tonumber(daysSurvived)
-        ladder.daysSurvivedAbs[username] = tonumber(daysSurvivedAbs)
-
-        ladder.zKills[username] = tonumber(zKills)
-        ladder.zKillsAbs[username] = tonumber(zKillsAbs)
-
-        if AshenMPRanking.sandboxSettings.sKills then
-            ladder.sKills[username] = tonumber(sKills)
-            ladder.sKillsAbs[username] = tonumber(sKillsAbs)
+        -- username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
+        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
+        if username == nil then
+            username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
+        end
+        line = dataFile:readLine()
+        
+        if updated ~= nil then
+            lastUpdate[username] = tonumber(updated)
+            diff = os.difftime(os.time(), lastUpdate[username]) / (24 * 60 * 60)
+        else
+            lastUpdate[username] = os.time()
+            diff = 0
         end
 
-        ladder.deaths[username] = tonumber(deaths)
+        -- print('diff: ' .. diff)
+        -- print('time ' .. os.time())
+        if diff < 1 then
+            ladder.daysSurvived[username] = tonumber(daysSurvived)
+            ladder.daysSurvivedAbs[username] = tonumber(daysSurvivedAbs)
 
-        line = dataFile:readLine()
+            ladder.zKills[username] = tonumber(zKills)
+            ladder.zKillsAbs[username] = tonumber(zKillsAbs)
+
+            if AshenMPRanking.sandboxSettings.sKills then
+                ladder.sKills[username] = tonumber(sKills)
+                ladder.sKillsAbs[username] = tonumber(sKillsAbs)
+            end
+
+            ladder.deaths[username] = tonumber(deaths)
+        end
+
     end
     dataFile:close();
 
@@ -145,6 +135,7 @@ local function SaveToFile()
     text = ""
     local counter = 0
     for k,v in pairs(ladder.daysSurvived) do
+        print('scrivo ' .. k)
         if counter ~= 0 then
             text = text .. "\n" .. k
         else
@@ -165,10 +156,41 @@ local function SaveToFile()
         end
 
         text = text .. ";" .. ladder.deaths[k]
+        text = text .. ";" .. lastUpdate[k]
         counter = counter + 1
     end
     dataFile:write(text);
     dataFile:close();
+end
+
+local function initServer()
+    AshenMPRanking.server.fetchSandboxVars()
+
+    ladder.daysSurvived = {}
+    oLadder.daysSurvived = {}
+
+    ladder.daysSurvivedAbs = {}
+    oLadder.daysSurvivedAbs = {}
+
+    ladder.zKills = {}
+    oLadder.zKills = {}
+
+    ladder.zKillsAbs = {}
+    oLadder.zKillsAbs = {}
+
+    if AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills = {}
+        oLadder.sKills = {}
+        ladder.sKillsAbs = {}
+        oLadder.sKillsAbs = {}
+    end
+
+    ladder.deaths = {}
+    oLadder.deaths = {}
+
+    AshenMPRanking.sandboxSettings.server_name = getServerName()
+
+    loadFromFile()
 end
 
 -- executed when a client(player) sends its information to the server
@@ -201,13 +223,15 @@ local function onPlayerData(player, playerData)
             end
             ladder.sKills[username] = playerData.survivorKills
         end
-    end
 
-    -- sort ladders
+        lastUpdate[username] = os.time()
+    end
+    
+    -- sort laddersq
     sort_ladders()
 
     -- send the update when data are received from all clients
-    if parsedPlayers == getOnlinePlayers():size() then
+    if parsedPlayers >= getOnlinePlayers():size() then
         oLadder.onlineplayers = tostring(parsedPlayers)
         sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
         SaveToFile()
@@ -291,6 +315,5 @@ function file_exists(file)
 end
 
 Events.OnServerStarted.Add(initServer);
-Events.OnServerStarted.Add(loadFromFile)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnClientCommand.Add(clientCommandDispatcher)
