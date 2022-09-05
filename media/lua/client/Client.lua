@@ -161,7 +161,7 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
             items[ladder_label] = items[ladder_label] .. "<GREEN>"
         end
 
-        if current_ranking[ladder_name] ~= nil then
+        if current_ranking[ladder_name] ~= nil and value > 0 then
             if position > current_ranking[ladder_name] then
                 onRankChange("down", ladder_label)
             elseif position < current_ranking[ladder_name] then
