@@ -2,3 +2,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking = "Ashen MP Ranking",
 	Sandbox_AshenMPRanking_MainUiTitle = "Titolo della UI principale",
 	Sandbox_AshenMPRanking_sKills = "Abilita Classifica Sopravvissuti Uccisi",
+	Sandbox_AshenMPRanking_inactivityPurgeTime = "Tempo in giorni per il purge delle classifiche",
+}

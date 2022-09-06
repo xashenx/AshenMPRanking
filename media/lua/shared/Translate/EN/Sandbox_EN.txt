@@ -2,4 +2,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking = "Ashen MP Ranking",
 	Sandbox_AshenMPRanking_MainUiTitle = "Main UI Windows Title",
 	Sandbox_AshenMPRanking_sKills = "Enable Survivor Kills  Ladder",
+	Sandbox_AshenMPRanking_inactivityPurgeTime = "Time in days to purge the ladders (inactivity)",
 }

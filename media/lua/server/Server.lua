@@ -15,6 +15,7 @@ local lastUpdate = {}
 AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
     AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
+    AshenMPRanking.sandboxSettings.inactivityPurgeTime = SandboxVars.AshenMPRanking.inactivityPurgeTime
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -94,18 +95,17 @@ local function loadFromFile()
             username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
         end
         line = dataFile:readLine()
-        
+
         if updated ~= nil then
             lastUpdate[username] = tonumber(updated)
             diff = os.difftime(os.time(), lastUpdate[username]) / (24 * 60 * 60)
         else
+            -- TODO remove this part when this version become stable
             lastUpdate[username] = os.time()
             diff = 0
         end
 
-        -- print('diff: ' .. diff)
-        -- print('time ' .. os.time())
-        if diff < 1 then
+        if diff < AshenMPRanking.sandboxSettings.inactivityPurgeTime then
             ladder.daysSurvived[username] = tonumber(daysSurvived)
             ladder.daysSurvivedAbs[username] = tonumber(daysSurvivedAbs)
 
@@ -118,6 +118,9 @@ local function loadFromFile()
             end
 
             ladder.deaths[username] = tonumber(deaths)
+        else
+            -- dropping player for inactiviti, printing in log
+            print("dropping player " .. username .. " for inactivity")
         end
 
     end
@@ -135,7 +138,7 @@ local function SaveToFile()
     text = ""
     local counter = 0
     for k,v in pairs(ladder.daysSurvived) do
-        print('scrivo ' .. k)
+        -- print('scrivo ' .. k)
         if counter ~= 0 then
             text = text .. "\n" .. k
         else
@@ -227,11 +230,11 @@ local function onPlayerData(player, playerData)
         lastUpdate[username] = os.time()
     end
     
-    -- sort laddersq
-    sort_ladders()
-
     -- send the update when data are received from all clients
     if parsedPlayers >= getOnlinePlayers():size() then
+        -- sort ladders
+        sort_ladders()
+
         oLadder.onlineplayers = tostring(parsedPlayers)
         sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
         SaveToFile()
@@ -246,8 +249,12 @@ local function getServerConfig(player)
 end
 
 local function onPlayerDeathReset(player)
-    username = player:getUsername();
-    ladder.deaths[username] = ladder.deaths[username] + 1
+    username = player:getUsername()
+    if ladder.deaths[username] == nil then
+        ladder.deaths[username] = 1
+    else
+        ladder.deaths[username] = ladder.deaths[username] + 1
+    end
     ladder.daysSurvivedAbs[username] = 0
     ladder.zKills[username] = 0
     ladder.sKills[username] = 0

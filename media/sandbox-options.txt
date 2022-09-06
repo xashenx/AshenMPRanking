@@ -3,11 +3,26 @@ VERSION = 1,
 
 option AshenMPRanking.mainUiTitle
 {
-	type = string, default = Ranking,
-	page = AshenMPRanking, translation = AshenMPRanking_MainUiTitle,
+	type = string, 
+	default = Ranking,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_MainUiTitle,
 }
+
 option AshenMPRanking.sKills
 {
-	type = boolean, default = true,
-	page = AshenMPRanking, translation = AshenMPRanking_sKills,
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_sKills,
+}
+
+option AshenMPRanking.inactivityPurgeTime
+{
+	type = integer, 
+	min = 7, 
+	max = 365,	
+	default = 15,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_inactivityPurgeTime,
 }
