@@ -3,4 +3,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_MainUiTitle = "Main UI Windows Title",
 	Sandbox_AshenMPRanking_sKills = "Enable Survivor Kills  Ladder",
 	Sandbox_AshenMPRanking_inactivityPurgeTime = "Time in days to purge the ladders (inactivity)",
+	Sandbox_AshenMPRanking_periodicTick = "Refresh rate from client (1m,10m,1h,1g)",
 }

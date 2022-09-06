@@ -16,6 +16,7 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
     AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
     AshenMPRanking.sandboxSettings.inactivityPurgeTime = SandboxVars.AshenMPRanking.inactivityPurgeTime
+    AshenMPRanking.sandboxSettings.periodicTick = SandboxVars.AshenMPRanking.periodicTick
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -244,8 +245,8 @@ local function onPlayerData(player, playerData)
 end
 
 local function getServerConfig(player)
-    sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings);
-    sendServerCommand(player, "AshenMPRanking", "LadderUpdate", oLadder);
+    sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
+    sendServerCommand(player, "AshenMPRanking", "LadderUpdate", oLadder)
 end
 
 local function onPlayerDeathReset(player)

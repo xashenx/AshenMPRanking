@@ -26,3 +26,13 @@ option AshenMPRanking.inactivityPurgeTime
 	page = AshenMPRanking, 
 	translation = AshenMPRanking_inactivityPurgeTime,
 }
+
+option AshenMPRanking.periodicTick
+{
+	type = integer, 
+	min = 1, 
+	max = 4,	
+	default = 2,
+	page = AshenMPRanking,
+	translation = AshenMPRanking_periodicTick,
+}

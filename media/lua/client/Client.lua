@@ -280,9 +280,18 @@ local onServerConfig = function(module, command, sandboxSettings)
     if initUI then
         onCreateUI()
         initUI = false
+        Events.OnServerCommand.Add(onLadderUpdate)
+    
+        if AshenMPRanking.sandboxSettings.periodicTick == 1 then
+            Events.EveryOneMinute.Add(SendPlayerData)
+        elseif AshenMPRanking.sandboxSettings.periodicTick == 2 then
+            Events.EveryTenMinutes.Add(SendPlayerData)
+        elseif AshenMPRanking.sandboxSettings.periodicTick == 3 then
+            Events.EveryHours.Add(SendPlayerData)
+        elseif AshenMPRanking.sandboxSettings.periodicTick == 4 then
+            Events.EveryDays.Add(SendPlayerData)
+        end
     end
-    Events.OnServerCommand.Add(onLadderUpdate)
-    Events.EveryOneMinute.Add(SendPlayerData)
 end
 
 local function testEvent()
