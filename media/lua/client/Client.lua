@@ -16,6 +16,10 @@ local current_ranking = {}
 local initUI = true
 local toolbarButton = {}
 
+-- player stats
+local zombieKills = 0
+local daysSurvived = 0
+
 local function openLadderDesc(_, item)
     AshenMPRanking.descUI:open()
     AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
@@ -44,6 +48,16 @@ local function createToolbarButton()
 	ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
 end
 
+local function refreshSelfSurvived()
+    daysSurvived = player:getHoursSurvived() / 24
+    AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived .. " " .. getText("UI_days"))
+end
+
+local function refreshSelfKills()
+    zombieKills = player:getZombieKills()
+    AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+end
+
 local function onCreateUI()
     player = getSpecificPlayer(0)
     username = player:getUsername()
@@ -58,6 +72,11 @@ local function onCreateUI()
     AshenMPRanking.mainUI:setBorderToAllElements(true)
     AshenMPRanking.mainUI:addText("onlinePlayers", "", "", "Center")
     AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addText("lastupdate", "", "", "Center")
+    AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addText("self_survive", "", "", "Center")
+    AshenMPRanking.mainUI:addText("self_zkills", "", "", "Center")
+    AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
     -- AshenMPRanking.mainUI:addEmpty(_, _, _, 10); -- Margin only for rich text
@@ -68,25 +87,30 @@ local function onCreateUI()
     AshenMPRanking.mainUI:saveLayout() -- Create window
     AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
     AshenMPRanking.mainUI:close()
-
+    
     -- Description UI
     AshenMPRanking.descUI = NewUI()
     AshenMPRanking.descUI:setTitle(getText("UI_LadderTitle"))
     AshenMPRanking.descUI:isSubUIOf(AshenMPRanking.mainUI)
     -- AshenMPRanking.descUI:setWidthPercent(0.1)
     AshenMPRanking.descUI:setWidthPixel(250)
-
+    
     AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
     AshenMPRanking.descUI:addRichText("ladderText", "")
     AshenMPRanking.descUI:setLineHeightPercent(0.3)
     AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
     AshenMPRanking.descUI:nextLine()
-
+    
     -- AshenMPRanking.descUI:addButton("b1", "Accept ?", choose);
     AshenMPRanking.descUI:saveLayout()
     AshenMPRanking.descUI:close()
-
+    
+    -- creating toolbar button
     createToolbarButton()
+    -- starting refreshing self stats
+    refreshSelfSurvived()
+    Events.EveryHours.Add(refreshSelfSurvived)
+    Events.OnPlayerUpdate.Add(refreshSelfKills)
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -116,8 +140,6 @@ local function writeLadder(ladder, label, ladder_name)
 end
 
 local function writeToFile(ladder)
-    local zombieKills = player:getZombieKills()
-    local daysSurvived = player:getHoursSurvived() / 24
     -- write file
     text = string.format('%.01f', daysSurvived) .. ' ' .. getText("UI_days");
     local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false);
@@ -185,12 +207,15 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
     if player_username == username then
         items[ladder_label] = items[ladder_label] .. " <RGB:1,1,1>"
     end
+    
 end
 
-local onLadderUpdate = function(module, command, ladder)
+local onLadderUpdate = function(module, command, args)
     if module ~= "AshenMPRanking"  or command ~= "LadderUpdate" then
         return
     end
+
+    local ladder = args.ladder
 
     for k,v in pairs(ladder) do
         if k ~= "onlineplayers" then
@@ -201,8 +226,9 @@ local onLadderUpdate = function(module, command, ladder)
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
     if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
     
-    if ladder.onlineplayers ~= nil then
-        AshenMPRanking.mainUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. ladder.onlineplayers)
+    if args.onlineplayers ~= nil then
+        AshenMPRanking.mainUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. args.onlineplayers)
+        AshenMPRanking.mainUI["lastupdate"]:setText(getText("UI_LastUpdate") .. ": " .. os.date('%H:%M'))
     end
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
@@ -294,13 +320,9 @@ local onServerConfig = function(module, command, sandboxSettings)
     end
 end
 
-local function testEvent()
-    createToolbarButton()
-end
-
 Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
 Events.OnServerCommand.Add(onServerConfig)
 -- Events.EveryTenMinutes.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
-Events.OnCreatePlayer.Add(testEvent)
+Events.OnCreatePlayer.Add(createToolbarButton)

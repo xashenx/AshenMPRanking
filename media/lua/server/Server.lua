@@ -10,6 +10,7 @@ local oLadder = {};
 local streamers = {}
 local configs = {}
 local lastUpdate = {}
+local miscellaneous = {}
 
 -- function fetchSandboxVars()
 AshenMPRanking.server.fetchSandboxVars = function()
@@ -236,8 +237,11 @@ local function onPlayerData(player, playerData)
         -- sort ladders
         sort_ladders()
 
-        oLadder.onlineplayers = tostring(parsedPlayers)
-        sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
+        miscellaneous.onlineplayers = tostring(parsedPlayers)
+        local args = {}
+        args.onlineplayers = miscellaneous.onlineplayers
+        args.ladder = oLadder
+        sendServerCommand("AshenMPRanking", "LadderUpdate", args);
         SaveToFile()
         -- reset parsedPlayersCounter
         parsedPlayers = 0;
@@ -245,8 +249,12 @@ local function onPlayerData(player, playerData)
 end
 
 local function getServerConfig(player)
+    local args = {}
+    args.onlineplayers = miscellaneous.onlineplayers
+    args.ladder = oLadder
+
     sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
-    sendServerCommand(player, "AshenMPRanking", "LadderUpdate", oLadder)
+    sendServerCommand(player, "AshenMPRanking", "LadderUpdate", args)
 end
 
 local function onPlayerDeathReset(player)
@@ -276,7 +284,7 @@ local clientCommandDispatcher = function(module, command, player, args)
 end
 
 local function updateLadder()
-    ladder.onlineplayers = getOnlinePlayers():size();
+    miscellaneous.onlineplayers = getOnlinePlayers():size();
     for i=0, getOnlinePlayers():size()-1 do
         local current_player = getOnlinePlayers():get(i);
         username = current_player:getUsername();
@@ -311,8 +319,11 @@ local function updateLadder()
         end
     end
 
+    local args = {}
+    args.onlineplayers = miscellaneous.onlineplayers
+    args.ladder = oLadder
     -- send the ladder update to clients
-    sendServerCommand("AshenMPRanking", "LadderUpdate", oLadder);
+    sendServerCommand("AshenMPRanking", "LadderUpdate", args);
 end
 
 -- see if the file exists
