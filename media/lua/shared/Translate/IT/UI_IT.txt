@@ -12,6 +12,7 @@ UI_EN = {
     UI_LastUpdate = "Ultimo aggiornamento",
     UI_Self_Survived = "Sopravvissuto",
     UI_Self_Zkills = "Z Uccisi",
+    UI_LaddersLabel = "Classifiche",
     UI_days = "giorni",
     UI_Options_receive = "Ricevi i dati",
     UI_Options_receive_tooltip = "Scrittura file per streamers",

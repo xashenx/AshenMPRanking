@@ -50,6 +50,7 @@ end
 
 local function refreshSelfSurvived()
     daysSurvived = player:getHoursSurvived() / 24
+    daysSurvived = string.format("%.1f", daysSurvived)
     AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived .. " " .. getText("UI_days"))
 end
 
@@ -69,13 +70,17 @@ local function onCreateUI()
     -- AshenMPRanking.mainUI:setWidthPercent(0.1)
     AshenMPRanking.mainUI:setWidthPixel(250)
     AshenMPRanking.mainUI:setKeyMN(157)
-    AshenMPRanking.mainUI:setBorderToAllElements(true)
+    AshenMPRanking.mainUI:addText("self_survive", "", "", "Center")
+    AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addText("self_zkills", "", "", "Center")
+    AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addText("onlinePlayers", "", "", "Center")
     AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addText("lastupdate", "", "", "Center")
     AshenMPRanking.mainUI:nextLine()
-    AshenMPRanking.mainUI:addText("self_survive", "", "", "Center")
-    AshenMPRanking.mainUI:addText("self_zkills", "", "", "Center")
+    AshenMPRanking.mainUI:addText("LaddersLabel", getText("UI_LaddersLabel"), "Large", "Center")
+    AshenMPRanking.mainUI["LaddersLabel"]:setColor(1, 1, 0, 0)
+    AshenMPRanking.mainUI:setLineHeightPixel(40)
     AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
@@ -86,6 +91,7 @@ local function onCreateUI()
     -- AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:saveLayout() -- Create window
     AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
+    AshenMPRanking.mainUI:setBorderToAllElements(true)
     AshenMPRanking.mainUI:close()
     
     -- Description UI
@@ -161,9 +167,10 @@ local function writeToFile(ladder)
 
     -- write ladders
     for k,v in pairs(ladder) do
-        if k ~= "onlineplayers" then
-            writeLadder(v, labels[k], k)
-        end
+        -- if k ~= "onlineplayers" then
+        --     writeLadder(v, labels[k], k)
+        -- end
+        writeLadder(v, labels[k], k)
     end
 end
 
@@ -218,9 +225,10 @@ local onLadderUpdate = function(module, command, args)
     local ladder = args.ladder
 
     for k,v in pairs(ladder) do
-        if k ~= "onlineplayers" then
-            items[labels[k]] = labels[k] .. " <LINE><LINE>"
-        end
+        -- if k ~= "onlineplayers" then
+        --     items[labels[k]] = labels[k] .. " <LINE><LINE>"
+        -- end
+        items[labels[k]] = labels[k] .. " <LINE><LINE>"
     end
 
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
@@ -232,11 +240,14 @@ local onLadderUpdate = function(module, command, args)
     end
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
-            if k ~= "onlineplayers" then
-                -- if the count of elements in v is greater than 0 then
-                if #v >= i and (i <= ladderLength or v[i][1] == username) then
-                    updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
-                end
+            -- if k ~= "onlineplayers" then
+            --     -- if the count of elements in v is greater than 0 then
+            --     if #v >= i and (i <= ladderLength or v[i][1] == username) then
+            --         updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
+            --     end
+            -- end
+            if #v >= i and (i <= ladderLength or v[i][1] == username) then
+                updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
             end
         end
     end
