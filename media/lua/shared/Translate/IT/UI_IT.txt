@@ -16,4 +16,6 @@ UI_EN = {
     UI_Options_ladderLength_tooltip = "Sia per la UI che per la scrittura su file",
     UI_Options_hotkey = "Hotkey da utilizzare visualizzare/nascondere la finestra",
     UI_Options_hotkey_tooltip = "Default CTRL sinistro"
+    UI_Options_iconHeight = "Hotkey da utilizzare visualizzare/nascondere la finestra",
+    UI_Options_iconHeight_tooltip = "Default CTRL sinistro"
 }

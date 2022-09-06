@@ -33,10 +33,8 @@ local function showWindowToolbar()
     end
 end
 
-local function onCreateUI()
-    player = getSpecificPlayer(0)
-    username = player:getUsername()
-
+local function createToolbarButton()
+    toolbarButton = {}
 	toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
 	toolbarButton:setImage(AshenMPRanking.textureOff)
 	toolbarButton:setDisplayBackground(false)
@@ -44,6 +42,11 @@ local function onCreateUI()
 
 	ISEquippedItem.instance:addChild(toolbarButton)
 	ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
+end
+
+local function onCreateUI()
+    player = getSpecificPlayer(0)
+    username = player:getUsername()
 
     -- List UI
     AshenMPRanking.mainUI = NewUI() -- Create UI
@@ -82,6 +85,8 @@ local function onCreateUI()
     -- AshenMPRanking.descUI:addButton("b1", "Accept ?", choose);
     AshenMPRanking.descUI:saveLayout()
     AshenMPRanking.descUI:close()
+
+    createToolbarButton()
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -105,7 +110,7 @@ local function writeLadder(ladder, label, ladder_name)
         end
     end
 
-    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/" .. ladder_name .. ".txt", true, false);
+    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/" .. ladder_name .. ".txt", true, false)
     dataFile:write(text);
     dataFile:close();
 end
@@ -277,8 +282,11 @@ local onServerConfig = function(module, command, sandboxSettings)
         initUI = false
     end
     Events.OnServerCommand.Add(onLadderUpdate)
-
     Events.EveryOneMinute.Add(SendPlayerData)
+end
+
+local function testEvent()
+    createToolbarButton()
 end
 
 Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
@@ -286,3 +294,4 @@ Events.OnServerCommand.Add(onServerConfig)
 -- Events.EveryTenMinutes.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
+Events.OnCreatePlayer.Add(testEvent)
