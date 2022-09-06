@@ -49,7 +49,8 @@ if ModOptions and ModOptions.getInstance then
     local SETTINGS = {
         options_data = {
             receiveData = {
-                name = getText("Options_receive"),
+                name = "UI_Options_receive",
+                tooltip = "UI_Options_receive_tooltip",
                 default = false,
                 OnApplyMainMenu = onModOptionsApply,
                 OnApplyInGame = onModOptionApplyInGame,
@@ -57,7 +58,8 @@ if ModOptions and ModOptions.getInstance then
             ladderLength = {
                 "3", "5", "10",
                 
-                name = getText("Options_ladderLength"),
+                name = "UI_Options_ladderLength",
+                tooltip = "UI_Options_ladderLength_tooltip",
                 default = 2,
                 OnApplyMainMenu = onModOptionsApply,
                 OnApplyInGame = onModOptionApplyInGame,
@@ -65,7 +67,8 @@ if ModOptions and ModOptions.getInstance then
             hotkey = {
                 "L-CTRL", "L-ALT", "R-CTRL", "R-ALT", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "INSERT", "DELETE", "HOME", "END",
     
-                name = getText("Options_hotkey"),
+                name = "UI_Options_hotkey",
+                tooltip = "UI_Options_hotkey_tooltip",
                 default = 2,
                 OnApplyMainMenu = onModOptionsApply,
                 OnApplyInGame = onModOptionApplyInGame,
