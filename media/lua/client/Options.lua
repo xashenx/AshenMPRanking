@@ -3,6 +3,8 @@ AshenMPRanking.Options = AshenMPRanking.Options or {}
 
 AshenMPRanking.Options.receiveData = false
 AshenMPRanking.Options.ladderLength = 2
+AshenMPRanking.Options.Fn = {}
+
 
 if ModOptions and ModOptions.getInstance then
     local function getHotkeyValue(hotkey)
@@ -28,21 +30,26 @@ if ModOptions and ModOptions.getInstance then
             199, -- Home
             207, -- End
         }
-        print('imposto hotkey', hotkey, hotkey_array[hotkey])
         return hotkey_array[hotkey]
     end
-
+    
+    local function getTimezoneValue(index)
+        tz = {"-12", "-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0", "+1","+2","+3","+4","+5","+6","+7","+8","+9","+10","+11","+12"}
+        return tonumber(tz[index])
+    end
 
     local function onModOptionsApply(optionValues)
         AshenMPRanking.Options.receiveData = optionValues.settings.options.receiveData
         AshenMPRanking.Options.ladderLength = optionValues.settings.options.ladderLength
         AshenMPRanking.Options.hotkey = getHotkeyValue(optionValues.settings.options.hotkey)
+        AshenMPRanking.Options.timezone = getTimezoneValue(optionValues.settings.options.timezone)
     end
 
     local function onModOptionApplyInGame(optionValues)
         AshenMPRanking.Options.receiveData = optionValues.settings.options.receiveData
         AshenMPRanking.Options.ladderLength = optionValues.settings.options.ladderLength
         AshenMPRanking.Options.hotkey = getHotkeyValue(optionValues.settings.options.hotkey)
+        AshenMPRanking.Options.timezone = getTimezoneValue(optionValues.settings.options.timezone)
         AshenMPRanking.mainUI:setKeyMN(AshenMPRanking.Options.hotkey)
     end
 
@@ -70,6 +77,15 @@ if ModOptions and ModOptions.getInstance then
                 name = "UI_Options_hotkey",
                 tooltip = "UI_Options_hotkey_tooltip",
                 default = 2,
+                OnApplyMainMenu = onModOptionsApply,
+                OnApplyInGame = onModOptionApplyInGame,
+            },
+            timezone = {
+                "-12", "-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "+10", "+11", "+12",
+                
+                name = "UI_Options_timezone",
+                tooltip = "UI_Options_timezone_tooltip",
+                default = 13,
                 OnApplyMainMenu = onModOptionsApply,
                 OnApplyInGame = onModOptionApplyInGame,
             },

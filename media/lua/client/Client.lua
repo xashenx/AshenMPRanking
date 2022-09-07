@@ -235,8 +235,13 @@ local onLadderUpdate = function(module, command, args)
     if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
     
     if args.onlineplayers ~= nil then
+        local hour = tonumber(os.date('%H'))
+        -- setting hour with timezone setting
+        hour = (hour + AshenMPRanking.Options.timezone) % 24
+        hour = string.format("%02d", hour)
+        local time = hour .. ":" .. os.date('%M')
         AshenMPRanking.mainUI["onlinePlayers"]:setText(getText("UI_OnlinePlayers") .. ": " .. args.onlineplayers)
-        AshenMPRanking.mainUI["lastupdate"]:setText(getText("UI_LastUpdate") .. ": " .. os.date('%H:%M'))
+        AshenMPRanking.mainUI["lastupdate"]:setText(getText("UI_LastUpdate") .. ": " .. time)
     end
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do

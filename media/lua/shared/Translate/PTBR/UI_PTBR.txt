@@ -19,5 +19,9 @@ UI_EN = {
     UI_Options_ladderLength = "Length of ladder in file",
     UI_Options_ladderLength_tooltip = "Both for UI and streamers' files",
     UI_Options_hotkey = "Hotkey used to toggle the main window",
-    UI_Options_hotkey_tooltip = "Default key left CTRL"
+    UI_Options_hotkey_tooltip = "Default key left CTRL",
+    UI_Options_iconHeight = "Height of the button in the game windows", 
+    UI_Options_iconHeight_tooltip = "To fix overlapping with other buttons",
+    UI_Options_timezone = "Your timezone",
+    UI_Options_timezone_tooltip = "Used to set the right time for the last update",
 }
