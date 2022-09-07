@@ -167,9 +167,6 @@ local function writeToFile(ladder)
 
     -- write ladders
     for k,v in pairs(ladder) do
-        -- if k ~= "onlineplayers" then
-        --     writeLadder(v, labels[k], k)
-        -- end
         writeLadder(v, labels[k], k)
     end
 end
@@ -225,9 +222,7 @@ local onLadderUpdate = function(module, command, args)
     local ladder = args.ladder
 
     for k,v in pairs(ladder) do
-        -- if k ~= "onlineplayers" then
-        --     items[labels[k]] = labels[k] .. " <LINE><LINE>"
-        -- end
+
         items[labels[k]] = labels[k] .. " <LINE><LINE>"
     end
 
@@ -245,12 +240,6 @@ local onLadderUpdate = function(module, command, args)
     end
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
-            -- if k ~= "onlineplayers" then
-            --     -- if the count of elements in v is greater than 0 then
-            --     if #v >= i and (i <= ladderLength or v[i][1] == username) then
-            --         updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
-            --     end
-            -- end
             if #v >= i and (i <= ladderLength or v[i][1] == username) then
                 updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
             end
