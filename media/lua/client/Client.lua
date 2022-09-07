@@ -192,7 +192,7 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
             items[ladder_label] = items[ladder_label] .. "<GREEN>"
         end
 
-        if current_ranking[ladder_name] ~= nil and value > 0 then
+        if current_ranking[ladder_name] ~= nil and value > 0 and position <= ladderLength then
             if position > current_ranking[ladder_name] then
                 onRankChange("down", ladder_label)
             elseif position < current_ranking[ladder_name] then
@@ -329,6 +329,6 @@ end
 Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
 Events.OnServerCommand.Add(onServerConfig)
 -- Events.EveryTenMinutes.Add(SendPlayerData)
-Events.OnPlayerDeath.Add(SendPlayerData)
+-- Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnCreatePlayer.Add(onCharReset)
