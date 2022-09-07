@@ -63,7 +63,7 @@ if ModOptions and ModOptions.getInstance then
                 OnApplyInGame = onModOptionApplyInGame,
             },
             ladderLength = {
-                "3", "5", "10",
+                "3", "5", "10", "15",
                 
                 name = "UI_Options_ladderLength",
                 tooltip = "UI_Options_ladderLength_tooltip",
