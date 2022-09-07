@@ -38,16 +38,21 @@ if ModOptions and ModOptions.getInstance then
         return tonumber(tz[index])
     end
 
+    local function getLadderLengthValue(index)
+        length_values = {3, 5, 10, 15}
+        return length_values[index]
+    end
+
     local function onModOptionsApply(optionValues)
         AshenMPRanking.Options.receiveData = optionValues.settings.options.receiveData
-        AshenMPRanking.Options.ladderLength = optionValues.settings.options.ladderLength
+        AshenMPRanking.Options.ladderLength = getLadderLengthValue(optionValues.settings.options.ladderLength)
         AshenMPRanking.Options.hotkey = getHotkeyValue(optionValues.settings.options.hotkey)
         AshenMPRanking.Options.timezone = getTimezoneValue(optionValues.settings.options.timezone)
     end
 
     local function onModOptionApplyInGame(optionValues)
         AshenMPRanking.Options.receiveData = optionValues.settings.options.receiveData
-        AshenMPRanking.Options.ladderLength = optionValues.settings.options.ladderLength
+        AshenMPRanking.Options.ladderLength = getLadderLengthValue(optionValues.settings.options.ladderLength)
         AshenMPRanking.Options.hotkey = getHotkeyValue(optionValues.settings.options.hotkey)
         AshenMPRanking.Options.timezone = getTimezoneValue(optionValues.settings.options.timezone)
         AshenMPRanking.mainUI:setKeyMN(AshenMPRanking.Options.hotkey)

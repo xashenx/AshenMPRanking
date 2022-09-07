@@ -226,8 +226,7 @@ local onLadderUpdate = function(module, command, args)
         items[labels[k]] = labels[k] .. " <LINE><LINE>"
     end
 
-    ladderLength = tonumber(AshenMPRanking.Options.ladderLength)
-    if ladderLength == 1 then ladderLength = 3 elseif ladderLength == 2 then ladderLength = 5 else ladderLength = 10 end
+    ladderLength = AshenMPRanking.Options.ladderLength
     
     if args.onlineplayers ~= nil then
         local hour = tonumber(os.date('%H'))
