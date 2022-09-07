@@ -264,7 +264,7 @@ local function onPlayerDeathReset(player)
     else
         ladder.deaths[username] = ladder.deaths[username] + 1
     end
-    ladder.daysSurvivedAbs[username] = 0
+    ladder.daysSurvived[username] = 0
     ladder.zKills[username] = 0
     ladder.sKills[username] = 0
 end
