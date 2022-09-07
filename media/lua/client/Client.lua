@@ -37,17 +37,6 @@ local function showWindowToolbar()
     end
 end
 
-local function createToolbarButton()
-    toolbarButton = {}
-	toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
-	toolbarButton:setImage(AshenMPRanking.textureOff)
-	toolbarButton:setDisplayBackground(false)
-	toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
-
-	ISEquippedItem.instance:addChild(toolbarButton)
-	ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
-end
-
 local function refreshSelfSurvived()
     daysSurvived = player:getHoursSurvived() / 24
     daysSurvived = string.format("%.1f", daysSurvived)
@@ -59,10 +48,21 @@ local function refreshSelfKills()
     AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
 end
 
-local function onCreateUI()
+local function onCharReset()
+    toolbarButton = {}
+    toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
+    toolbarButton:setImage(AshenMPRanking.textureOff)
+    toolbarButton:setDisplayBackground(false)
+    toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
+
+    ISEquippedItem.instance:addChild(toolbarButton)
+    ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
+
     player = getSpecificPlayer(0)
     username = player:getUsername()
+end
 
+local function onCreateUI()
     -- List UI
     AshenMPRanking.mainUI = NewUI() -- Create UI
     -- AshenMPRanking.mainUI:setTitle(getText("UI_MainWTitle"))
@@ -111,10 +111,8 @@ local function onCreateUI()
     AshenMPRanking.descUI:saveLayout()
     AshenMPRanking.descUI:close()
     
-    -- creating toolbar button
-    createToolbarButton()
-    -- starting refreshing self stats
     refreshSelfSurvived()
+    refreshSelfKills()
     Events.EveryHours.Add(refreshSelfSurvived)
     Events.OnPlayerUpdate.Add(refreshSelfKills)
 end
@@ -330,4 +328,4 @@ Events.OnServerCommand.Add(onServerConfig)
 -- Events.EveryTenMinutes.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
-Events.OnCreatePlayer.Add(createToolbarButton)
+Events.OnCreatePlayer.Add(onCharReset)
