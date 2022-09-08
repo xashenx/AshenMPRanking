@@ -48,6 +48,12 @@ local function refreshSelfKills()
     AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
 end
 
+function LevelPerkMain(player, perk, perkLevel, addBuffer)
+    print('levelling perk ' .. perk .. ' to level ' .. perkLevel)
+    print('perk parent: ' .. perk:getParent())
+end
+
+
 local function onCharReset()
     toolbarButton = {}
     toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
@@ -117,6 +123,7 @@ local function onCreateUI()
     refreshSelfKills()
     Events.EveryHours.Add(refreshSelfSurvived)
     Events.OnPlayerUpdate.Add(refreshSelfKills)
+    Events.LevelPerk.Add(LevelPerkMain)
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -257,6 +264,7 @@ end
 local function onPlayerDeathReset(player)
     local data = {};
     data.username = player:getUsername();
+    Events.LevelPerk.Remove(LevelPerkMain)
     sendClientCommand(player, "AshenMPRanking", "PlayerIsDead", data);
 end
 
