@@ -17,6 +17,14 @@ option AshenMPRanking.sKills
 	translation = AshenMPRanking_sKills,
 }
 
+option AshenMPRanking.perkScores
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_perkScores,
+}
+
 option AshenMPRanking.inactivityPurgeTime
 {
 	type = integer, 

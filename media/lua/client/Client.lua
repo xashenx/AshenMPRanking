@@ -20,6 +20,16 @@ local toolbarButton = {}
 local zombieKills = 0
 local daysSurvived = 0
 
+local playerData = {}
+playerData.perkScores = {}
+
+PERKS_PASSIV = {"Fitness", "Strength"}
+PERKS_AGILITY = {"Sprinting", "Lightfoot", "Nimble", "Sneak"}
+PERKS_FIREARM = {"Aiming", "Reloading"}
+PERKS_MELEE = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
+PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Doctor"}
+PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
+
 local function openLadderDesc(_, item)
     AshenMPRanking.descUI:open()
     AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
@@ -48,11 +58,55 @@ local function refreshSelfKills()
     AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
 end
 
-function LevelPerkMain(player, perk, perkLevel, addBuffer)
-    print('levelling perk ' .. perk .. ' to level ' .. perkLevel)
-    print('perk parent: ' .. perk:getParent())
+function getPerkPoints()
+    playerData.perkScores.passiv = 0
+    -- add levels of PERKS_PASIV to playerData.perkScores.passiv
+    for i, label in ipairs(PERKS_PASSIV) do
+        perk = Perks[label]
+        playerData.perkScores.passiv = playerData.perkScores.passiv + player:getPerkLevel(perk)
+    end
+
+    -- add levels of PERKS_MELEE to playerData.perkScores.melee
+    playerData.perkScores.melee = 0
+    for i, label in ipairs(PERKS_MELEE) do
+        perk = Perks[label]
+        playerData.perkScores.melee = playerData.perkScores.melee + player:getPerkLevel(perk)
+    end
+
+    -- add levels of PERKS_FIREARM to playerData.perkScores.firearm
+    playerData.perkScores.firearm = 0
+    for i, label in ipairs(PERKS_FIREARM) do
+        perk = Perks[label]
+        playerData.perkScores.firearm = playerData.perkScores.firearm + player:getPerkLevel(perk)
+    end
+
+    -- add levels of PERKS_CRAFTING to playerData.perkScores.crafting
+    playerData.perkScores.crafting = 0
+    for i, label in ipairs(PERKS_CRAFTING) do
+        perk = Perks[label]
+        playerData.perkScores.crafting = playerData.perkScores.crafting + player:getPerkLevel(perk)
+    end
+
+    -- add levels of PERKS_SURVIVALIST to playerData.perkScores.survivalist
+    playerData.perkScores.survivalist = 0
+    for i, label in ipairs(PERKS_SURVIVALIST) do
+        perk = Perks[label]
+        playerData.perkScores.survivalist = playerData.perkScores.survivalist + player:getPerkLevel(perk)
+    end
+
+    -- add levels of PERKS_AGILITY to playerData.perkScores.agility
+    playerData.perkScores.agility = 0
+    for i, label in ipairs(PERKS_AGILITY) do
+        perk = Perks[label]
+        playerData.perkScores.agility = playerData.perkScores.agility + player:getPerkLevel(perk)
+    end
 end
 
+local function LevelPerkListener(player, perk, perkLevel, addBuffer)
+    local parent = perk:getParent()
+    local parent_name = parent:getName():lower()
+    playerData.perkScores[parent_name] = playerData.perkScores[parent_name] + 1
+end
 
 local function onCharReset()
     toolbarButton = {}
@@ -66,6 +120,10 @@ local function onCharReset()
 
     player = getSpecificPlayer(0)
     username = player:getUsername()
+
+    -- get initial level of perks and then add listener to update it
+    getPerkPoints()
+    Events.LevelPerk.Add(LevelPerkListener)
 end
 
 local function onCreateUI()
@@ -123,7 +181,6 @@ local function onCreateUI()
     refreshSelfKills()
     Events.EveryHours.Add(refreshSelfSurvived)
     Events.OnPlayerUpdate.Add(refreshSelfKills)
-    Events.LevelPerk.Add(LevelPerkMain)
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -226,15 +283,6 @@ local onLadderUpdate = function(module, command, args)
         return
     end
 
-    local ladder = args.ladder
-
-    for k,v in pairs(ladder) do
-
-        items[labels[k]] = labels[k] .. " <LINE><LINE>"
-    end
-
-    ladderLength = AshenMPRanking.Options.ladderLength
-    
     if args.onlineplayers ~= nil then
         local hour = tonumber(os.date('%H'))
         -- setting hour with timezone setting
@@ -246,10 +294,33 @@ local onLadderUpdate = function(module, command, args)
         AshenMPRanking.mainUI["lastupdate"]:setText(getText("UI_LastUpdate") .. ": " .. time)
         AshenMPRanking.mainUI["lastupdate"]:setColor(1, 1, 1, 1)
     end
+
+    local ladder = args.ladder
+
+    for k,v in pairs(ladder) do
+        if k == "perkScores" then
+            for kk,vv in pairs(v) do
+                items[labels[kk]] = labels[kk] .. " <LINE><LINE>"
+            end
+        else
+            items[labels[k]] = labels[k] .. " <LINE><LINE>"
+        end
+    end
+
+    ladderLength = AshenMPRanking.Options.ladderLength
+    
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
-            if #v >= i and (i <= ladderLength or v[i][1] == username) then
-                updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
+            if k == "perkScores" then
+                for kk,vv in pairs(v) do
+                    if #vv >= i and (i <= ladderLength or vv[i][1] == username) then
+                        updateRankingItems(kk, labels[kk], vv[i][1], i, vv[i][2])
+                    end
+                end
+            else
+                if #v >= i and (i <= ladderLength or v[i][1] == username) then
+                    updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
+                end
             end
         end
     end
@@ -262,33 +333,31 @@ local onLadderUpdate = function(module, command, args)
 end 
 
 local function onPlayerDeathReset(player)
-    local data = {};
-    data.username = player:getUsername();
-    Events.LevelPerk.Remove(LevelPerkMain)
-    sendClientCommand(player, "AshenMPRanking", "PlayerIsDead", data);
+    local data = {}
+    data.username = player:getUsername()
+    Events.LevelPerk.Remove(LevelPerkListener)
+    sendClientCommand(player, "AshenMPRanking", "PlayerIsDead", data)
 end
 
 -- Called on the player to parse its player data and send it to the server every ten (in-game) minutes
 local function SendPlayerData()
     local player = getPlayer()
-    local username = player:getUsername();
-    local forname = player:getDescriptor():getForename();
-    local surname = player:getDescriptor():getSurname();
-    
-    local playerData = {}
+    local username = player:getUsername()
+    local forname = player:getDescriptor():getForename()
+    local surname = player:getDescriptor():getSurname()
 
-    playerData.username = username;
-    playerData.steamID = getSteamIDFromUsername(username);
-    playerData.charName = forname .. " " .. surname;
-    playerData.profession = player:getDescriptor():getProfession();
-    playerData.isAlive = player:isAlive();
-    playerData.isZombie = player:isZombie();
-    playerData.zombieKills = player:getZombieKills();
-    playerData.survivorKills = player:getSurvivorKills();
-    playerData.daysSurvived = player:getHoursSurvived() / 24;
-    playerData.receiveData = AshenMPRanking.Options.receiveData;
+    playerData.username = username
+    playerData.steamID = getSteamIDFromUsername(username)
+    playerData.charName = forname .. " " .. surname
+    playerData.profession = player:getDescriptor():getProfession()
+    playerData.isAlive = player:isAlive()
+    playerData.isZombie = player:isZombie()
+    playerData.zombieKills = player:getZombieKills()
+    playerData.survivorKills = player:getSurvivorKills()
+    playerData.daysSurvived = player:getHoursSurvived() / 24
+    playerData.receiveData = AshenMPRanking.Options.receiveData
 
-    sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData);
+    sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData)
 end
 
 local function PlayerUpdateGetServerConfigs(player)
@@ -315,6 +384,15 @@ local onServerConfig = function(module, command, sandboxSettings)
         labels.sKillsAbs = getText("UI_sKillsABS")
     end
 
+    if AshenMPRanking.sandboxSettings.perkScores then
+        labels.passiv = getText("UI_passiv")
+        labels.agility = getText("UI_agility")
+        labels.firearm = getText("UI_firearm")
+        labels.crafting = getText("UI_crafting")
+        labels.melee = getText("UI_melee")
+        labels.survivalist = getText("UI_survivalist")
+    end
+
     labels.deaths = getText("UI_deaths")
     
     if initUI then
@@ -336,7 +414,5 @@ end
 
 Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
 Events.OnServerCommand.Add(onServerConfig)
--- Events.EveryTenMinutes.Add(SendPlayerData)
--- Events.OnPlayerDeath.Add(SendPlayerData)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnCreatePlayer.Add(onCharReset)
