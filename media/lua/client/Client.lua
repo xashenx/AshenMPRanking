@@ -156,19 +156,31 @@ local function onCreateUI()
     AshenMPRanking.mainUI:addText("lastupdate", getText("UI_WaitingForUpdate"), "", "Center")
     AshenMPRanking.mainUI["lastupdate"]:setColor(1, 1, 1, 0)
     AshenMPRanking.mainUI:nextLine()
-
     AshenMPRanking.mainUI:addText("LaddersLabel", getText("UI_LaddersLabel"), "Large", "Center")
     AshenMPRanking.mainUI["LaddersLabel"]:setColor(1, 1, 0, 0)
-    AshenMPRanking.mainUI:setLineHeightPixel(40)
+    AshenMPRanking.mainUI:setLineHeightPixel(30)
     AshenMPRanking.mainUI:nextLine()
+
+    -- calculate the proper width for scrolllists
+    local width = 18
+    if AshenMPRanking.sandboxSettings.sKills then
+        width = width * 7
+    elseif AshenMPRanking.sandboxSettings.perkScores then
+        width = width * 6
+    else
+        width = width * 5
+    end
+
     -- default scrollList
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
+    AshenMPRanking.mainUI:setDefaultLineHeightPixel(width)
 
     if AshenMPRanking.sandboxSettings.perkScores then
         -- perks scrollList
         AshenMPRanking.mainUI:addScrollList("perksList", perksItems); -- Create list
         AshenMPRanking.mainUI["perksList"]:setOnMouseDownFunction(_, openLadderDesc)
+        AshenMPRanking.mainUI:setLineHeightPixel(width)
     end
 
     AshenMPRanking.mainUI:saveLayout() -- Create window
