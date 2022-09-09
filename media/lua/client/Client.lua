@@ -8,6 +8,7 @@ AshenMPRanking.descUI = {}
 
 -- getGameTime():getModData().test = getGameTime():getModData().test or {}
 local items = {}
+local perksItems = {}
 local player, username
 local ladderLength = 5
 local labels = {}
@@ -26,7 +27,7 @@ playerData.perkScores = {}
 PERKS_PASSIV = {"Fitness", "Strength"}
 PERKS_AGILITY = {"Sprinting", "Lightfoot", "Nimble", "Sneak"}
 PERKS_FIREARM = {"Aiming", "Reloading"}
-PERKS_MELEE = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
+PERKS_COMBAT = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
 PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Doctor"}
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
 
@@ -50,7 +51,7 @@ end
 local function refreshSelfSurvived()
     daysSurvived = player:getHoursSurvived() / 24
     daysSurvived = string.format("%.1f", daysSurvived)
-    AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived .. " " .. getText("UI_days"))
+    AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived)
 end
 
 local function refreshSelfKills()
@@ -63,48 +64,61 @@ function getPerkPoints()
     -- add levels of PERKS_PASIV to playerData.perkScores.passiv
     for i, label in ipairs(PERKS_PASSIV) do
         perk = Perks[label]
+        level = player:getPerkLevel(perk)
+        -- print(perk, level)
         playerData.perkScores.passiv = playerData.perkScores.passiv + player:getPerkLevel(perk)
     end
 
-    -- add levels of PERKS_MELEE to playerData.perkScores.melee
-    playerData.perkScores.melee = 0
-    for i, label in ipairs(PERKS_MELEE) do
+    -- add levels of PERKS_COMBAT to playerData.perkScores.combat
+    playerData.perkScores.combat = 0
+    for i, label in ipairs(PERKS_COMBAT) do
         perk = Perks[label]
-        playerData.perkScores.melee = playerData.perkScores.melee + player:getPerkLevel(perk)
+        level = player:getPerkLevel(perk)
+        -- print(perk, level)
+        playerData.perkScores.combat = playerData.perkScores.combat + level
     end
 
     -- add levels of PERKS_FIREARM to playerData.perkScores.firearm
     playerData.perkScores.firearm = 0
     for i, label in ipairs(PERKS_FIREARM) do
         perk = Perks[label]
-        playerData.perkScores.firearm = playerData.perkScores.firearm + player:getPerkLevel(perk)
+        level = player:getPerkLevel(perk)
+        -- print(perk, level)
+        playerData.perkScores.firearm = playerData.perkScores.firearm + level
     end
 
     -- add levels of PERKS_CRAFTING to playerData.perkScores.crafting
     playerData.perkScores.crafting = 0
     for i, label in ipairs(PERKS_CRAFTING) do
         perk = Perks[label]
-        playerData.perkScores.crafting = playerData.perkScores.crafting + player:getPerkLevel(perk)
+        level = player:getPerkLevel(perk)
+        -- print(perk, level)
+        playerData.perkScores.crafting = playerData.perkScores.crafting + level
     end
 
     -- add levels of PERKS_SURVIVALIST to playerData.perkScores.survivalist
     playerData.perkScores.survivalist = 0
     for i, label in ipairs(PERKS_SURVIVALIST) do
         perk = Perks[label]
-        playerData.perkScores.survivalist = playerData.perkScores.survivalist + player:getPerkLevel(perk)
+        level = player:getPerkLevel(perk)
+        -- print(perk, level)
+        playerData.perkScores.survivalist = playerData.perkScores.survivalist + level
     end
 
     -- add levels of PERKS_AGILITY to playerData.perkScores.agility
     playerData.perkScores.agility = 0
     for i, label in ipairs(PERKS_AGILITY) do
         perk = Perks[label]
-        playerData.perkScores.agility = playerData.perkScores.agility + player:getPerkLevel(perk)
+        level = player:getPerkLevel(perk)
+        -- print(perk, level)
+        playerData.perkScores.agility = playerData.perkScores.agility + level
     end
 end
 
 local function LevelPerkListener(player, perk, perkLevel, addBuffer)
     local parent = perk:getParent()
-    local parent_name = parent:getName():lower()
+    local parent_name = parent:toString():lower()
+    -- print('perklevelup', perk, parent_name, perkLevel)
     playerData.perkScores[parent_name] = playerData.perkScores[parent_name] + 1
 end
 
@@ -135,26 +149,28 @@ local function onCreateUI()
     AshenMPRanking.mainUI:setWidthPixel(250)
     AshenMPRanking.mainUI:setKeyMN(157)
     AshenMPRanking.mainUI:addText("self_survive", "", "", "Center")
-    AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addText("self_zkills", "", "", "Center")
     AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addText("onlinePlayers", getText("UI_WaitingForUpdate"), "", "Center")
     AshenMPRanking.mainUI["onlinePlayers"]:setColor(1, 1, 1, 0)
-    AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addText("lastupdate", getText("UI_WaitingForUpdate"), "", "Center")
     AshenMPRanking.mainUI["lastupdate"]:setColor(1, 1, 1, 0)
     AshenMPRanking.mainUI:nextLine()
+
     AshenMPRanking.mainUI:addText("LaddersLabel", getText("UI_LaddersLabel"), "Large", "Center")
     AshenMPRanking.mainUI["LaddersLabel"]:setColor(1, 1, 0, 0)
     AshenMPRanking.mainUI:setLineHeightPixel(40)
     AshenMPRanking.mainUI:nextLine()
+    -- default scrollList
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
-    -- AshenMPRanking.mainUI:addEmpty(_, _, _, 10); -- Margin only for rich text
-    -- AshenMPRanking.mainUI:addRichText("ladderText", "")
-    -- AshenMPRanking.mainUI:setLineHeightPercent(0.2)
-    -- AshenMPRanking.mainUI:addEmpty(_, _, _, 10); -- Margin only for rich text
-    -- AshenMPRanking.mainUI:nextLine()
+
+    if AshenMPRanking.sandboxSettings.perkScores then
+        -- perks scrollList
+        AshenMPRanking.mainUI:addScrollList("perksList", perksItems); -- Create list
+        AshenMPRanking.mainUI["perksList"]:setOnMouseDownFunction(_, openLadderDesc)
+    end
+
     AshenMPRanking.mainUI:saveLayout() -- Create window
     AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
     AshenMPRanking.mainUI:setBorderToAllElements(true)
@@ -244,16 +260,16 @@ local function onRankChange(movement, ladder_label)
     end
 end
 
-local function updateRankingItems(ladder_name, ladder_label, player_username, position, value)
+local function updateRankingItems(ladder_name, ladder_label, player_username, position, value, list)
     if position > 1 then
-        items[ladder_label] = items[ladder_label] .. " <LINE>"
+        list[ladder_label] = list[ladder_label] .. " <LINE>"
     end
 
     if player_username == username then
         if position > ladderLength then
-            items[ladder_label] = items[ladder_label] .. "... <LINE><GREEN>"
+            list[ladder_label] = list[ladder_label] .. "... <LINE><GREEN>"
         else
-            items[ladder_label] = items[ladder_label] .. "<GREEN>"
+            list[ladder_label] = list[ladder_label] .. "<GREEN>"
         end
 
         if current_ranking[ladder_name] ~= nil and value > 0 and position <= ladderLength then
@@ -267,13 +283,13 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
     end
 
     if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
-        items[ladder_label] = items[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. string.format("%." .. 1 .. "f", value)
+        list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. string.format("%." .. 1 .. "f", value)
     else
-        items[ladder_label] = items[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. value
+        list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. value
     end
 
     if player_username == username then
-        items[ladder_label] = items[ladder_label] .. " <RGB:1,1,1>"
+        list[ladder_label] = list[ladder_label] .. " <RGB:1,1,1>"
     end
     
 end
@@ -300,7 +316,8 @@ local onLadderUpdate = function(module, command, args)
     for k,v in pairs(ladder) do
         if k == "perkScores" then
             for kk,vv in pairs(v) do
-                items[labels[kk]] = labels[kk] .. " <LINE><LINE>"
+                -- print('lables[kk]', labels[kk], kk)
+                perksItems[labels[kk]] = labels[kk] .. " <LINE><LINE>"
             end
         else
             items[labels[k]] = labels[k] .. " <LINE><LINE>"
@@ -314,18 +331,22 @@ local onLadderUpdate = function(module, command, args)
             if k == "perkScores" then
                 for kk,vv in pairs(v) do
                     if #vv >= i and (i <= ladderLength or vv[i][1] == username) then
-                        updateRankingItems(kk, labels[kk], vv[i][1], i, vv[i][2])
+                        updateRankingItems(kk, labels[kk], vv[i][1], i, vv[i][2], perksItems)
                     end
                 end
             else
                 if #v >= i and (i <= ladderLength or v[i][1] == username) then
-                    updateRankingItems(k, labels[k], v[i][1], i, v[i][2])
+                    updateRankingItems(k, labels[k], v[i][1], i, v[i][2], items)
                 end
             end
         end
     end
 
     AshenMPRanking.mainUI["list"]:setItems(items)
+
+    if AshenMPRanking.sandboxSettings.perkScores then
+        AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
+    end
 
     if AshenMPRanking.Options.receiveData then
         writeToFile(ladder)
@@ -389,7 +410,7 @@ local onServerConfig = function(module, command, sandboxSettings)
         labels.agility = getText("UI_agility")
         labels.firearm = getText("UI_firearm")
         labels.crafting = getText("UI_crafting")
-        labels.melee = getText("UI_melee")
+        labels.combat = getText("UI_combat")
         labels.survivalist = getText("UI_survivalist")
     end
 

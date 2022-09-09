@@ -100,7 +100,7 @@ local function loadFromFile()
         local updated
 
         -- username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
-        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,melee,survivalist = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
+        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,combat,survivalist = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
         if passiv == nil then
             username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
         end
@@ -117,7 +117,7 @@ local function loadFromFile()
             agility = 0
             firearm = 0
             crafting = 0
-            melee = 0
+            combat = 0
             survivalist = 0
         end
 
@@ -138,7 +138,7 @@ local function loadFromFile()
                 ladder.perkScores.agility[username] = tonumber(agility)
                 ladder.perkScores.firearm[username] = tonumber(firearm)
                 ladder.perkScores.crafting[username] = tonumber(crafting)
-                ladder.perkScores.melee[username] = tonumber(melee)
+                ladder.perkScores.combat[username] = tonumber(combat)
                 ladder.perkScores.survivalist[username] = tonumber(survivalist)
             end
 
@@ -191,7 +191,7 @@ local function SaveToFile()
             text = text .. ";" .. ladder.perkScores.agility[k]
             text = text .. ";" .. ladder.perkScores.firearm[k]
             text = text .. ";" .. ladder.perkScores.crafting[k]
-            text = text .. ";" .. ladder.perkScores.melee[k]
+            text = text .. ";" .. ladder.perkScores.combat[k]
             text = text .. ";" .. ladder.perkScores.survivalist[k]
         else
             text = text .. ";" .. 0
@@ -239,14 +239,14 @@ local function initServer()
         ladder.perkScores.agility = {}
         ladder.perkScores.firearm = {}
         ladder.perkScores.crafting = {}
-        ladder.perkScores.melee = {}
+        ladder.perkScores.combat = {}
         ladder.perkScores.survivalist = {}
         oLadder.perkScores = {}
         oLadder.perkScores.passiv = {}
         oLadder.perkScores.agility = {}
         oLadder.perkScores.firearm = {}
         oLadder.perkScores.crafting = {}
-        oLadder.perkScores.melee = {}
+        oLadder.perkScores.combat = {}
         oLadder.perkScores.survivalist = {}
     end
 
