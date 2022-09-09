@@ -303,7 +303,6 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
     if player_username == username then
         list[ladder_label] = list[ladder_label] .. " <RGB:1,1,1>"
     end
-    
 end
 
 local onLadderUpdate = function(module, command, args)
@@ -325,13 +324,20 @@ local onLadderUpdate = function(module, command, args)
 
     local ladder = args.ladder
 
+    local tmpItems = {}
+    local renderItems = false
+    local tmpPerksItems = {}
+    local renderPerksItems = false
+
     for k,v in pairs(ladder) do
         if k == "perkScores" then
             for kk,vv in pairs(v) do
                 -- print('lables[kk]', labels[kk], kk)
+                tmpPerksItems[labels[kk]] = perksItems[labels[kk]]
                 perksItems[labels[kk]] = labels[kk] .. " <LINE><LINE>"
             end
         else
+            tmpItems[labels[k]] = items[labels[k]]
             items[labels[k]] = labels[k] .. " <LINE><LINE>"
         end
     end
@@ -354,9 +360,27 @@ local onLadderUpdate = function(module, command, args)
         end
     end
 
-    AshenMPRanking.mainUI["list"]:setItems(items)
+    -- check if there are changes in the ranking
+    for k,v in pairs(items) do
+        if v ~= tmpItems[k] then
+            renderItems = true
+            break
+        end
+    end
 
-    if AshenMPRanking.sandboxSettings.perkScores then
+    if renderItems then
+        AshenMPRanking.mainUI["list"]:setItems(items)
+    end
+
+    -- check if there are changes in the ranking
+    for k,v in pairs(perksItems) do
+        if v ~= tmpPerksItems[k] then
+            renderPerksItems = true
+            break
+        end
+    end
+
+    if AshenMPRanking.sandboxSettings.perkScores and renderPerksItems then
         AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
     end
 
