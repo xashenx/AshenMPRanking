@@ -44,3 +44,19 @@ option AshenMPRanking.periodicTick
 	page = AshenMPRanking,
 	translation = AshenMPRanking_periodicTick,
 }
+
+option AshenMPRanking.moreDeaths
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_moreDeaths,
+}
+
+option AshenMPRanking.lessDeaths
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_lessDeaths,
+}

@@ -28,6 +28,8 @@ playerData.perkScores = {}
 
 local laddersToWrite = {}
 
+local BASE_WIDTH = 20
+
 PERKS_PASSIV = {"Fitness", "Strength"}
 PERKS_AGILITY = {"Sprinting", "Lightfoot", "Nimble", "Sneak"}
 PERKS_FIREARM = {"Aiming", "Reloading"}
@@ -180,15 +182,29 @@ local function onCreateUI()
     AshenMPRanking.mainUI:nextLine()
     
     -- calculate the proper width for scrolllists
-    local width = 18
+    -- base i calculate with dayS, zKill and relative Absolutes
+    local width = BASE_WIDTH * 4
     if AshenMPRanking.sandboxSettings.sKills then
-        width = width * 7
+        width = width + BASE_WIDTH * 2
+        if AshenMPRanking.sandboxSettings.moreDeaths then
+            width = width + BASE_WIDTH
+        end
+
+        if AshenMPRanking.sandboxSettings.lessDeaths then
+            width = width + BASE_WIDTH
+        end
     elseif AshenMPRanking.sandboxSettings.perkScores then
-        width = width * 6
-    else
-        width = width * 5
+        width = BASE_WIDTH * 6
+    elseif AshenMPRanking.sandboxSettings.moreDeaths or AshenMPRanking.sandboxSettings.lessDeaths then
+        if AshenMPRanking.sandboxSettings.moreDeaths then
+            width = width + BASE_WIDTH
+        end
+
+        if AshenMPRanking.sandboxSettings.lessDeaths then
+            width = width + BASE_WIDTH
+        end
     end
-    
+
     -- default scrollList
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
@@ -373,7 +389,6 @@ local onLadderUpdate = function(module, command, args)
     for k,v in pairs(ladder) do
         if k == "perkScores" then
             for kk,vv in pairs(v) do
-                -- print('lables[kk]', labels[kk], kk)
                 tmpPerksItems[labels[kk]] = perksItems[labels[kk]]
                 perksItems[labels[kk]] = labels[kk] .. " <LINE><LINE>"
             end
@@ -495,7 +510,13 @@ local onServerConfig = function(module, command, sandboxSettings)
         labels.survivalist = getText("UI_survivalist")
     end
 
-    labels.deaths = getText("UI_deaths")
+    if AshenMPRanking.sandboxSettings.moreDeaths then
+        labels.moreDeaths = getText("UI_moreDeaths")
+    end
+
+    if AshenMPRanking.sandboxSettings.lessDeaths then
+        labels.lessDeaths = getText("UI_lessDeaths")
+    end
     
     if initUI then
         onCreateUI()

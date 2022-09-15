@@ -19,6 +19,8 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.inactivityPurgeTime = SandboxVars.AshenMPRanking.inactivityPurgeTime
     AshenMPRanking.sandboxSettings.periodicTick = SandboxVars.AshenMPRanking.periodicTick
     AshenMPRanking.sandboxSettings.perkScores = SandboxVars.AshenMPRanking.perkScores
+    AshenMPRanking.sandboxSettings.moreDeaths = SandboxVars.AshenMPRanking.moreDeaths
+    AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -71,7 +73,16 @@ local function sort_ladders()
                 oLadder[k][kk] = sort_my_ladder(vv, false, ladder.daysSurvived)
             end
         else
-            oLadder[k] = sort_my_ladder(v, k == "deaths", ladder.daysSurvivedAbs)
+            if k ~= "deaths" then
+                oLadder[k] = sort_my_ladder(v, false, ladder.daysSurvivedAbs)
+            else
+                if AshenMPRanking.sandboxSettings.moreDeaths then
+                    oLadder.moreDeaths = sort_my_ladder(v, false, ladder.daysSurvivedAbs)
+                end
+                if AshenMPRanking.sandboxSettings.lessDeaths then
+                    oLadder.lessDeaths = sort_my_ladder(v, true, ladder.daysSurvivedAbs)
+                end
+            end
         end
     end
 end
@@ -232,7 +243,12 @@ local function initServer()
     end
     
     ladder.deaths = {}
-    oLadder.deaths = {}
+    if AshenMPRanking.sandboxSettings.moreDeaths then
+        oLadder.moreDeaths = {}
+    end
+    if AshenMPRanking.sandboxSettings.lessDeaths then
+        oLadder.lessDeaths = {}
+    end
 
     if AshenMPRanking.sandboxSettings.perkScores then
         ladder.perkScores = {}
