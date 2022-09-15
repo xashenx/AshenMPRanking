@@ -20,9 +20,13 @@ local toolbarButton = {}
 -- player stats
 local zombieKills = 0
 local daysSurvived = 0
+local writeSelfK = false
+local writeSelfS = false
 
 local playerData = {}
 playerData.perkScores = {}
+
+local laddersToWrite = {}
 
 PERKS_PASSIV = {"Fitness", "Strength"}
 PERKS_AGILITY = {"Sprinting", "Lightfoot", "Nimble", "Sneak"}
@@ -49,14 +53,22 @@ local function showWindowToolbar()
 end
 
 local function refreshSelfSurvived()
-    daysSurvived = player:getHoursSurvived() / 24
-    daysSurvived = string.format("%.1f", daysSurvived)
-    AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived)
+    local tmpSurvive = player:getHoursSurvived() / 24
+    tmpSurvive = string.format("%.1f", tmpSurvive)
+
+    if tmpSurvive ~= daysSurvived then
+        daysSurvived = tmpSurvive
+        AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived)
+        writeSelfS = true
+    end
 end
 
 local function refreshSelfKills()
-    zombieKills = player:getZombieKills()
-    AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+    if zombieKills ~= player:getZombieKills() then
+        zombieKills = player:getZombieKills()
+        AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+        writeSelfK = true
+    end
 end
 
 function getPerkPoints()
@@ -244,28 +256,51 @@ local function writeLadder(ladder, label, ladder_name)
 end
 
 local function writeToFile(ladder)
-    -- write file
-    text = string.format('%.01f', daysSurvived) .. ' ' .. getText("UI_days");
-    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false);
-    dataFile:write(text);
-    dataFile:close();
-    -- write file
-    if  zombieKills > 0 then
-        if  zombieKills > 999 then
-            text = string.format("%.1f", zombieKills / 1000) .. 'k kills';
-        else
-            text = zombieKills .. ' kills';
-        end
-    else
-        text = '-';
+    if writeSelfS then
+        -- write file
+        text = string.format('%.01f', daysSurvived)
+        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false)
+        dataFile:write(text)
+        dataFile:close()
+        writeSelfS = false
     end
-    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false);
-    dataFile:write(text);
-    dataFile:close();
+
+    if writeSelfK then
+        -- write file
+        if  zombieKills > 999 then
+            text = string.format("%.1f", zombieKills / 1000) .. 'k'
+        else
+            text = tostring(zombieKills)
+        end
+        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false)
+        dataFile:write(text)
+        dataFile:close()
+        writeSelfK = false
+    end
 
     -- write ladders
     for k,v in pairs(ladder) do
-        writeLadder(v, labels[k], k)
+        if k == "perkScores" then
+            for kk,vv in pairs(v) do
+                if laddersToWrite[labels[kk]] then
+                    -- print('DEBUG AMPR write ladder: ',  kk, labels[kk])
+                    writeLadder(vv, labels[kk], kk)
+                    laddersToWrite[labels[kk]] = false
+                end
+            end
+        else
+            if laddersToWrite[labels[kk]] then
+                -- print('DEBUG AMPR write ladder: ',  k, labels[k])
+                writeLadder(v, labels[k], k)
+                laddersToWrite[labels[kk]] = false
+            end
+        end
+
+        -- if laddersToWrite[labels[k]] then
+        --     print('DEBUG AMPR write ladder: ' .. k)
+        --     writeLadder(v, labels[k], k)
+        --     laddersToWrite[k] = false
+        -- end
     end
 end
 
@@ -370,7 +405,8 @@ local onLadderUpdate = function(module, command, args)
     for k,v in pairs(items) do
         if v ~= tmpItems[k] then
             renderItems = true
-            break
+            laddersToWrite[k] = true
+            -- print('DEBUG AMPR ranking changed: ', k, laddersToWrite[k])
         end
     end
 
@@ -382,7 +418,8 @@ local onLadderUpdate = function(module, command, args)
     for k,v in pairs(perksItems) do
         if v ~= tmpPerksItems[k] then
             renderPerksItems = true
-            break
+            laddersToWrite[k] = true
+            -- print('DEBUG AMPR ranking Perks changed: ', k, laddersToWrite[k])
         end
     end
 
@@ -390,7 +427,9 @@ local onLadderUpdate = function(module, command, args)
         AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
     end
 
-    if AshenMPRanking.Options.receiveData then
+    local writingCondition = renderItems or renderPerksItems or writeSelfS or writeSelfK
+    -- print('DEBUG AMPR writingCondition', writingCondition, renderItems, renderPerksItems, writeSelfS, writeSelfK)
+    if AshenMPRanking.Options.receiveData and writingCondition then
         writeToFile(ladder)
     end
 end 
