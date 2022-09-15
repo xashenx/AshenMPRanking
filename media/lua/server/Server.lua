@@ -26,8 +26,7 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
     daysSurvived = daysSurvived or {}
     ordered_ladder={}
     for v,k in pairs(ladder) do
-        print('debug', v, k, daysSurvived[v])
-        if not inverse or (daysSurvived[v] > 4 or k > 0) then
+        if not inverse or (daysSurvived[v] > 4 or k > 0) and daysSurvived[v] ~= nil then
             if #ordered_ladder > 0 then
                 for i=1,#ordered_ladder do
                     if inverse then
@@ -50,6 +49,8 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
             else
                 ordered_ladder[1]={v,k}
             end
+        else
+            print('AMPR debug NIL daysSurvived', v, k, daysSurvived[v])
         end
         -- print(v,k)
     end
