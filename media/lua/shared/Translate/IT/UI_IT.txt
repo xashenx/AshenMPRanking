@@ -15,6 +15,7 @@ UI_EN = {
     UI_Self_Survived = "Sopravvissuto",
     UI_Self_Zkills = "Z Uccisi",
     UI_LaddersLabel = "Classifiche",
+    UI_summaryLB = "Summary",
     UI_StatsLabel = "Statistiche",
     UI_PerksLabel = "Skills",
     UI_days = "giorni",

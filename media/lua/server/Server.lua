@@ -21,6 +21,7 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.perkScores = SandboxVars.AshenMPRanking.perkScores
     AshenMPRanking.sandboxSettings.moreDeaths = SandboxVars.AshenMPRanking.moreDeaths
     AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
+    AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -51,7 +52,7 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
             else
                 ordered_ladder[1]={v,k}
             end
-        elif daysSurvived[v] == nil then
+        elseif daysSurvived[v] == nil then
             print('AMPR debug NIL daysSurvived', v, k, daysSurvived[v])
         end
         -- print(v,k)

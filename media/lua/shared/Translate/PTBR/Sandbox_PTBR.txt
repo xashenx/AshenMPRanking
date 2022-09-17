@@ -1,10 +1,11 @@
 Sandbox_IT = {
 	Sandbox_AshenMPRanking = "Ashen MP Ranking",
 	Sandbox_AshenMPRanking_MainUiTitle = "Main UI Windows Title",
-	Sandbox_AshenMPRanking_sKills = "Enable Survivor Kills Ladder",
-	Sandbox_AshenMPRanking_perkScores = "Enable Perk Scores Ladder",
 	Sandbox_AshenMPRanking_inactivityPurgeTime = "Time in days to purge the ladders (inactivity)",
 	Sandbox_AshenMPRanking_periodicTick = "Refresh rate from client (1m,10m,1h,1d)",
+	Sandbox_AshenMPRanking_summaryLB = "Enable Summary Leaderboard",
+	Sandbox_AshenMPRanking_sKills = "Enable Survivor Kills Leaderboard",
+	Sandbox_AshenMPRanking_perkScores = "Enable Perk Scores Leaderboards",
 	Sandbox_AshenMPRanking_moreDeaths = "Enable More Deaths Leaderboard",
 	Sandbox_AshenMPRanking_lessDeaths = "Enable Less Deaths Leaderboard",
 }

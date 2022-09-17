@@ -1,6 +1,6 @@
 UI_EN = {
     UI_MainWTitle = "Available Rankings",
-    UI_LadderTitle = "Ladder",
+    UI_LadderTitle = "Leaderboard",
     UI_aliveFor ="Alive",
     UI_aliveForAbs ="Best Alive",
     UI_zKills = "Zombie Kills",
@@ -14,7 +14,8 @@ UI_EN = {
     UI_LastUpdate = "Updated",
     UI_Self_Survived = "Survived",
     UI_Self_Zkills = "Z Kills",
-    UI_LaddersLabel = "Ladders",
+    UI_LaddersLabel = "Leaderboards",
+    UI_summaryLB = "Summary",
     UI_StatsLabel = "Statistics",
     UI_PerksLabel = "Skills",
     UI_days = "days",

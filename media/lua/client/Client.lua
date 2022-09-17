@@ -193,8 +193,10 @@ local function onCreateUI()
         if AshenMPRanking.sandboxSettings.lessDeaths then
             width = width + BASE_WIDTH
         end
-    elseif AshenMPRanking.sandboxSettings.perkScores then
-        width = BASE_WIDTH * 6
+
+        if AshenMPRanking.sandboxSettings.summaryLB then
+            width = width + BASE_WIDTH
+        end
     elseif AshenMPRanking.sandboxSettings.moreDeaths or AshenMPRanking.sandboxSettings.lessDeaths then
         if AshenMPRanking.sandboxSettings.moreDeaths then
             width = width + BASE_WIDTH
@@ -203,6 +205,12 @@ local function onCreateUI()
         if AshenMPRanking.sandboxSettings.lessDeaths then
             width = width + BASE_WIDTH
         end
+
+        if AshenMPRanking.sandboxSettings.summaryLB then
+            width = width + BASE_WIDTH
+        end
+    elseif AshenMPRanking.sandboxSettings.perkScores then
+        width = BASE_WIDTH * 6
     end
 
     -- default scrollList
@@ -386,6 +394,11 @@ local onLadderUpdate = function(module, command, args)
     local tmpPerksItems = {}
     local renderPerksItems = false
 
+    if AshenMPRanking.sandboxSettings.summaryLB then
+        tmpItems[labels.summaryLB] = items[labels.summaryLB]
+        items[labels.summaryLB] = labels.summaryLB .. " <LINE>"
+    end
+
     for k,v in pairs(ladder) do
         if k == "perkScores" then
             for kk,vv in pairs(v) do
@@ -407,10 +420,33 @@ local onLadderUpdate = function(module, command, args)
                     if #vv >= i and (i <= ladderLength or vv[i][1] == username) then
                         updateRankingItems(kk, labels[kk], vv[i][1], i, vv[i][2], perksItems)
                     end
+
+                    if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
+                        items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
+                        if username == vv[i][1] then
+                            items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
+                        end
+                        items[labels.summaryLB] = items[labels.summaryLB] .. labels[kk] .. ": " .. vv[i][1]
+                        if username == vv[i][1] then
+                            items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
+                        end
+                    end
                 end
             else
                 if #v >= i and (i <= ladderLength or v[i][1] == username) then
                     updateRankingItems(k, labels[k], v[i][1], i, v[i][2], items)
+                end
+
+                -- if summaryLB and i == 1 add to the list
+                if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
+                    items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
+                    if username == v[i][1] then
+                        items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
+                    end
+                    items[labels.summaryLB] = items[labels.summaryLB] .. labels[k] .. ": " .. v[i][1]
+                    if username == v[i][1] then
+                        items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
+                    end
                 end
             end
         end
@@ -516,6 +552,10 @@ local onServerConfig = function(module, command, sandboxSettings)
 
     if AshenMPRanking.sandboxSettings.lessDeaths then
         labels.lessDeaths = getText("UI_lessDeaths")
+    end
+
+    if AshenMPRanking.sandboxSettings.summaryLB then
+        labels.summaryLB = getText("UI_summaryLB")
     end
     
     if initUI then
