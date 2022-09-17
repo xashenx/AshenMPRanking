@@ -1,8 +1,8 @@
 UI_EN = {
     UI_MainWTitle = "Classifiche Disponibili",
     UI_LadderTitle = "Classifica",
-    UI_aliveFor ="Sopravvivenza",
-    UI_aliveForAbs ="Record Sopravvivenza",
+    UI_aliveFor = "Vivo",
+    UI_aliveForAbs = "Record Vivo",
     UI_zKills = "Zombie",
     UI_zKillsABS = "Record Zombie",
     UI_sKills = "PvP Kills",

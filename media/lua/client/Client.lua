@@ -28,7 +28,7 @@ playerData.perkScores = {}
 
 local laddersToWrite = {}
 
-local BASE_WIDTH = 20
+local BASE_HEIGHT = 20
 
 PERKS_PASSIV = {"Fitness", "Strength"}
 PERKS_AGILITY = {"Sprinting", "Lightfoot", "Nimble", "Sneak"}
@@ -38,10 +38,42 @@ PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith",
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
 
 local function openLadderDesc(_, item)
+    local title
+    ladderLength = AshenMPRanking.Options.ladderLength
+
     AshenMPRanking.descUI:open()
     AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
-    AshenMPRanking.descUI["ladderText"]:setText(item)
-    -- AshenMPRanking.mainUI["ladderText"]:setText(item)
+    
+    i = 1
+    for k,v in pairs(item) do
+        if i > ladderLength and item.title ~= labels.summaryLB then
+            break
+        end
+
+        if k ~= 'title' then
+            AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
+            if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+                local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                AshenMPRanking.descUI["score_" .. i]:setText(text)
+            elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
+                local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                AshenMPRanking.descUI["score_" .. i]:setText(text)
+            else
+                local text = v.user .. " (" .. tostring(v.score) .. ")"
+                AshenMPRanking.descUI["score_" .. i]:setText(text)
+            end
+            i = i + 1
+        else
+            title = v
+            AshenMPRanking.descUI:setTitle(title)
+        end
+    end
+
+    -- for j = i to 15 set text of position, user and score to ""
+    for j = i, 15 do
+        AshenMPRanking.descUI["position_" .. j]:setText("")
+        AshenMPRanking.descUI["score_" .. j]:setText("")
+    end
 end
 
 local function showWindowToolbar()
@@ -181,48 +213,48 @@ local function onCreateUI()
     end
     AshenMPRanking.mainUI:nextLine()
     
-    -- calculate the proper width for scrolllists
-    -- base i calculate with dayS, zKill and relative Absolutes
-    local width = BASE_WIDTH * 4
+    -- calculate the proper height for scrolllists
+    -- base is calculated with dayS, zKill and relative Absolutes
+    local height = BASE_HEIGHT * 4
     if AshenMPRanking.sandboxSettings.sKills then
-        width = width + BASE_WIDTH * 2
+        height = height + BASE_HEIGHT * 2
         if AshenMPRanking.sandboxSettings.moreDeaths then
-            width = width + BASE_WIDTH
+            height = height + BASE_HEIGHT
         end
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
-            width = width + BASE_WIDTH
+            height = height + BASE_HEIGHT
         end
 
         if AshenMPRanking.sandboxSettings.summaryLB then
-            width = width + BASE_WIDTH
+            height = height + BASE_HEIGHT
         end
     elseif AshenMPRanking.sandboxSettings.moreDeaths or AshenMPRanking.sandboxSettings.lessDeaths then
         if AshenMPRanking.sandboxSettings.moreDeaths then
-            width = width + BASE_WIDTH
+            height = height + BASE_HEIGHT
         end
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
-            width = width + BASE_WIDTH
+            height = height + BASE_HEIGHT
         end
 
         if AshenMPRanking.sandboxSettings.summaryLB then
-            width = width + BASE_WIDTH
+            height = height + BASE_HEIGHT
         end
     elseif AshenMPRanking.sandboxSettings.perkScores then
-        width = BASE_WIDTH * 6
+        height = BASE_HEIGHT * 6
     end
 
     -- default scrollList
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
-    AshenMPRanking.mainUI:setDefaultLineHeightPixel(width)
+    AshenMPRanking.mainUI:setDefaultLineHeightPixel(height)
 
     if AshenMPRanking.sandboxSettings.perkScores then
         -- perks scrollList
         AshenMPRanking.mainUI:addScrollList("perksList", perksItems); -- Create list
         AshenMPRanking.mainUI["perksList"]:setOnMouseDownFunction(_, openLadderDesc)
-        AshenMPRanking.mainUI:setLineHeightPixel(width)
+        AshenMPRanking.mainUI:setLineHeightPixel(height)
     end
 
     AshenMPRanking.mainUI:saveLayout() -- Create window
@@ -237,13 +269,11 @@ local function onCreateUI()
     -- AshenMPRanking.descUI:setWidthPercent(0.1)
     AshenMPRanking.descUI:setWidthPixel(250)
     
-    AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
-    AshenMPRanking.descUI:addRichText("ladderText", "")
-    AshenMPRanking.descUI:setLineHeightPercent(0.3)
-    AshenMPRanking.descUI:addEmpty(_, _, _, 10) -- Margin only for rich text
-    AshenMPRanking.descUI:nextLine()
-    
-    -- AshenMPRanking.descUI:addButton("b1", "Accept ?", choose);
+    for i = 1, 15 do
+        AshenMPRanking.descUI:addText("position_" .. i, "", "", "Center")
+        AshenMPRanking.descUI:addText("score_" .. i, "", "", "Center")
+        AshenMPRanking.descUI:nextLine()
+    end
     AshenMPRanking.descUI:saveLayout()
     AshenMPRanking.descUI:close()
     
@@ -338,16 +368,17 @@ local function onRankChange(movement, ladder_label)
 end
 
 local function updateRankingItems(ladder_name, ladder_label, player_username, position, value, list)
-    if position > 1 then
-        list[ladder_label] = list[ladder_label] .. " <LINE>"
-    end
+    list[ladder_label][tostring(position)] = {}
+    -- if position > 1 then
+    --     list[ladder_label] = list[ladder_label] .. " <LINE>"
+    -- end
 
     if player_username == username then
-        if position > ladderLength then
-            list[ladder_label] = list[ladder_label] .. "... <LINE><GREEN>"
-        else
-            list[ladder_label] = list[ladder_label] .. "<GREEN>"
-        end
+        -- if position > ladderLength then
+        --     list[ladder_label] = list[ladder_label] .. "... <LINE><GREEN>"
+        -- else
+        --     list[ladder_label] = list[ladder_label] .. "<GREEN>"
+        -- end
 
         if current_ranking[ladder_name] ~= nil and value > 0 and position <= ladderLength then
             if position > current_ranking[ladder_name] then
@@ -359,15 +390,18 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
         current_ranking[ladder_name] = position
     end
 
-    if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
-        list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. string.format("%." .. 1 .. "f", value)
-    else
-        list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. value
-    end
-
-    if player_username == username then
-        list[ladder_label] = list[ladder_label] .. " <RGB:1,1,1>"
-    end
+    -- if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
+    --     list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. string.format("%." .. 1 .. "f", value)
+    -- else
+    --     list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. value
+    -- end
+    
+    list[ladder_label][tostring(position)].position = position
+    list[ladder_label][tostring(position)].user = player_username
+    list[ladder_label][tostring(position)].score = value
+    -- if player_username == username then
+    --     list[ladder_label] = list[ladder_label] .. " <RGB:1,1,1>"
+    -- end
 end
 
 local onLadderUpdate = function(module, command, args)
@@ -396,22 +430,26 @@ local onLadderUpdate = function(module, command, args)
 
     if AshenMPRanking.sandboxSettings.summaryLB then
         tmpItems[labels.summaryLB] = items[labels.summaryLB]
-        items[labels.summaryLB] = labels.summaryLB .. " <LINE>"
+        -- items[labels.summaryLB] = labels.summaryLB .. " <LINE>"
+        items[labels.summaryLB] = {}
+        items[labels.summaryLB].title = labels.summaryLB
     end
 
     for k,v in pairs(ladder) do
         if k == "perkScores" then
             for kk,vv in pairs(v) do
                 tmpPerksItems[labels[kk]] = perksItems[labels[kk]]
-                perksItems[labels[kk]] = labels[kk] .. " <LINE><LINE>"
+                -- perksItems[labels[kk]] = labels[kk] .. " <LINE><LINE>"
+                perksItems[labels[kk]] = {}
+                perksItems[labels[kk]].title = labels[kk]
             end
         else
             tmpItems[labels[k]] = items[labels[k]]
-            items[labels[k]] = labels[k] .. " <LINE><LINE>"
+            -- items[labels[k]] = labels[k] .. " <LINE><LINE>"
+            items[labels[k]] = {}
+            items[labels[k]].title = labels[k]
         end
     end
-
-    ladderLength = AshenMPRanking.Options.ladderLength
     
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
@@ -422,14 +460,18 @@ local onLadderUpdate = function(module, command, args)
                     end
 
                     if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
-                        items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
-                        if username == vv[i][1] then
-                            items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
-                        end
-                        items[labels.summaryLB] = items[labels.summaryLB] .. labels[kk] .. ": " .. vv[i][1]
-                        if username == vv[i][1] then
-                            items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
-                        end
+                        -- items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
+                        -- if username == vv[i][1] then
+                        --     items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
+                        -- end
+                        -- items[labels.summaryLB] = items[labels.summaryLB] .. labels[kk] .. ": " .. vv[i][1]
+                        -- if username == vv[i][1] then
+                        --     items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
+                        -- end
+                        items[labels.summaryLB][labels[kk]] = {}
+                        items[labels.summaryLB][labels[kk]].position = labels[kk]
+                        items[labels.summaryLB][labels[kk]].user = vv[i][1]
+                        items[labels.summaryLB][labels[kk]].score = vv[i][2]
                     end
                 end
             else
@@ -439,25 +481,29 @@ local onLadderUpdate = function(module, command, args)
 
                 -- if summaryLB and i == 1 add to the list
                 if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
-                    items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
-                    if username == v[i][1] then
-                        items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
-                    end
-                    items[labels.summaryLB] = items[labels.summaryLB] .. labels[k] .. ": " .. v[i][1]
-                    if username == v[i][1] then
-                        items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
-                    end
+                    -- items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
+                    -- if username == v[i][1] then
+                    --     items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
+                    -- end
+                    -- items[labels.summaryLB] = items[labels.summaryLB] .. labels[k] .. ": " .. v[i][1]
+                    -- if username == v[i][1] then
+                    --     items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
+                    -- end
+                    items[labels.summaryLB][labels[k]] = {}
+                    items[labels.summaryLB][labels[k]].position = labels[k]
+                    items[labels.summaryLB][labels[k]].user = v[i][1]
+                    items[labels.summaryLB][labels[k]].score = v[i][2]
                 end
             end
         end
     end
 
-    -- check if there are changes in the ranking
+    -- check if there are changes in the tables
     for k,v in pairs(items) do
         if v ~= tmpItems[k] then
             renderItems = true
             laddersToWrite[k] = true
-            -- print('DEBUG AMPR ranking changed: ', k, laddersToWrite[k])
+            -- print('DEBUG AMPR ranking changed: ', k)
         end
     end
 
@@ -470,7 +516,7 @@ local onLadderUpdate = function(module, command, args)
         if v ~= tmpPerksItems[k] then
             renderPerksItems = true
             laddersToWrite[k] = true
-            -- print('DEBUG AMPR ranking Perks changed: ', k, laddersToWrite[k])
+            -- print('DEBUG AMPR ranking Perks changed: ', k)
         end
     end
 
