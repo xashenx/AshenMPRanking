@@ -39,6 +39,7 @@ PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
 
 local function openLadderDesc(_, item)
     local title
+    local foundSelf = false
     ladderLength = AshenMPRanking.Options.ladderLength
 
     AshenMPRanking.descUI:open()
@@ -47,6 +48,21 @@ local function openLadderDesc(_, item)
     i = 1
     for k,v in pairs(item) do
         if i > ladderLength and item.title ~= labels.summaryLB then
+            if not foundSelf then
+                AshenMPRanking.descUI["position_" .. i]:setText("...")
+                AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+                if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+                    local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
+                    AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+                else
+                    local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
+                    AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+                end
+                AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
+                AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
+                i = i + 2
+            end
+
             break
         end
 
@@ -61,6 +77,15 @@ local function openLadderDesc(_, item)
             else
                 local text = v.user .. " (" .. tostring(v.score) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
+            end
+            
+            if v.user == username then
+                AshenMPRanking.descUI["position_" .. i]:setColor(1, 0, 1, 0.2)
+                AshenMPRanking.descUI["score_" .. i]:setColor(1, 0, 1, 0.2)
+                foundSelf = true
+            else
+                AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
+                AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
             end
             i = i + 1
         else
@@ -269,7 +294,7 @@ local function onCreateUI()
     -- AshenMPRanking.descUI:setWidthPercent(0.1)
     AshenMPRanking.descUI:setWidthPixel(250)
     
-    for i = 1, 15 do
+    for i = 1, 17 do
         AshenMPRanking.descUI:addText("position_" .. i, "", "", "Center")
         AshenMPRanking.descUI:addText("score_" .. i, "", "", "Center")
         AshenMPRanking.descUI:nextLine()
@@ -281,6 +306,8 @@ local function onCreateUI()
     refreshSelfKills()
     Events.EveryHours.Add(refreshSelfSurvived)
     Events.OnPlayerUpdate.Add(refreshSelfKills)
+
+    ladderLength = AshenMPRanking.Options.ladderLength
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -368,18 +395,23 @@ local function onRankChange(movement, ladder_label)
 end
 
 local function updateRankingItems(ladder_name, ladder_label, player_username, position, value, list)
-    list[ladder_label][tostring(position)] = {}
     -- if position > 1 then
     --     list[ladder_label] = list[ladder_label] .. " <LINE>"
     -- end
-
+    
     if player_username == username then
+        if position > ladderLength then
+            list[ladder_label]["player"] = {}
+            list[ladder_label]["player"].position = position
+            list[ladder_label]["player"].user = player_username
+            list[ladder_label]["player"].score = value
+        end
         -- if position > ladderLength then
         --     list[ladder_label] = list[ladder_label] .. "... <LINE><GREEN>"
         -- else
         --     list[ladder_label] = list[ladder_label] .. "<GREEN>"
         -- end
-
+        
         if current_ranking[ladder_name] ~= nil and value > 0 and position <= ladderLength then
             if position > current_ranking[ladder_name] then
                 onRankChange("down", ladder_label)
@@ -389,19 +421,31 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
         end
         current_ranking[ladder_name] = position
     end
-
+    
     -- if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
     --     list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. string.format("%." .. 1 .. "f", value)
     -- else
     --     list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. value
     -- end
     
+    list[ladder_label][tostring(position)] = {}
     list[ladder_label][tostring(position)].position = position
     list[ladder_label][tostring(position)].user = player_username
     list[ladder_label][tostring(position)].score = value
     -- if player_username == username then
     --     list[ladder_label] = list[ladder_label] .. " <RGB:1,1,1>"
     -- end
+end
+
+local function isChanged(new, old, parseAll)
+    for k,v in pairs(new) do
+        for kk,vv in pairs(v) do
+            if new.title ~= labels.summaryLB then
+                print("DEBUG AMPR isChanged: ", k, vv.user)
+                print("DEBUG AMPR isChanged: ", k, vv.score)
+            end
+        end
+    end
 end
 
 local onLadderUpdate = function(module, command, args)
@@ -497,6 +541,8 @@ local onLadderUpdate = function(module, command, args)
             end
         end
     end
+
+    -- isChanged(tmpItems, items)
 
     -- check if there are changes in the tables
     for k,v in pairs(items) do
