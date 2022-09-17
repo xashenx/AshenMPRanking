@@ -51,7 +51,7 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
             else
                 ordered_ladder[1]={v,k}
             end
-        else
+        elif daysSurvived[v] == nil then
             print('AMPR debug NIL daysSurvived', v, k, daysSurvived[v])
         end
         -- print(v,k)
