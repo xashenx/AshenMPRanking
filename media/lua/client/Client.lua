@@ -20,8 +20,7 @@ local toolbarButton = {}
 -- player stats
 local zombieKills = 0
 local daysSurvived = 0
-local writeSelfK = false
-local writeSelfS = false
+local timeSurvived = nil
 
 local playerData = {}
 playerData.perkScores = {}
@@ -113,13 +112,25 @@ local function showWindowToolbar()
 end
 
 local function refreshSelfSurvived()
-    local tmpSurvive = player:getHoursSurvived() / 24
-    tmpSurvive = string.format("%.1f", tmpSurvive)
+    -- local tmpSurvive = player:getHoursSurvived() / 24
+    -- tmpSurvive = string.format("%.1f", tmpSurvive)
 
-    if tmpSurvive ~= daysSurvived then
-        daysSurvived = tmpSurvive
-        AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived)
-        writeSelfS = true
+    -- if tmpSurvive ~= daysSurvived then
+    --     daysSurvived = tmpSurvive
+    --     AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived)
+    --     writeSelfS = true
+    -- end
+
+    -- checking the extended survival time
+    local tmpSurvive = player:getTimeSurvived()
+    if tmpSurvive ~= timeSurvived then
+        timeSurvived = tmpSurvive
+        AshenMPRanking.mainUI["self_survive"]:setText(timeSurvived)
+
+        -- writing to file
+        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false)
+        dataFile:write(timeSurvived)
+        dataFile:close()
     end
 end
 
@@ -127,7 +138,17 @@ local function refreshSelfKills()
     if zombieKills ~= player:getZombieKills() then
         zombieKills = player:getZombieKills()
         AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
-        writeSelfK = true
+        
+        -- write file
+        local text
+        if  zombieKills > 999 then
+            text = string.format("%.1f", zombieKills / 1000) .. 'k'
+        else
+            text = tostring(zombieKills)
+        end
+        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false)
+        dataFile:write(text)
+        dataFile:close()
     end
 end
 
@@ -333,33 +354,11 @@ local function writeLadder(ladder, label, ladder_name)
     end
 
     local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/" .. ladder_name .. ".txt", true, false)
-    dataFile:write(text);
-    dataFile:close();
+    dataFile:write(text)
+    dataFile:close()
 end
 
 local function writeToFile(ladder)
-    if writeSelfS then
-        -- write file
-        text = string.format('%.01f', daysSurvived)
-        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false)
-        dataFile:write(text)
-        dataFile:close()
-        writeSelfS = false
-    end
-
-    if writeSelfK then
-        -- write file
-        if  zombieKills > 999 then
-            text = string.format("%.1f", zombieKills / 1000) .. 'k'
-        else
-            text = tostring(zombieKills)
-        end
-        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false)
-        dataFile:write(text)
-        dataFile:close()
-        writeSelfK = false
-    end
-
     -- write ladders
     for k,v in pairs(ladder) do
         if k == "perkScores" then
@@ -590,7 +589,7 @@ local onLadderUpdate = function(module, command, args)
         AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
     end
 
-    local writingCondition = renderItems or renderPerksItems or writeSelfS or writeSelfK
+    local writingCondition = renderItems or renderPerksItems
     -- print('DEBUG AMPR writingCondition', writingCondition, renderItems, renderPerksItems, writeSelfS, writeSelfK)
     if AshenMPRanking.Options.receiveData and writingCondition then
         writeToFile(ladder)
