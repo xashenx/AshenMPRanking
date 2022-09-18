@@ -50,6 +50,7 @@ local function openLadderDesc(_, item)
         if i > ladderLength and item.title ~= labels.summaryLB then
             if not foundSelf then
                 AshenMPRanking.descUI["position_" .. i]:setText("...")
+                AshenMPRanking.descUI["score_" .. i]:setText("")
                 AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
                 if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
                     local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
@@ -437,15 +438,47 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
     -- end
 end
 
-local function isChanged(new, old, parseAll)
+local function checkForChanges(new, old)
+    local render = false
+    -- laddersToWrite[k] = true
+    if old == nil then
+        return true
+    end
+    
     for k,v in pairs(new) do
         for kk,vv in pairs(v) do
-            if new.title ~= labels.summaryLB then
-                print("DEBUG AMPR isChanged: ", k, vv.user)
-                print("DEBUG AMPR isChanged: ", k, vv.score)
+            if kk ~= "title" then
+                -- print('DEBUG AMPR checkForChanges: ', k, kk)
+                if old[k] == nil then
+                    laddersToWrite[k] = true
+                    render = true
+                else
+                    if new[k][kk] ==  nil or old[k][kk] == nil then
+                        laddersToWrite[k] = true
+                        render = true
+                    else
+                        local newScore = new[k][kk].score
+                        local oldScore = old[k][kk].score
+                        if k == labels.daysSurvived or k == labels.daysSurvivedAbs then
+                            newScore = string.format("%.1f", newScore)
+                            oldScore = string.format("%.1f", oldScore)
+                        elseif kk == labels.daysSurvived or kk == labels.daysSurvivedAbs then
+                            newScore = string.format("%.1f", newScore)
+                            oldScore = string.format("%.1f", oldScore)
+                        end
+                        
+                        if new[k][kk].user ~= old[k][kk].user or newScore ~= oldScore then
+                            -- print('DEBUG AMPR checkForChanges: ', k, kk, "CHANGED!")
+                            laddersToWrite[k] = true
+                            render = true
+                        end
+                    end
+                end
             end
         end
     end
+
+    return render
 end
 
 local onLadderUpdate = function(module, command, args)
@@ -542,29 +575,16 @@ local onLadderUpdate = function(module, command, args)
         end
     end
 
-    -- isChanged(tmpItems, items)
-
     -- check if there are changes in the tables
-    for k,v in pairs(items) do
-        if v ~= tmpItems[k] then
-            renderItems = true
-            laddersToWrite[k] = true
-            -- print('DEBUG AMPR ranking changed: ', k)
-        end
-    end
+    renderItems = checkForChanges(items, tmpItems)
+    -- print('DEBUG AMPR renderItems: ', renderItems)
 
     if renderItems then
         AshenMPRanking.mainUI["list"]:setItems(items)
     end
 
-    -- check if there are changes in the ranking
-    for k,v in pairs(perksItems) do
-        if v ~= tmpPerksItems[k] then
-            renderPerksItems = true
-            laddersToWrite[k] = true
-            -- print('DEBUG AMPR ranking Perks changed: ', k)
-        end
-    end
+    renderPerksItems = checkForChanges(perksItems, tmpPerksItems)
+    -- print('DEBUG AMPR renderPerksItems: ', renderPerksItems)
 
     if AshenMPRanking.sandboxSettings.perkScores and renderPerksItems then
         AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
