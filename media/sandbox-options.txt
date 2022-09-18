@@ -40,7 +40,7 @@ option AshenMPRanking.summaryLB
 option AshenMPRanking.sKills
 {
 	type = boolean, 
-	default = true,
+	default = false,
 	page = AshenMPRanking, 
 	translation = AshenMPRanking_sKills,
 }
