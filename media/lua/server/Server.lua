@@ -11,6 +11,7 @@ local streamers = {}
 local configs = {}
 local lastUpdate = {}
 local miscellaneous = {}
+local lastWrite = 0
 
 -- function fetchSandboxVars()
 AshenMPRanking.server.fetchSandboxVars = function()
@@ -22,6 +23,7 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.moreDeaths = SandboxVars.AshenMPRanking.moreDeaths
     AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
     AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
+    AshenMPRanking.sandboxSettings.writeOnFilePeriod = SandboxVars.AshenMPRanking.writeOnFilePeriod
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -162,7 +164,10 @@ local function loadFromFile()
         end
 
     end
-    dataFile:close();
+    dataFile:close()
+
+    -- set lastWrite to now
+    lastWrite = os.time()
 
     -- sort ladders
     sort_ladders()
@@ -219,6 +224,9 @@ local function SaveToFile()
     end
     dataFile:write(text);
     dataFile:close();
+
+    -- set lastWrite time
+    lastWrite = os.time()
 end
 
 local function initServer()
@@ -322,8 +330,13 @@ local function onPlayerData(player, playerData)
         local args = {}
         args.onlineplayers = miscellaneous.onlineplayers
         args.ladder = oLadder
-        sendServerCommand("AshenMPRanking", "LadderUpdate", args);
-        SaveToFile()
+        sendServerCommand("AshenMPRanking", "LadderUpdate", args)
+
+        -- time difference in minutes from the last write
+        diff = os.difftime(os.time(), lastWrite) / 60
+        if diff > AshenMPRanking.sandboxSettings.writeOnFilePeriod then
+            SaveToFile()
+        end
         -- reset parsedPlayersCounter
         parsedPlayers = 0;
     end

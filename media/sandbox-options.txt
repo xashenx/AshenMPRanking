@@ -19,6 +19,16 @@ option AshenMPRanking.inactivityPurgeTime
 	translation = AshenMPRanking_inactivityPurgeTime,
 }
 
+option AshenMPRanking.writeOnFilePeriod
+{
+	type = integer, 
+	min = 5, 
+	max = 60,	
+	default = 20,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_writeOnFilePeriod,
+}
+
 option AshenMPRanking.periodicTick
 {
 	type = integer, 
