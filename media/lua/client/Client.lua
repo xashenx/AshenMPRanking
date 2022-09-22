@@ -374,10 +374,10 @@ local function writeToFile(ladder)
                 end
             end
         else
-            if laddersToWrite[labels[kk]] then
+            if laddersToWrite[labels[k]] then
                 -- print('DEBUG AMPR write ladder: ',  k, labels[k])
                 writeLadder(v, labels[k], k)
-                laddersToWrite[labels[kk]] = false
+                laddersToWrite[labels[k]] = false
             end
         end
 
