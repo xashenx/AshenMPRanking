@@ -129,7 +129,7 @@ local function refreshSelfSurvived()
 
         if AshenMPRanking.Options.receiveData then
             -- writing to file
-            local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false)
+            local dataFile = getFileWriter("/AshenMPRanking/self_survive.txt", true, false)
             dataFile:write(timeSurvived)
             dataFile:close()
         end
@@ -149,7 +149,7 @@ local function refreshSelfKills()
             else
                 text = tostring(zombieKills)
             end
-            local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false)
+            local dataFile = getFileWriter("/AshenMPRanking/self_zkills.txt", true, false)
             dataFile:write(text)
             dataFile:close()
         end
@@ -342,9 +342,9 @@ local function writeLadder(ladder, label, ladder_name)
 
     for i=1,math.min(#ladder,ladderLength) do
         if i > 1 then
-            if i < math.min(#ladder,ladderLength) then
-                text = text .. ";"
-            end
+            -- if i < math.min(#ladder,ladderLength) then
+            --     text = text .. ";"
+            -- end
             -- text = text .. "\n"
             text = text .. " "
 
