@@ -127,10 +127,12 @@ local function refreshSelfSurvived()
         timeSurvived = tmpSurvive
         AshenMPRanking.mainUI["self_survive"]:setText(timeSurvived)
 
-        -- writing to file
-        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false)
-        dataFile:write(timeSurvived)
-        dataFile:close()
+        if AshenMPRanking.Options.receiveData then
+            -- writing to file
+            local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_survive.txt", true, false)
+            dataFile:write(timeSurvived)
+            dataFile:close()
+        end
     end
 end
 
@@ -139,16 +141,18 @@ local function refreshSelfKills()
         zombieKills = player:getZombieKills()
         AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
         
-        -- write file
-        local text
-        if  zombieKills > 999 then
-            text = string.format("%.1f", zombieKills / 1000) .. 'k'
-        else
-            text = tostring(zombieKills)
+        if AshenMPRanking.Options.receiveData then
+            -- write file
+            local text
+            if  zombieKills > 999 then
+                text = string.format("%.1f", zombieKills / 1000) .. 'k'
+            else
+                text = tostring(zombieKills)
+            end
+            local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false)
+            dataFile:write(text)
+            dataFile:close()
         end
-        local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/self_zkills.txt", true, false)
-        dataFile:write(text)
-        dataFile:close()
     end
 end
 
