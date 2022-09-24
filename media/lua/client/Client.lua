@@ -6,7 +6,6 @@ AshenMPRanking.textureOn = getTexture("media/textures/icon_on.png")
 AshenMPRanking.mainUI = {}
 AshenMPRanking.descUI = {}
 
--- getGameTime():getModData().test = getGameTime():getModData().test or {}
 local items = {}
 local perksItems = {}
 local player, username
@@ -114,15 +113,6 @@ local function showWindowToolbar()
 end
 
 local function refreshSelfSurvived()
-    -- local tmpSurvive = player:getHoursSurvived() / 24
-    -- tmpSurvive = string.format("%.1f", tmpSurvive)
-
-    -- if tmpSurvive ~= daysSurvived then
-    --     daysSurvived = tmpSurvive
-    --     AshenMPRanking.mainUI["self_survive"]:setText(getText("UI_Self_Survived") .. ": " .. daysSurvived)
-    --     writeSelfS = true
-    -- end
-
     -- checking the extended survival time
     local tmpSurvive = player:getTimeSurvived()
     if tmpSurvive ~= timeSurvived then
@@ -338,12 +328,7 @@ local function writeLadder(ladder, label, ladder_name)
 
     for i=1,math.min(#ladder,ladderLength) do
         if i > 1 then
-            -- if i < math.min(#ladder,ladderLength) then
-            --     text = text .. ";"
-            -- end
-            -- text = text .. "\n"
             text = text .. " "
-
         end
 
         if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
@@ -376,12 +361,6 @@ local function writeToFile(ladder)
                 laddersToWrite[labels[k]] = false
             end
         end
-
-        -- if laddersToWrite[labels[k]] then
-        --     print('DEBUG AMPR write ladder: ' .. k)
-        --     writeLadder(v, labels[k], k)
-        --     laddersToWrite[k] = false
-        -- end
     end
 end
 
@@ -674,17 +653,10 @@ local function onCharReset()
     player = getSpecificPlayer(0)
     username = player:getUsername()
 
-    -- if not initUI and AshenMpRanking.sandboxSettings.perkScores then
-    --     -- get initial level of perks and then add listener to update it
-    --     getPerkPoints()
-    --     Events.LevelPerk.Add(LevelPerkListener)
-    -- end
     initVars = true
     Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
     Events.OnServerCommand.Add(onServerConfig)
 end
 
--- Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
--- Events.OnServerCommand.Add(onServerConfig)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnCreatePlayer.Add(onCharReset)

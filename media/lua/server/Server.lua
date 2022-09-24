@@ -61,12 +61,6 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
         -- print(v,k)
     end
 
-    -- if inverse then
-    --     for i=1,#ordered_ladder do
-    --         print("(" .. tostring(i) .. ") " .. ordered_ladder[i][1] .. " -> ".. ordered_ladder[i][2])
-    --     end
-    -- end
-
     return ordered_ladder
 end
 
@@ -387,49 +381,6 @@ local clientCommandDispatcher = function(module, command, player, args)
         sendServerConfig(player)
     end
 end
-
--- local function updateLadder()
---     miscellaneous.onlineplayers = getOnlinePlayers():size()
---     for i=0, getOnlinePlayers():size()-1 do
---         local current_player = getOnlinePlayers():get(i);
---         username = current_player:getUsername();
---         iszombie = current_player:isZombie();
---         level = current_player:getAccessLevel();
---         alive = current_player:isAlive();
-
---         survived = current_player:getHoursSurvived() / 24;
---         zKills = current_player:getZombieKills();
---         sKills = current_player:getSurvivorKills();
-
---         if alive then
---             if ladder.daysSurvivedAbs[username] == nil then
---                 ladder.daysSurvivedAbs[username] = survived;
---                 ladder.zKillsAbs[username] = zKills;
---                 ladder.sKillsAbs[username] = sKills;
---             end
-
---             if survived > ladder.daysSurvivedAbs[username] then
---                 ladder.daysSurvivedAbs[username] = survived;
---             end
---             if zKills > ladder.zKillsAbs[username] then
---                 ladder.zKillsAbs[username] = zKills;
---             end
---             if sKills > ladder.sKillsAbs[username] then
---                 ladder.sKillsAbs[username] = sKills;
---             end
-
---             ladder.daysSurvived[username] = survived;
---             ladder.zKills[username] = zKills;
---             ladder.sKills[username] = sKills;
---         end
---     end
-
---     local args = {}
---     args.onlineplayers = miscellaneous.onlineplayers
---     args.ladder = oLadder
---     -- send the ladder update to clients
---     sendServerCommand("AshenMPRanking", "LadderUpdate", args);
--- end
 
 -- see if the file exists
 function file_exists(file)
