@@ -7,6 +7,7 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_summaryLB = "Enable Summary Leaderboard",
 	Sandbox_AshenMPRanking_sKills = "Enable Survivor Kills Leaderboard",
 	Sandbox_AshenMPRanking_perkScores = "Enable Perk Scores Leaderboards",
+	Sandbox_AshenMPRanking_otherPerks = "Enable Other Perks Leaderboard",
 	Sandbox_AshenMPRanking_moreDeaths = "Enable More Deaths Leaderboard",
 	Sandbox_AshenMPRanking_lessDeaths = "Enable Less Deaths Leaderboard",
 }

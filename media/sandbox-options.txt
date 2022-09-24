@@ -63,6 +63,14 @@ option AshenMPRanking.perkScores
 	translation = AshenMPRanking_perkScores,
 }
 
+option AshenMPRanking.otherPerks
+{
+	type = boolean, 
+	default = false,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_otherPerks,
+}
+
 option AshenMPRanking.moreDeaths
 {
 	type = boolean, 

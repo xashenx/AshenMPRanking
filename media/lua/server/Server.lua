@@ -155,6 +155,7 @@ local function loadFromFile()
                 ladder.perkScores.crafting[username] = tonumber(crafting)
                 ladder.perkScores.combat[username] = tonumber(combat)
                 ladder.perkScores.survivalist[username] = tonumber(survivalist)
+                ladder.perkScores.otherPerks[username] = 0
             end
 
             ladder.deaths[username] = tonumber(deaths)
@@ -211,6 +212,7 @@ local function SaveToFile()
             text = text .. ";" .. ladder.perkScores.crafting[k]
             text = text .. ";" .. ladder.perkScores.combat[k]
             text = text .. ";" .. ladder.perkScores.survivalist[k]
+            text = text .. ";" .. ladder.perkScores.otherPerks[k]
         else
             text = text .. ";" .. 0
             text = text .. ";" .. 0
@@ -274,6 +276,8 @@ local function initServer()
         oLadder.perkScores.crafting = {}
         oLadder.perkScores.combat = {}
         oLadder.perkScores.survivalist = {}
+        ladder.perkScores.otherPerks = {}
+        oLadder.perkScores.otherPerks = {}
     end
 
     AshenMPRanking.sandboxSettings.server_name = getServerName()

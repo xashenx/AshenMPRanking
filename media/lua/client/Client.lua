@@ -35,6 +35,7 @@ PERKS_FIREARM = {"Aiming", "Reloading"}
 PERKS_COMBAT = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
 PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Doctor"}
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
+PERKS_OTHERPERKS = {"Driving", "Bananito"}
 
 local function openLadderDesc(_, item)
     local title
@@ -209,6 +210,17 @@ function getPerkPoints()
         level = player:getPerkLevel(perk)
         -- print(perk, level)
         playerData.perkScores.agility = playerData.perkScores.agility + level
+    end
+
+    -- add levels of PERKS_AGILITY to playerData.perkScores.agility
+    playerData.perkScores.otherPerks = 0
+    for i, label in ipairs(PERKS_OTHERPERKS) do
+        perk = Perks[label]
+        print('perk', perk)
+        if perk ~= nil then
+            level = player:getPerkLevel(perk)
+            playerData.perkScores.otherPerks = playerData.perkScores.otherPerks + level
+        end
     end
 end
 
@@ -399,10 +411,7 @@ local function onRankChange(movement, ladder_label)
 end
 
 local function updateRankingItems(ladder_name, ladder_label, player_username, position, value, list)
-    -- if position > 1 then
-    --     list[ladder_label] = list[ladder_label] .. " <LINE>"
-    -- end
-    
+
     if player_username == username then
         if position > ladderLength then
             list[ladder_label]["player"] = {}
@@ -410,11 +419,7 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
             list[ladder_label]["player"].user = player_username
             list[ladder_label]["player"].score = value
         end
-        -- if position > ladderLength then
-        --     list[ladder_label] = list[ladder_label] .. "... <LINE><GREEN>"
-        -- else
-        --     list[ladder_label] = list[ladder_label] .. "<GREEN>"
-        -- end
+
         
         if current_ranking[ladder_name] ~= nil and value > 0 and position <= ladderLength then
             if position > current_ranking[ladder_name] then
@@ -426,19 +431,10 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
         current_ranking[ladder_name] = position
     end
     
-    -- if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
-    --     list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. string.format("%." .. 1 .. "f", value)
-    -- else
-    --     list[ladder_label] = list[ladder_label] .. "(" .. position .. ") " .. player_username .. " -> " .. value
-    -- end
-    
     list[ladder_label][tostring(position)] = {}
     list[ladder_label][tostring(position)].position = position
     list[ladder_label][tostring(position)].user = player_username
     list[ladder_label][tostring(position)].score = value
-    -- if player_username == username then
-    --     list[ladder_label] = list[ladder_label] .. " <RGB:1,1,1>"
-    -- end
 end
 
 local function checkForChanges(new, old)
@@ -537,42 +533,24 @@ local onLadderUpdate = function(module, command, args)
                 for kk,vv in pairs(v) do
                     if #vv >= i and (i <= ladderLength or vv[i][1] == username) then
                         updateRankingItems(kk, labels[kk], vv[i][1], i, vv[i][2], perksItems)
-                    end
-
-                    if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
-                        -- items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
-                        -- if username == vv[i][1] then
-                        --     items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
-                        -- end
-                        -- items[labels.summaryLB] = items[labels.summaryLB] .. labels[kk] .. ": " .. vv[i][1]
-                        -- if username == vv[i][1] then
-                        --     items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
-                        -- end
-                        items[labels.summaryLB][labels[kk]] = {}
-                        items[labels.summaryLB][labels[kk]].position = labels[kk]
-                        items[labels.summaryLB][labels[kk]].user = vv[i][1]
-                        items[labels.summaryLB][labels[kk]].score = vv[i][2]
+                        if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
+                            items[labels.summaryLB][labels[kk]] = {}
+                            items[labels.summaryLB][labels[kk]].position = labels[kk]
+                            items[labels.summaryLB][labels[kk]].user = vv[i][1]
+                            items[labels.summaryLB][labels[kk]].score = vv[i][2]
+                        end
                     end
                 end
             else
                 if #v >= i and (i <= ladderLength or v[i][1] == username) then
                     updateRankingItems(k, labels[k], v[i][1], i, v[i][2], items)
-                end
-
-                -- if summaryLB and i == 1 add to the list
-                if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
-                    -- items[labels.summaryLB] = items[labels.summaryLB] .. " <LINE>"
-                    -- if username == v[i][1] then
-                    --     items[labels.summaryLB] = items[labels.summaryLB] .. "<GREEN>"
-                    -- end
-                    -- items[labels.summaryLB] = items[labels.summaryLB] .. labels[k] .. ": " .. v[i][1]
-                    -- if username == v[i][1] then
-                    --     items[labels.summaryLB] = items[labels.summaryLB] .. " <RGB:1,1,1>"
-                    -- end
-                    items[labels.summaryLB][labels[k]] = {}
-                    items[labels.summaryLB][labels[k]].position = labels[k]
-                    items[labels.summaryLB][labels[k]].user = v[i][1]
-                    items[labels.summaryLB][labels[k]].score = v[i][2]
+                    -- if summaryLB and i == 1 add to the list
+                    if AshenMPRanking.sandboxSettings.summaryLB and i == 1 then
+                        items[labels.summaryLB][labels[k]] = {}
+                        items[labels.summaryLB][labels[k]].position = labels[k]
+                        items[labels.summaryLB][labels[k]].user = v[i][1]
+                        items[labels.summaryLB][labels[k]].score = v[i][2]
+                    end
                 end
             end
         end
@@ -659,6 +637,7 @@ local onServerConfig = function(module, command, sandboxSettings)
         labels.crafting = getText("UI_crafting")
         labels.combat = getText("UI_combat")
         labels.survivalist = getText("UI_survivalist")
+        labels.otherPerks = "Other Perks"
     end
 
     if AshenMPRanking.sandboxSettings.moreDeaths then
