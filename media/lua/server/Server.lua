@@ -20,6 +20,7 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.inactivityPurgeTime = SandboxVars.AshenMPRanking.inactivityPurgeTime
     AshenMPRanking.sandboxSettings.periodicTick = SandboxVars.AshenMPRanking.periodicTick
     AshenMPRanking.sandboxSettings.perkScores = SandboxVars.AshenMPRanking.perkScores
+    AshenMPRanking.sandboxSettings.otherPerks = SandboxVars.AshenMPRanking.otherPerks
     AshenMPRanking.sandboxSettings.moreDeaths = SandboxVars.AshenMPRanking.moreDeaths
     AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
     AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
@@ -103,7 +104,6 @@ local function loadFromFile()
     line = dataFile:readLine()
 
     while line ~= nil do
-    -- for line in dataFile:readLine() do
         local username
         local daysSurvived
         local daysSurvivedAbs
@@ -114,26 +114,16 @@ local function loadFromFile()
         local deaths
         local updated
 
-        -- username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated  = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)");
-        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,combat,survivalist = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
-        if passiv == nil then
-            username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
+        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,combat,survivalist,otherPerks = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
+        if otherPerks == nil then
+            username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,combat,survivalist = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
+            otherPerks = 0
         end
         line = dataFile:readLine()
 
         if updated ~= nil then
             lastUpdate[username] = tonumber(updated)
             diff = os.difftime(os.time(), lastUpdate[username]) / (24 * 60 * 60)
-        end
-
-        if passiv == nil then
-            -- TODO remove this part when this version become stable
-            passiv = 0
-            agility = 0
-            firearm = 0
-            crafting = 0
-            combat = 0
-            survivalist = 0
         end
 
         if diff < AshenMPRanking.sandboxSettings.inactivityPurgeTime then
@@ -155,7 +145,9 @@ local function loadFromFile()
                 ladder.perkScores.crafting[username] = tonumber(crafting)
                 ladder.perkScores.combat[username] = tonumber(combat)
                 ladder.perkScores.survivalist[username] = tonumber(survivalist)
-                ladder.perkScores.otherPerks[username] = 0
+                if AshenMPRanking.sandboxSettings.otherPerks then
+                    ladder.perkScores.otherPerks[username] = tonumber(otherPerks)
+                end
             end
 
             ladder.deaths[username] = tonumber(deaths)
@@ -212,8 +204,11 @@ local function SaveToFile()
             text = text .. ";" .. ladder.perkScores.crafting[k]
             text = text .. ";" .. ladder.perkScores.combat[k]
             text = text .. ";" .. ladder.perkScores.survivalist[k]
-            text = text .. ";" .. ladder.perkScores.otherPerks[k]
+            if AshenMPRanking.sandboxSettings.otherPerks then
+                text = text .. ";" .. ladder.perkScores.otherPerks[k]
+            end
         else
+            text = text .. ";" .. 0
             text = text .. ";" .. 0
             text = text .. ";" .. 0
             text = text .. ";" .. 0
@@ -276,8 +271,10 @@ local function initServer()
         oLadder.perkScores.crafting = {}
         oLadder.perkScores.combat = {}
         oLadder.perkScores.survivalist = {}
-        ladder.perkScores.otherPerks = {}
-        oLadder.perkScores.otherPerks = {}
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            ladder.perkScores.otherPerks = {}
+            oLadder.perkScores.otherPerks = {}
+        end
     end
 
     AshenMPRanking.sandboxSettings.server_name = getServerName()
@@ -350,7 +347,7 @@ local function sendServerConfig(player)
     local args = {}
     args.onlineplayers = miscellaneous.onlineplayers
     args.ladder = oLadder
-
+    print('sending configs to ' .. player:getUsername())
     sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
     sendServerCommand(player, "AshenMPRanking", "LadderUpdate", args)
 end
@@ -379,9 +376,9 @@ end
 
 local clientCommandDispatcher = function(module, command, player, args)
     if module ~= "AshenMPRanking" then
-        return;
-    end;
-    
+        return
+    end
+
     if command == "PlayerData" then 
         onPlayerData(player, args)
     elseif command == "PlayerIsDead" then

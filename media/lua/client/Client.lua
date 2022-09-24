@@ -15,6 +15,7 @@ local labels = {}
 local current_ranking = {}
 
 local initUI = true
+local initVars = true
 local toolbarButton = {}
 
 -- player stats
@@ -212,14 +213,15 @@ function getPerkPoints()
         playerData.perkScores.agility = playerData.perkScores.agility + level
     end
 
-    -- add levels of PERKS_AGILITY to playerData.perkScores.agility
-    playerData.perkScores.otherPerks = 0
-    for i, label in ipairs(PERKS_OTHERPERKS) do
-        perk = Perks[label]
-        print('perk', perk)
-        if perk ~= nil then
-            level = player:getPerkLevel(perk)
-            playerData.perkScores.otherPerks = playerData.perkScores.otherPerks + level
+    if AshenMPRanking.sandboxSettings.otherPerks then
+        -- add levels of PERKS_OTHERPERKS to playerData.perkScores.otherPerks
+        playerData.perkScores.otherPerks = 0
+        for i, label in ipairs(PERKS_OTHERPERKS) do
+            perk = Perks[label]
+            if perk ~= nil then
+                level = player:getPerkLevel(perk)
+                playerData.perkScores.otherPerks = playerData.perkScores.otherPerks + level
+            end
         end
     end
 end
@@ -229,24 +231,6 @@ local function LevelPerkListener(player, perk, perkLevel, addBuffer)
     local parent_name = parent:toString():lower()
     -- print('perklevelup', perk, parent_name, perkLevel)
     playerData.perkScores[parent_name] = playerData.perkScores[parent_name] + 1
-end
-
-local function onCharReset()
-    toolbarButton = {}
-    toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
-    toolbarButton:setImage(AshenMPRanking.textureOff)
-    toolbarButton:setDisplayBackground(false)
-    -- toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
-
-    ISEquippedItem.instance:addChild(toolbarButton)
-    ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
-
-    player = getSpecificPlayer(0)
-    username = player:getUsername()
-
-    -- get initial level of perks and then add listener to update it
-    getPerkPoints()
-    Events.LevelPerk.Add(LevelPerkListener)
 end
 
 local function onCreateUI()
@@ -611,9 +595,9 @@ local function PlayerUpdateGetServerConfigs(player)
 end
 
 local onServerConfig = function(module, command, sandboxSettings)
-    if module ~= "AshenMPRanking" or command ~= "ServerConfigs" then
-        return;
-    end;
+    if module ~= "AshenMPRanking" or command ~= "ServerConfigs" or not initVars then
+        return
+    end
     Events.OnServerCommand.Remove(onServerConfig)
     Events.OnPlayerUpdate.Remove(PlayerUpdateGetServerConfigs)
     
@@ -637,7 +621,13 @@ local onServerConfig = function(module, command, sandboxSettings)
         labels.crafting = getText("UI_crafting")
         labels.combat = getText("UI_combat")
         labels.survivalist = getText("UI_survivalist")
-        labels.otherPerks = "Other Perks"
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            labels.otherPerks = getText("UI_otherPerks")
+        end
+
+        -- get initial level of perks and then add listener to update it
+        getPerkPoints()
+        Events.LevelPerk.Add(LevelPerkListener)
     end
 
     if AshenMPRanking.sandboxSettings.moreDeaths then
@@ -667,9 +657,34 @@ local onServerConfig = function(module, command, sandboxSettings)
             Events.EveryDays.Add(SendPlayerData)
         end
     end
+
+    initVars = false
 end
 
-Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
-Events.OnServerCommand.Add(onServerConfig)
+local function onCharReset()
+    toolbarButton = {}
+    toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
+    toolbarButton:setImage(AshenMPRanking.textureOff)
+    toolbarButton:setDisplayBackground(false)
+    -- toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
+
+    ISEquippedItem.instance:addChild(toolbarButton)
+    ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
+
+    player = getSpecificPlayer(0)
+    username = player:getUsername()
+
+    -- if not initUI and AshenMpRanking.sandboxSettings.perkScores then
+    --     -- get initial level of perks and then add listener to update it
+    --     getPerkPoints()
+    --     Events.LevelPerk.Add(LevelPerkListener)
+    -- end
+    initVars = true
+    Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
+    Events.OnServerCommand.Add(onServerConfig)
+end
+
+-- Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
+-- Events.OnServerCommand.Add(onServerConfig)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnCreatePlayer.Add(onCharReset)

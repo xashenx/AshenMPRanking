@@ -25,6 +25,7 @@ UI_EN = {
     UI_crafting = "Crafting",
     UI_combat = "Combat",
     UI_survivalist = "Survivalist",
+    UI_otherPerks = "Others",
     UI_WaitingForUpdate = "Waiting for a server update",
     UI_Options_receive = "Receive data",
     UI_Options_receive_tooltip = "Writing files for streamers",
