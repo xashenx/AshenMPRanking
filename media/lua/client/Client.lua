@@ -33,9 +33,9 @@ PERKS_PASSIV = {"Fitness", "Strength"}
 PERKS_AGILITY = {"Sprinting", "Lightfoot", "Nimble", "Sneak"}
 PERKS_FIREARM = {"Aiming", "Reloading"}
 PERKS_COMBAT = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
-PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Doctor"}
+PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Doctor", "Mansonry"}
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
-PERKS_OTHERPERKS = {"Driving", "Bananito"}
+PERKS_OTHERPERKS = {"Driving"}
 
 local function openLadderDesc(_, item)
     local title
@@ -148,71 +148,40 @@ local function refreshSelfKills()
     end
 end
 
+function getPerkCategoryScore(category)
+    local score = 0
+    for i, label in ipairs(category) do
+        perk = Perks[label]
+        if perk ~= nil then
+            level = player:getPerkLevel(perk)
+            score = score + level
+        end
+    end
+    return score
+end
+
 function getPerkPoints()
-    playerData.perkScores.passiv = 0
     -- add levels of PERKS_PASIV to playerData.perkScores.passiv
-    for i, label in ipairs(PERKS_PASSIV) do
-        perk = Perks[label]
-        level = player:getPerkLevel(perk)
-        -- print(perk, level)
-        playerData.perkScores.passiv = playerData.perkScores.passiv + player:getPerkLevel(perk)
-    end
-
-    -- add levels of PERKS_COMBAT to playerData.perkScores.combat
-    playerData.perkScores.combat = 0
-    for i, label in ipairs(PERKS_COMBAT) do
-        perk = Perks[label]
-        level = player:getPerkLevel(perk)
-        -- print(perk, level)
-        playerData.perkScores.combat = playerData.perkScores.combat + level
-    end
-
-    -- add levels of PERKS_FIREARM to playerData.perkScores.firearm
-    playerData.perkScores.firearm = 0
-    for i, label in ipairs(PERKS_FIREARM) do
-        perk = Perks[label]
-        level = player:getPerkLevel(perk)
-        -- print(perk, level)
-        playerData.perkScores.firearm = playerData.perkScores.firearm + level
-    end
-
-    -- add levels of PERKS_CRAFTING to playerData.perkScores.crafting
-    playerData.perkScores.crafting = 0
-    for i, label in ipairs(PERKS_CRAFTING) do
-        perk = Perks[label]
-        level = player:getPerkLevel(perk)
-        -- print(perk, level)
-        playerData.perkScores.crafting = playerData.perkScores.crafting + level
-    end
-
-    -- add levels of PERKS_SURVIVALIST to playerData.perkScores.survivalist
-    playerData.perkScores.survivalist = 0
-    for i, label in ipairs(PERKS_SURVIVALIST) do
-        perk = Perks[label]
-        level = player:getPerkLevel(perk)
-        -- print(perk, level)
-        playerData.perkScores.survivalist = playerData.perkScores.survivalist + level
-    end
+    playerData.perkScores.passiv = getPerkCategoryScore(PERKS_PASSIV)
 
     -- add levels of PERKS_AGILITY to playerData.perkScores.agility
-    playerData.perkScores.agility = 0
-    for i, label in ipairs(PERKS_AGILITY) do
-        perk = Perks[label]
-        level = player:getPerkLevel(perk)
-        -- print(perk, level)
-        playerData.perkScores.agility = playerData.perkScores.agility + level
-    end
+    playerData.perkScores.agility = getPerkCategoryScore(PERKS_AGILITY)
+
+    -- add levels of PERKS_FIREARM to playerData.perkScores.firearm
+    playerData.perkScores.firearm = getPerkCategoryScore(PERKS_FIREARM)
+
+    -- add levels of PERKS_CRAFTING to playerData.perkScores.crafting
+    playerData.perkScores.crafting = getPerkCategoryScore(PERKS_CRAFTING)
+
+    -- add levels of PERKS_COMBAT to playerData.perkScores.combat
+    playerData.perkScores.combat = getPerkCategoryScore(PERKS_COMBAT)
+
+    -- add levels of PERKS_SURVIVALIST to playerData.perkScores.survivalist
+    playerData.perkScores.survivalist = getPerkCategoryScore(PERKS_SURVIVALIST)
 
     if AshenMPRanking.sandboxSettings.otherPerks then
         -- add levels of PERKS_OTHERPERKS to playerData.perkScores.otherPerks
-        playerData.perkScores.otherPerks = 0
-        for i, label in ipairs(PERKS_OTHERPERKS) do
-            perk = Perks[label]
-            if perk ~= nil then
-                level = player:getPerkLevel(perk)
-                playerData.perkScores.otherPerks = playerData.perkScores.otherPerks + level
-            end
-        end
+        playerData.perkScores.otherPerks = getPerkCategoryScore(PERKS_OTHERPERKS)
     end
 end
 
