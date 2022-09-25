@@ -108,7 +108,26 @@ local function loadFromFile()
         return
     end
 
+    local stats = {username = 1,
+                daysSurvived = 2,
+                daysSurvivedAbs = 3,
+                zKills = 4,
+                zKillsAbs = 5,
+                sKills = 6,
+                sKillsAbs = 7,
+                deaths = 8,
+                updated = 9,
+                passiv = 10,
+                agility = 11,
+                firearm =  12,
+                crafting = 13,
+                combat = 14, 
+                survivalist = 15,
+                otherPerks = 16
+        }
+
     line = dataFile:readLine()
+    
 
     while line ~= nil do
         local username
@@ -120,49 +139,64 @@ local function loadFromFile()
         local sKillsAbs
         local deaths
         local updated
+        local player_stats = {}
 
-        username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,combat,survivalist,otherPerks = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
-        if otherPerks == nil then
-            username,daysSurvived,daysSurvivedAbs,zKills,zKillsAbs,sKills,sKillsAbs,deaths,updated,passiv,agility,firearm,crafting,combat,survivalist = line:match("([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)")
-            otherPerks = 0
+        for k,v in pairs(stats) do
+            -- insert v in table with value 0
+            player_stats[v] = {}
+            player_stats[v].description = k
+            player_stats[v].value = 0
         end
+        
+        count = 1
+        for stat in string.gmatch(line, "[^;%s]+") do
+            if player_stats[count].description == "username" then
+                player_stats[count].value = stat
+            else
+                player_stats[count].value = tonumber(stat)
+            end
+                
+            count = count + 1
+        end
+
+        username = player_stats[stats.username].value
+
         line = dataFile:readLine()
 
-        if updated ~= nil then
-            lastUpdate[username] = tonumber(updated)
+        if player_stats[stats.updated].value ~= nil then
+            lastUpdate[username] = player_stats[stats.updated].value
             diff = os.difftime(os.time(), lastUpdate[username]) / (24 * 60 * 60)
         end
 
         if diff < AshenMPRanking.sandboxSettings.inactivityPurgeTime then
-            ladder.daysSurvived[username] = tonumber(daysSurvived)
-            ladder.daysSurvivedAbs[username] = tonumber(daysSurvivedAbs)
+            ladder.daysSurvived[username] = tonumber(player_stats[stats.daysSurvived].value)
+            ladder.daysSurvivedAbs[username] = tonumber(player_stats[stats.daysSurvivedAbs].value)
 
-            ladder.zKills[username] = tonumber(zKills)
-            ladder.zKillsAbs[username] = tonumber(zKillsAbs)
+            ladder.zKills[username] = tonumber(player_stats[stats.zKills].value)
+            ladder.zKillsAbs[username] = tonumber(player_stats[stats.zKillsAbs].value)
 
             if AshenMPRanking.sandboxSettings.sKills then
-                ladder.sKills[username] = tonumber(sKills)
-                ladder.sKillsAbs[username] = tonumber(sKillsAbs)
+                ladder.sKills[username] = tonumber(player_stats[stats.sKills].value)
+                ladder.sKillsAbs[username] = tonumber(player_stats[stats.sKillsAbs].value)
             end
 
             if AshenMPRanking.sandboxSettings.perkScores then
-                ladder.perkScores.passiv[username] = tonumber(passiv)
-                ladder.perkScores.agility[username] = tonumber(agility)
-                ladder.perkScores.firearm[username] = tonumber(firearm)
-                ladder.perkScores.crafting[username] = tonumber(crafting)
-                ladder.perkScores.combat[username] = tonumber(combat)
-                ladder.perkScores.survivalist[username] = tonumber(survivalist)
+                ladder.perkScores.passiv[username] = tonumber(player_stats[stats.passiv].value)
+                ladder.perkScores.agility[username] = tonumber(player_stats[stats.agility].value)
+                ladder.perkScores.firearm[username] = tonumber(player_stats[stats.firearm].value)
+                ladder.perkScores.crafting[username] = tonumber(player_stats[stats.crafting].value)
+                ladder.perkScores.combat[username] = tonumber(player_stats[stats.combat].value)
+                ladder.perkScores.survivalist[username] = tonumber(player_stats[stats.survivalist].value)
                 if AshenMPRanking.sandboxSettings.otherPerks then
-                    ladder.perkScores.otherPerks[username] = tonumber(otherPerks)
+                    ladder.perkScores.otherPerks[username] = tonumber(player_stats[stats.otherPerks].value)
                 end
             end
 
-            ladder.deaths[username] = tonumber(deaths)
+            ladder.deaths[username] = tonumber(player_stats[stats.deaths].value)
         else
             -- dropping player for inactiviti, printing in log
             print("dropping player " .. username .. " for inactivity: " .. string.format("%.0f", diff) .. " days " .. lastUpdate[username])
         end
-
     end
     dataFile:close()
 
