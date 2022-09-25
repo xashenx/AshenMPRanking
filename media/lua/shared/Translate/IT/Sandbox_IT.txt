@@ -8,6 +8,7 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_sKills = "Abilita Classifica Sopravvissuti Uccisi",
 	Sandbox_AshenMPRanking_perkScores = "Abilita Classifica delle Skills",
 	Sandbox_AshenMPRanking_otherPerks = "Abilita Classifica delle Skills Aggiuntive",
+	Sandbox_AshenMPRanking_otherPerksList = "Lista delle Skills Aggiuntive (separate da ;)",
 	Sandbox_AshenMPRanking_moreDeaths = "Abilita Classifica con Maggiori Morti",
 	Sandbox_AshenMPRanking_lessDeaths = "Abilita Classifica con Minori Morti",
 }

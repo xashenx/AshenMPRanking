@@ -21,6 +21,19 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.periodicTick = SandboxVars.AshenMPRanking.periodicTick
     AshenMPRanking.sandboxSettings.perkScores = SandboxVars.AshenMPRanking.perkScores
     AshenMPRanking.sandboxSettings.otherPerks = SandboxVars.AshenMPRanking.otherPerks
+    if AshenMPRanking.sandboxSettings.otherPerks then
+        for token in string.gmatch(SandboxVars.AshenMPRanking.otherPerksList, "[^;%s]+") do
+            if AshenMPRanking.sandboxSettings.otherPerksList == nil then
+                AshenMPRanking.sandboxSettings.otherPerksList = {}
+            end
+
+            -- insert in table the toke
+            table.insert(AshenMPRanking.sandboxSettings.otherPerksList, token)
+        end
+        if AshenMPRanking.sandboxSettings.otherPerksList == nil then
+            AshenMPRanking.sandboxSettings.otherPerks = false
+        end
+    end
     AshenMPRanking.sandboxSettings.moreDeaths = SandboxVars.AshenMPRanking.moreDeaths
     AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
     AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB

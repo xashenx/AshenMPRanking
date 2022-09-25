@@ -35,7 +35,7 @@ PERKS_FIREARM = {"Aiming", "Reloading"}
 PERKS_COMBAT = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
 PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Doctor", "Mansonry"}
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
-PERKS_OTHERPERKS = {"Driving"}
+PERKS_OTHERPERKS = {}
 
 local function openLadderDesc(_, item)
     local title
@@ -180,8 +180,7 @@ function getPerkPoints()
     playerData.perkScores.survivalist = getPerkCategoryScore(PERKS_SURVIVALIST)
 
     if AshenMPRanking.sandboxSettings.otherPerks then
-        -- add levels of PERKS_OTHERPERKS to playerData.perkScores.otherPerks
-        playerData.perkScores.otherPerks = getPerkCategoryScore(PERKS_OTHERPERKS)
+        playerData.perkScores.otherPerks = getPerkCategoryScore(AshenMPRanking.sandboxSettings.otherPerksList)
     end
 end
 
