@@ -38,6 +38,9 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
     AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
     AshenMPRanking.sandboxSettings.writeOnFilePeriod = SandboxVars.AshenMPRanking.writeOnFilePeriod
+
+    -- LaResistenzaMarket setting
+    AshenMPRanking.sandboxSettings.lrm = false
 end
 
 local function sort_my_ladder(ladder, inverse, daysSurvived)
@@ -123,22 +126,15 @@ local function loadFromFile()
                 crafting = 13,
                 combat = 14, 
                 survivalist = 15,
-                otherPerks = 16
+                otherPerks = 16,
+                lrm = 17
         }
 
     line = dataFile:readLine()
     
-
+    -- print("AMPR DEBUG: Loading ladder from file")
     while line ~= nil do
         local username
-        local daysSurvived
-        local daysSurvivedAbs
-        local zKills
-        local zKillsAbs
-        local sKills
-        local sKillsAbs
-        local deaths
-        local updated
         local player_stats = {}
 
         for k,v in pairs(stats) do
@@ -160,43 +156,47 @@ local function loadFromFile()
         end
 
         username = player_stats[stats.username].value
-
-        line = dataFile:readLine()
+        -- print("AMPR DEBUG parsing stats for player: ", username)
 
         if player_stats[stats.updated].value ~= nil then
             lastUpdate[username] = player_stats[stats.updated].value
             diff = os.difftime(os.time(), lastUpdate[username]) / (24 * 60 * 60)
         end
-
+        
         if diff < AshenMPRanking.sandboxSettings.inactivityPurgeTime then
-            ladder.daysSurvived[username] = tonumber(player_stats[stats.daysSurvived].value)
-            ladder.daysSurvivedAbs[username] = tonumber(player_stats[stats.daysSurvivedAbs].value)
-
-            ladder.zKills[username] = tonumber(player_stats[stats.zKills].value)
-            ladder.zKillsAbs[username] = tonumber(player_stats[stats.zKillsAbs].value)
-
+            ladder.daysSurvived[username] = player_stats[stats.daysSurvived].value
+            ladder.daysSurvivedAbs[username] = player_stats[stats.daysSurvivedAbs].value
+            
+            ladder.zKills[username] = player_stats[stats.zKills].value
+            ladder.zKillsAbs[username] = player_stats[stats.zKillsAbs].value
+            
             if AshenMPRanking.sandboxSettings.sKills then
-                ladder.sKills[username] = tonumber(player_stats[stats.sKills].value)
-                ladder.sKillsAbs[username] = tonumber(player_stats[stats.sKillsAbs].value)
+                ladder.sKills[username] = player_stats[stats.sKills].value
+                ladder.sKillsAbs[username] = player_stats[stats.sKillsAbs].value
             end
-
+            
             if AshenMPRanking.sandboxSettings.perkScores then
-                ladder.perkScores.passiv[username] = tonumber(player_stats[stats.passiv].value)
-                ladder.perkScores.agility[username] = tonumber(player_stats[stats.agility].value)
-                ladder.perkScores.firearm[username] = tonumber(player_stats[stats.firearm].value)
-                ladder.perkScores.crafting[username] = tonumber(player_stats[stats.crafting].value)
-                ladder.perkScores.combat[username] = tonumber(player_stats[stats.combat].value)
-                ladder.perkScores.survivalist[username] = tonumber(player_stats[stats.survivalist].value)
+                ladder.perkScores.passiv[username] = player_stats[stats.passiv].value
+                ladder.perkScores.agility[username] = player_stats[stats.agility].value
+                ladder.perkScores.firearm[username] = player_stats[stats.firearm].value
+                ladder.perkScores.crafting[username] = player_stats[stats.crafting].value
+                ladder.perkScores.combat[username] = player_stats[stats.combat].value
+                ladder.perkScores.survivalist[username] = player_stats[stats.survivalist].value
                 if AshenMPRanking.sandboxSettings.otherPerks then
-                    ladder.perkScores.otherPerks[username] = tonumber(player_stats[stats.otherPerks].value)
+                    ladder.perkScores.otherPerks[username] = player_stats[stats.otherPerks].value
+                end
+                -- LaResistenzaMarket
+                if AshenMPRanking.sandboxSettings.lrm then
+                    ladder.perkScores.lrm[username] = player_stats[stats.lrm].value
                 end
             end
-
-            ladder.deaths[username] = tonumber(player_stats[stats.deaths].value)
+            
+            ladder.deaths[username] = player_stats[stats.deaths].value
         else
             -- dropping player for inactiviti, printing in log
             print("dropping player " .. username .. " for inactivity: " .. string.format("%.0f", diff) .. " days " .. lastUpdate[username])
         end
+        line = dataFile:readLine()
     end
     dataFile:close()
 
@@ -247,8 +247,16 @@ local function SaveToFile()
             text = text .. ";" .. ladder.perkScores.survivalist[k]
             if AshenMPRanking.sandboxSettings.otherPerks then
                 text = text .. ";" .. ladder.perkScores.otherPerks[k]
+            else
+                text = text .. ";" .. 0
+            end
+            if AshenMPRanking.sandboxSettings.lrm then
+                text = text .. ";" .. ladder.perkScores.lrm[k]
+            else
+                text = text .. ";" .. 0
             end
         else
+            text = text .. ";" .. 0
             text = text .. ";" .. 0
             text = text .. ";" .. 0
             text = text .. ";" .. 0
@@ -316,7 +324,15 @@ local function initServer()
             ladder.perkScores.otherPerks = {}
             oLadder.perkScores.otherPerks = {}
         end
+        -- ladder for LaResistenzaMarket
+        if AshenMPRanking.sandboxSettings.lrm then
+            ladder.perkScores.lrm = {}
+            oLadder.perkScores.lrm = {}
+            AshenMPRanking.sandboxSettings.lrm = true
+        end
+        -- print("AMPR DEBUG - LRM enabled: ", getGameTime():getModData().LRMPlayerInventory)
     end
+
 
     AshenMPRanking.sandboxSettings.server_name = getServerName()
 
@@ -358,6 +374,19 @@ local function onPlayerData(player, playerData)
             for k,v in pairs(playerData.perkScores) do
                 ladder.perkScores[k][username] = v
             end
+            -- get deposited $$ on LaResistenzaMarket
+            if AshenMPRanking.sandboxSettings.lrm then
+                if getGameTime():getModData().LRMPlayerInventory.players ~= nil then
+                    if getGameTime():getModData().LRMPlayerInventory.players[playerData.steamId] then
+                        money = getGameTime():getModData().LRMPlayerInventory.players[playerData.steamId].score
+                    else
+                        money = 0
+                    end
+                    ladder.perkScores.lrm[username] = money
+                else
+                    ladder.perkScores.lrm[username] = 0
+                end
+            end
         end
 
         lastUpdate[username] = os.time()
@@ -388,7 +417,6 @@ local function sendServerConfig(player)
     local args = {}
     args.onlineplayers = miscellaneous.onlineplayers
     args.ladder = oLadder
-    print('sending configs to ' .. player:getUsername())
     sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
     sendServerCommand(player, "AshenMPRanking", "LadderUpdate", args)
 end

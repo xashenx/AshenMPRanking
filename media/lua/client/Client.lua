@@ -532,6 +532,7 @@ local function SendPlayerData()
     playerData.zombieKills = player:getZombieKills()
     playerData.survivorKills = player:getSurvivorKills()
     playerData.daysSurvived = player:getHoursSurvived() / 24
+    playerData.steamId = getSteamIDFromUsername(username)
     playerData.receiveData = AshenMPRanking.Options.receiveData
 
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData)
@@ -587,6 +588,11 @@ local onServerConfig = function(module, command, sandboxSettings)
 
     if AshenMPRanking.sandboxSettings.summaryLB then
         labels.summaryLB = getText("UI_summaryLB")
+    end
+
+    -- LaResistenzaMarket
+    if AshenMPRanking.sandboxSettings.lrm then
+        labels.lrm = "LaResistenzaMarket"
     end
     
     if initUI then
