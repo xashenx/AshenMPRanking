@@ -397,7 +397,7 @@ local function onPlayerData(player, playerData)
         -- sort ladders
         sort_ladders()
 
-        miscellaneous.onlineplayers = tostring(parsedPlayers)
+        miscellaneous.onlineplayers = tostring(getOnlinePlayers():size())
         local args = {}
         args.onlineplayers = miscellaneous.onlineplayers
         args.ladder = oLadder
