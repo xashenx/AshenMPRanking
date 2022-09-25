@@ -325,7 +325,7 @@ local function initServer()
             oLadder.perkScores.otherPerks = {}
         end
         -- ladder for LaResistenzaMarket
-        if AshenMPRanking.sandboxSettings.lrm then
+        if getGameTime():getModData().LRMPlayerInventory ~= nil then
             ladder.perkScores.lrm = {}
             oLadder.perkScores.lrm = {}
             AshenMPRanking.sandboxSettings.lrm = true
