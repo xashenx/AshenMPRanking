@@ -14,6 +14,7 @@ UI_EN = {
     UI_LastUpdate = "Aggiornato",
     UI_Self_Survived = "Sopravvissuto",
     UI_Self_Zkills = "Z Uccisi",
+    UI_Self_0ZKills = "ZERO Kills?! COSA!?",
     UI_LaddersLabel = "Classifiche",
     UI_summaryLB = "Riepilogo",
     UI_StatsLabel = "Statistiche",

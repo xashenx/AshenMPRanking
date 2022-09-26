@@ -131,7 +131,12 @@ end
 local function refreshSelfKills()
     if zombieKills ~= player:getZombieKills() then
         zombieKills = player:getZombieKills()
-        AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+
+        if zombieKills > 0 then
+            AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+        else
+            AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+        end
         
         if AshenMPRanking.Options.receiveData then
             -- write file
