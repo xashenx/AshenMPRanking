@@ -377,13 +377,18 @@ local function onPlayerData(player, playerData)
             -- get deposited $$ on LaResistenzaMarket
             if AshenMPRanking.sandboxSettings.lrm then
                 if getGameTime():getModData().LRMPlayerInventory.players ~= nil then
-                    if getGameTime():getModData().LRMPlayerInventory.players[playerData.steamId] then
-                        money = getGameTime():getModData().LRMPlayerInventory.players[playerData.steamId].score
+                    local money = 0
+                    print("AMPR DEBUG - checking balance for: ", playerData.username, playerData.steamID)
+                    if getGameTime():getModData().LRMPlayerInventory.players[playerData.steamID] ~= nil then
+                        money = getGameTime():getModData().LRMPlayerInventory.players[playerData.steamID].score
+                        print("AMPR DEBUG BALANCE FOR ", username, balance)
                     else
+                        print("AMPR DEBUG no entry for ", username, playerData.steamID)
                         money = 0
                     end
                     ladder.perkScores.lrm[username] = money
                 else
+                    print("AMPR DEBUG players not initialized ", username, playerData.steamID)
                     ladder.perkScores.lrm[username] = 0
                 end
             end

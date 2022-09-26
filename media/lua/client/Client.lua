@@ -531,7 +531,8 @@ local function SendPlayerData()
     local surname = player:getDescriptor():getSurname()
 
     playerData.username = username
-    playerData.steamID = getSteamIDFromUsername(username)
+    -- get the steamid of the player
+    playerData.steamID = player:getSteamID()
     playerData.charName = forname .. " " .. surname
     playerData.profession = player:getDescriptor():getProfession()
     playerData.isAlive = player:isAlive()
@@ -539,7 +540,6 @@ local function SendPlayerData()
     playerData.zombieKills = player:getZombieKills()
     playerData.survivorKills = player:getSurvivorKills()
     playerData.daysSurvived = player:getHoursSurvived() / 24
-    playerData.steamId = getSteamIDFromUsername(username)
     playerData.receiveData = AshenMPRanking.Options.receiveData
 
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData)
