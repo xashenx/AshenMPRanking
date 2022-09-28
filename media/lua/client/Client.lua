@@ -18,7 +18,7 @@ local initVars = true
 local toolbarButton = {}
 
 -- player stats
-local zombieKills = 0
+local zombieKills = -1
 local daysSurvived = 0
 local timeSurvived = nil
 
@@ -143,7 +143,7 @@ local function refreshSelfKills()
         if zombieKills > 0 then
             AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
         else
-            AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_Zkills") .. ": " .. zombieKills)
+            AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_0ZKills"))
         end
         
         if AshenMPRanking.Options.receiveData then
