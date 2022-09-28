@@ -331,7 +331,7 @@ local function writeLadder(ladder, label, ladder_name)
         if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. string.format("%." .. 1 .. "f", ladder[i][2]) .. ")"
         elseif ladder_name == "lrm" then
-            value = ladder[i][2] * 1000
+            value = ladder[i][2] * 100
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. string.format("%.0f", value) .. ")"
         else
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. ladder[i][2] .. ")"
