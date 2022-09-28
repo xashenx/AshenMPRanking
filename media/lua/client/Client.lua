@@ -628,7 +628,7 @@ local onServerConfig = function(module, command, sandboxSettings)
 
     -- LaResistenzaMarket
     if AshenMPRanking.sandboxSettings.lrm then
-        labels.lrm = "LaResistenzaMarket"
+        labels.lrm = getText("UI_LRM")
     end
     
     if initUI then

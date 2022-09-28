@@ -18,6 +18,7 @@ UI_EN = {
     UI_LaddersLabel = "Leaderboards",
     UI_summaryLB = "Summary",
     UI_killsPerDay = "Kills/Day",
+    UI_LRM = "Balance",
     UI_StatsLabel = "Statistics",
     UI_PerksLabel = "Skills",
     UI_days = "days",

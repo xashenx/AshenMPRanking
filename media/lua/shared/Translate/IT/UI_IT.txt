@@ -18,6 +18,7 @@ UI_EN = {
     UI_LaddersLabel = "Classifiche",
     UI_summaryLB = "Riepilogo",
     UI_killsPerDay = "Kills/Giorno",
+    UI_LRM = "Bilancio",
     UI_StatsLabel = "Statistiche",
     UI_PerksLabel = "Skills",
     UI_days = "giorni",
