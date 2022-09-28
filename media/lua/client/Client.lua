@@ -55,6 +55,10 @@ local function openLadderDesc(_, item)
                 if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
                     local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+                elseif title == labels.lrm or tostring(v.position) == labels.lrm then
+                    local value = item.player.score * 1000
+                    local text = item.player.user .. " (" .. string.format("%.0f", value) .. ")"
+                    AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 else
                     local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
@@ -74,6 +78,10 @@ local function openLadderDesc(_, item)
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
                 local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                AshenMPRanking.descUI["score_" .. i]:setText(text)
+            elseif title == labels.lrm or tostring(v.position) == labels.lrm then
+                local value = item.player.score * 1000
+                local text = item.player.user .. " (" .. string.format("%.0f", value) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             else
                 local text = v.user .. " (" .. tostring(v.score) .. ")"
@@ -313,6 +321,9 @@ local function writeLadder(ladder, label, ladder_name)
 
         if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. string.format("%." .. 1 .. "f", ladder[i][2]) .. ")"
+        elseif ladder_name == "lrm" then
+            value = ladder[i][2] * 1000
+            text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. string.format("%.0f", value) .. ")"
         else
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. ladder[i][2] .. ")"
         end
