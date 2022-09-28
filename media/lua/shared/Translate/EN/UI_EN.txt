@@ -17,6 +17,7 @@ UI_EN = {
     UI_Self_0ZKills = "ZERO Kills?! WHAT!?",
     UI_LaddersLabel = "Leaderboards",
     UI_summaryLB = "Summary",
+    UI_killsPerDay = "Kills/Day",
     UI_StatsLabel = "Statistics",
     UI_PerksLabel = "Skills",
     UI_days = "days",

@@ -80,8 +80,8 @@ local function openLadderDesc(_, item)
                 local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             elseif title == labels.lrm or tostring(v.position) == labels.lrm then
-                local value = item.player.score * 1000
-                local text = item.player.user .. " (" .. string.format("%.0f", value) .. ")"
+                local value = v.score * 1000
+                local text = v.user .. " (" .. string.format("%.0f", value) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             else
                 local text = v.user .. " (" .. tostring(v.score) .. ")"
@@ -243,27 +243,36 @@ local function onCreateUI()
     local height = BASE_HEIGHT * 4
     if AshenMPRanking.sandboxSettings.sKills then
         height = height + BASE_HEIGHT * 2
+
+        if AshenMPRanking.sandboxSettings.summaryLB then
+            height = height + BASE_HEIGHT
+        end
+
+        if AshenMPRanking.sandboxSettings.killsPerDay then
+            height = height + BASE_HEIGHT
+        end        
+
         if AshenMPRanking.sandboxSettings.moreDeaths then
             height = height + BASE_HEIGHT
         end
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
-            height = height + BASE_HEIGHT
-        end
-
-        if AshenMPRanking.sandboxSettings.summaryLB then
             height = height + BASE_HEIGHT
         end
     elseif AshenMPRanking.sandboxSettings.moreDeaths or AshenMPRanking.sandboxSettings.lessDeaths then
+        if AshenMPRanking.sandboxSettings.summaryLB then
+            height = height + BASE_HEIGHT
+        end
+
+        if AshenMPRanking.sandboxSettings.killsPerDay then
+            height = height + BASE_HEIGHT
+        end
+
         if AshenMPRanking.sandboxSettings.moreDeaths then
             height = height + BASE_HEIGHT
         end
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
-            height = height + BASE_HEIGHT
-        end
-
-        if AshenMPRanking.sandboxSettings.summaryLB then
             height = height + BASE_HEIGHT
         end
     elseif AshenMPRanking.sandboxSettings.perkScores then
@@ -294,7 +303,7 @@ local function onCreateUI()
     -- AshenMPRanking.descUI:setWidthPercent(0.1)
     AshenMPRanking.descUI:setWidthPixel(250)
     
-    for i = 1, 17 do
+    for i = 1, AshenMPRanking.sandboxSettings.numLadders do
         AshenMPRanking.descUI:addText("position_" .. i, "", "", "Center")
         AshenMPRanking.descUI:addText("score_" .. i, "", "", "Center")
         AshenMPRanking.descUI:nextLine()
@@ -601,16 +610,20 @@ local onServerConfig = function(module, command, sandboxSettings)
         Events.LevelPerk.Add(LevelPerkListener)
     end
 
+    if AshenMPRanking.sandboxSettings.summaryLB then
+        labels.summaryLB = getText("UI_summaryLB")
+    end
+
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+        labels.killsPerDay = getText("UI_killsPerDay")
+    end
+
     if AshenMPRanking.sandboxSettings.moreDeaths then
         labels.moreDeaths = getText("UI_moreDeaths")
     end
 
     if AshenMPRanking.sandboxSettings.lessDeaths then
         labels.lessDeaths = getText("UI_lessDeaths")
-    end
-
-    if AshenMPRanking.sandboxSettings.summaryLB then
-        labels.summaryLB = getText("UI_summaryLB")
     end
 
     -- LaResistenzaMarket

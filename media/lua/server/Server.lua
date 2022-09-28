@@ -17,6 +17,7 @@ local lastWrite = 0
 AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
     AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
+    AshenMPRanking.sandboxSettings.killsPerDay = SandboxVars.AshenMPRanking.killsPerDay
     AshenMPRanking.sandboxSettings.inactivityPurgeTime = SandboxVars.AshenMPRanking.inactivityPurgeTime
     AshenMPRanking.sandboxSettings.periodicTick = SandboxVars.AshenMPRanking.periodicTick
     AshenMPRanking.sandboxSettings.perkScores = SandboxVars.AshenMPRanking.perkScores
@@ -111,7 +112,8 @@ local function loadFromFile()
         return
     end
 
-    local stats = {username = 1,
+    local stats = {
+                username = 1,
                 daysSurvived = 2,
                 daysSurvivedAbs = 3,
                 zKills = 4,
@@ -127,9 +129,17 @@ local function loadFromFile()
                 combat = 14, 
                 survivalist = 15,
                 otherPerks = 16,
-                lrm = 17
+                lrm = 17,
+                killsPerDay = 18,
         }
+    
+    -- get number of elements of stats
+    local statsSize = 0
+    for k,v in pairs(stats) do
+        statsSize = statsSize + 1
+    end
 
+    AshenMPRanking.sandboxSettings.numLadders = statsSize
     line = dataFile:readLine()
     
     -- print("AMPR DEBUG: Loading ladder from file")
@@ -170,6 +180,10 @@ local function loadFromFile()
             ladder.zKills[username] = player_stats[stats.zKills].value
             ladder.zKillsAbs[username] = player_stats[stats.zKillsAbs].value
             
+            if AshenMPRanking.sandboxSettings.killsPerDay then
+                ladder.killsPerDay[username] = player_stats[stats.killsPerDay].value
+            end
+
             if AshenMPRanking.sandboxSettings.sKills then
                 ladder.sKills[username] = player_stats[stats.sKills].value
                 ladder.sKillsAbs[username] = player_stats[stats.sKillsAbs].value
@@ -237,7 +251,7 @@ local function SaveToFile()
         
         text = text .. ";" .. ladder.deaths[k]
         text = text .. ";" .. lastUpdate[k]
-
+        
         if AshenMPRanking.sandboxSettings.perkScores then
             text = text .. ";" .. ladder.perkScores.passiv[k]
             text = text .. ";" .. ladder.perkScores.agility[k]
@@ -265,7 +279,12 @@ local function SaveToFile()
             text = text .. ";" .. 0
             text = text .. ";" .. 0
         end
-
+        
+        if AshenMPRanking.sandboxSettings.killsPerDay then
+            text = text .. ";" .. ladder.killsPerDay[k]
+        else
+            text = text .. ";" .. 0
+        end
         counter = counter + 1
     end
     dataFile:write(text);
@@ -289,6 +308,11 @@ local function initServer()
 
     ladder.zKillsAbs = {}
     oLadder.zKillsAbs = {}
+
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+        ladder.killsPerDay = {}
+        oLadder.killsPerDay = {}
+    end
 
     if AshenMPRanking.sandboxSettings.sKills then
         ladder.sKills = {}
@@ -337,6 +361,7 @@ local function initServer()
     AshenMPRanking.sandboxSettings.server_name = getServerName()
 
     loadFromFile()
+    SaveToFile()
 end
 
 -- executed when a client(player) sends its information to the server
@@ -363,6 +388,11 @@ local function onPlayerData(player, playerData)
             ladder.zKillsAbs[username] = playerData.zombieKills
         end
         
+        if AshenMPRanking.sandboxSettings.killsPerDay then
+            local value =  tonumber(string.format("%.0f", playerData.zombieKills / playerData.daysSurvived))
+            ladder.killsPerDay[username] =  value
+        end
+
         if AshenMPRanking.sandboxSettings.sKills then
             if playerData.survivorKills > ladder.sKillsAbs[username] then
                 ladder.sKillsAbs[username] = playerData.survivorKills
@@ -435,6 +465,10 @@ local function onPlayerDeathReset(player)
     end
     ladder.daysSurvived[username] = 0
     ladder.zKills[username] = 0
+
+    if AshenMPRanking.sandboxSettings.killsPerDay then   
+        ladder.killsPerDay[username] = 0
+    end
 
     if AshenMPRanking.sandboxSettings.sKills then
         ladder.sKills[username] = 0

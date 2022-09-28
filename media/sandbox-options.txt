@@ -47,6 +47,14 @@ option AshenMPRanking.summaryLB
 	translation = AshenMPRanking_summaryLB,
 }
 
+option AshenMPRanking.killsPerDay
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_killsPerDay,
+}
+
 option AshenMPRanking.sKills
 {
 	type = boolean, 
