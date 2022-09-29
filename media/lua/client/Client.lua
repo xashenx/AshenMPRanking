@@ -56,7 +56,7 @@ local function openLadderDesc(_, item)
                     local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 elseif title == labels.lrm or tostring(v.position) == labels.lrm then
-                    local value = item.player.score * 1000
+                    local value = item.player.score * 100
                     local text = item.player.user .. " (" .. string.format("%.0f", value) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 else
