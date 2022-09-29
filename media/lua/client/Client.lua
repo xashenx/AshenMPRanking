@@ -202,12 +202,10 @@ local function LevelPerkListener(player, perk, perkLevel, addBuffer)
     local parent_name = parent:toString():lower()
 
     -- print('perklevelup', perk, parent_name, perkLevel)
-    if AshenMPRanking.sandboxSettings.otherPerks then
-        if playerData.perkScores[parent_name] ~= nil then
-            playerData.perkScores[parent_name] = playerData.perkScores[parent_name] + 1
-        else
+    if playerData.perkScores[parent_name] ~= nil then
+        playerData.perkScores[parent_name] = playerData.perkScores[parent_name] + 1
+    elseif AshenMPRanking.sandboxSettings.otherPerks then
             playerData.perkScores.otherPerks = playerData.perkScores.otherPerks + 1
-        end
     end
 end
 
