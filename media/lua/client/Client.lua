@@ -104,7 +104,7 @@ local function openLadderDesc(_, item)
     end
 
     -- for j = i to 15 set text of position, user and score to ""
-    for j = i, 15 do
+    for j = i, AshenMPRanking.sandboxSettings.numLadders do
         AshenMPRanking.descUI["position_" .. j]:setText("")
         AshenMPRanking.descUI["score_" .. j]:setText("")
     end
