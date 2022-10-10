@@ -589,7 +589,7 @@ local onServerConfig = function(module, command, sandboxSettings)
     
     if AshenMPRanking.sandboxSettings.sKills then
         labels.sKills = getText("UI_sKills")
-        labels.sKillsAbs = getText("UI_sKillsABS")
+        labels.sKillsTot = getText("UI_sKillsTOT")
     end
 
     if AshenMPRanking.sandboxSettings.perkScores then

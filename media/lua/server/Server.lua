@@ -121,7 +121,7 @@ local function loadFromFile()
                 zKills = 4,
                 zKillsAbs = 5,
                 sKills = 6,
-                sKillsAbs = 7,
+                sKillsTot = 7,
                 deaths = 8,
                 updated = 9,
                 passiv = 10,
@@ -188,7 +188,7 @@ local function loadFromFile()
 
             if AshenMPRanking.sandboxSettings.sKills then
                 ladder.sKills[username] = player_stats[stats.sKills].value
-                ladder.sKillsAbs[username] = player_stats[stats.sKillsAbs].value
+                ladder.sKillsTot[username] = player_stats[stats.sKillsTot].value
             end
             
             if AshenMPRanking.sandboxSettings.perkScores then
@@ -245,7 +245,7 @@ local function SaveToFile()
         
         if AshenMPRanking.sandboxSettings.sKills then
             text = text .. ";" .. ladder.sKills[k]
-            text = text .. ";" .. ladder.sKillsAbs[k]
+            text = text .. ";" .. ladder.sKillsTot[k]
         else
             text = text .. ";" .. 0
             text = text .. ";" .. 0
@@ -319,8 +319,8 @@ local function initServer()
     if AshenMPRanking.sandboxSettings.sKills then
         ladder.sKills = {}
         oLadder.sKills = {}
-        ladder.sKillsAbs = {}
-        oLadder.sKillsAbs = {}
+        ladder.sKillsTot = {}
+        oLadder.sKillsTot = {}
     end
     
     ladder.deaths = {}
@@ -375,7 +375,7 @@ local function onPlayerData(player, playerData)
             ladder.daysSurvivedAbs[username] = playerData.daysSurvived
             ladder.zKillsAbs[username] = playerData.zombieKills
             if AshenMPRanking.sandboxSettings.sKills then
-                ladder.sKillsAbs[username] = playerData.survivorKills
+                ladder.sKillsTot[username] = playerData.survivorKills
             end
             ladder.deaths[username] = 0
         end
@@ -396,8 +396,8 @@ local function onPlayerData(player, playerData)
         end
 
         if AshenMPRanking.sandboxSettings.sKills then
-            if playerData.survivorKills > ladder.sKillsAbs[username] then
-                ladder.sKillsAbs[username] = playerData.survivorKills
+            if playerData.survivorKills > ladder.sKills[username] then
+                ladder.sKillsTot[username] = ladder.sKillsTot[username] + playerData.survivorKills - ladder.sKills[username]
             end
             ladder.sKills[username] = playerData.survivorKills
         end
