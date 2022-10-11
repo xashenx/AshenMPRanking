@@ -395,6 +395,7 @@ local function onPlayerData(player, playerData)
         end
 
         if AshenMPRanking.sandboxSettings.sKills then
+            ladder.sKills[username] = ladder.sKills[username] or 0
             if playerData.survivorKills > ladder.sKills[username] then
                 ladder.sKillsTot[username] = ladder.sKillsTot[username] + playerData.survivorKills - ladder.sKills[username]
             end
