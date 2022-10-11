@@ -49,30 +49,29 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
     daysSurvived = daysSurvived or {}
     ordered_ladder={}
     for v,k in pairs(ladder) do
-        if not inverse or daysSurvived[v] ~= nil then
-            if (daysSurvived[v] > 4 or k > 0) then
-                if #ordered_ladder > 0 then
-                    for i=1,#ordered_ladder do
-                        if inverse then
-                            if k > ordered_ladder[#ordered_ladder -i+1][2] then
-                                table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
-                                break
-                            end
-                        else
-                            if k < ordered_ladder[#ordered_ladder -i+1][2] then
-                                table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
-                                break
-                            end
+        local guard = daysSurvived[v] or 0
+        if not inverse or (guard > 4 or k > 0) then
+            if #ordered_ladder > 0 then
+                for i=1,#ordered_ladder do
+                    if inverse then
+                        if k > ordered_ladder[#ordered_ladder -i+1][2] then
+                            table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
+                            break
                         end
-
-                        if i==#ordered_ladder then
-                            table.insert(ordered_ladder,1,{v,k})
+                    else
+                        if k < ordered_ladder[#ordered_ladder -i+1][2] then
+                            table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
+                            break
                         end
                     end
-                    
-                else
-                    ordered_ladder[1]={v,k}
+
+                    if i==#ordered_ladder then
+                        table.insert(ordered_ladder,1,{v,k})
+                    end
                 end
+                
+            else
+                ordered_ladder[1]={v,k}
             end
         elseif daysSurvived[v] == nil then
             print('AMPR debug NIL daysSurvived', v, k, daysSurvived[v])
