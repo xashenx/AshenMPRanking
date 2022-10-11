@@ -53,14 +53,14 @@ local function openLadderDesc(_, item)
                 AshenMPRanking.descUI["score_" .. i]:setText("")
                 AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
                 if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-                    local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
+                    local text = item.player.user:sub(1,10) .. " (" .. string.format("%.1f", item.player.score) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 elseif title == labels.lrm or tostring(v.position) == labels.lrm then
                     local value = item.player.score * 100
-                    local text = item.player.user .. " (" .. string.format("%.0f", value) .. ")"
+                    local text = item.player.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 else
-                    local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
+                    local text = item.player.user:sub(1,10) .. " (" .. tostring(item.player.score) .. ")"
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 end
                 AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
@@ -74,17 +74,17 @@ local function openLadderDesc(_, item)
         if k ~= 'title' then
             AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
             if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-                local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                local text = v.user:sub(1,10) .. " (" .. string.format("%.1f", v.score) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
-                local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                local text = v.user:sub(1,10) .. " (" .. string.format("%.1f", v.score) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             elseif title == labels.lrm or tostring(v.position) == labels.lrm then
                 local value = v.score * 100
-                local text = v.user .. " (" .. string.format("%.0f", value) .. ")"
+                local text = v.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             else
-                local text = v.user .. " (" .. tostring(v.score) .. ")"
+                local text = v.user:sub(1,10) .. " (" .. tostring(v.score) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             end
             
