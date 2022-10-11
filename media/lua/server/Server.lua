@@ -58,14 +58,14 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
                             table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
                             break
                         end
-                    else
+                    elseif k > 0 then
                         if k < ordered_ladder[#ordered_ladder -i+1][2] then
                             table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
                             break
                         end
                     end
 
-                    if i==#ordered_ladder then
+                    if i==#ordered_ladder and (inverse or k > 0)then
                         table.insert(ordered_ladder,1,{v,k})
                     end
                 end
