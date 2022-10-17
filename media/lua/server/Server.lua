@@ -156,7 +156,7 @@ local function loadFromFile()
         end
         
         count = 1
-        for stat in string.gmatch(line, "[^;%s]+") do
+        for stat in string.gmatch(line, "[^;]+") do
             if player_stats[count].description == "username" then
                 player_stats[count].value = stat
             else
