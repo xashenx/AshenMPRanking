@@ -53,9 +53,6 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
         if not inverse or (guard > 4 or k > 0) then
             if #ordered_ladder > 0 then
                 for i=1,#ordered_ladder do
-                    -- if v == "Ashen" then
-                    --     print("Ashen is in the ladder")
-                    -- end
                     if inverse then
                         if k > ordered_ladder[#ordered_ladder -i+1][2] then
                             table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
@@ -170,7 +167,7 @@ local function loadFromFile()
         end
 
         username = player_stats[stats.username].value
-        print("AMPR DEBUG parsing stats for player: ", username)
+        -- print("AMPR DEBUG parsing stats for player: ", username)
 
         if player_stats[stats.updated].value ~= nil then
             lastUpdate[username] = player_stats[stats.updated].value
