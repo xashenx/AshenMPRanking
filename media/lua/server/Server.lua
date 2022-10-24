@@ -53,6 +53,9 @@ local function sort_my_ladder(ladder, inverse, daysSurvived)
         if not inverse or (guard > 4 or k > 0) then
             if #ordered_ladder > 0 then
                 for i=1,#ordered_ladder do
+                    -- if v == "Ashen" then
+                    --     print("Ashen is in the ladder")
+                    -- end
                     if inverse then
                         if k > ordered_ladder[#ordered_ladder -i+1][2] then
                             table.insert(ordered_ladder,#ordered_ladder-i+2,{v,k})
@@ -167,7 +170,7 @@ local function loadFromFile()
         end
 
         username = player_stats[stats.username].value
-        -- print("AMPR DEBUG parsing stats for player: ", username)
+        print("AMPR DEBUG parsing stats for player: ", username)
 
         if player_stats[stats.updated].value ~= nil then
             lastUpdate[username] = player_stats[stats.updated].value
@@ -355,9 +358,7 @@ local function initServer()
             oLadder.perkScores.lrm = {}
             AshenMPRanking.sandboxSettings.lrm = true
         end
-        -- print("AMPR DEBUG - LRM enabled: ", getGameTime():getModData().LRMPlayerInventory)
     end
-
 
     AshenMPRanking.sandboxSettings.server_name = getServerName()
 
@@ -368,8 +369,8 @@ end
 -- executed when a client(player) sends its information to the server
 local function onPlayerData(player, playerData)
     parsedPlayers = parsedPlayers + 1
-    if playerData.isAlive and  player:getAccessLevel() == "None" then
-        local username = playerData.username
+    local username = playerData.username
+    if playerData.isAlive and player:getAccessLevel() == "None" then
         if ladder.daysSurvivedAbs[username] == nil then
             ladder.daysSurvivedAbs[username] = playerData.daysSurvived
             ladder.zKillsAbs[username] = playerData.zombieKills
@@ -427,6 +428,19 @@ local function onPlayerData(player, playerData)
         end
 
         lastUpdate[username] = os.time()
+    -- elseif accesslevel not equal to None
+    elseif player:getAccessLevel() ~= "None" and ladder.deaths[username] ~= nil then
+        print("AMPR purging data of elevated account: ", playerData.username)
+        -- remove username from drop_player
+        for k,v in pairs(ladder) do
+            if k ~= "perkScores" then
+                ladder[k][username] = nil
+            else
+                for k2,v2 in pairs(ladder.perkScores) do
+                    ladder.perkScores[k2][username] = nil
+                end
+            end
+        end
     end
     
     -- send the update when data are received from all clients
