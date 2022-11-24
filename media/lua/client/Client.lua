@@ -292,7 +292,7 @@ local function onCreateUI()
     AshenMPRanking.mainUI:saveLayout() -- Create window
     AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
     -- AshenMPRanking.mainUI:setBorderToAllElements(true)
-    AshenMPRanking.mainUI:close()
+    -- AshenMPRanking.mainUI:close()
     
     -- Description UI
     AshenMPRanking.descUI = NewUI()
