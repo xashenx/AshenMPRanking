@@ -1,12 +1,12 @@
-if not isServer() then return end;
-AshenMPRanking = AshenMPRanking or {};
+if not isServer() then return end
+AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.sandboxSettings = {}
-AshenMPRanking.server = {};
+AshenMPRanking.server = {}
 
-local parsedPlayers = 0;
-local write_required = false;
-local ladder = {};
-local oLadder = {};
+local parsedPlayers = 0
+local write_required = false
+local ladder = {}
+local oLadder = {}
 local streamers = {}
 local configs = {}
 local lastUpdate = {}
@@ -225,7 +225,7 @@ end
 -- Parse player data and save it to a .csv file inside Lua/ServerPlayersData/ folder
 local function SaveToFile()
     -- write current run csv file
-    local dataFile = getFileWriter("/AshenMPRanking/" .. getServerName() .. "/ladder.csv", true, false);
+    local dataFile = getFileWriter("/AshenMPRanking/" .. getServerName() .. "/ladder.csv", true, false)
 
     text = ""
     local counter = 0
@@ -288,8 +288,8 @@ local function SaveToFile()
         end
         counter = counter + 1
     end
-    dataFile:write(text);
-    dataFile:close();
+    dataFile:write(text)
+    dataFile:close()
 
     -- set lastWrite time
     lastWrite = os.time()
@@ -369,22 +369,22 @@ local function onPlayerData(player, playerData)
     local username = playerData.username
     if playerData.isAlive and player:getAccessLevel() == "None" then
         if ladder.daysSurvivedAbs[username] == nil then
-            ladder.daysSurvivedAbs[username] = playerData.daysSurvived
-            ladder.zKillsAbs[username] = playerData.zombieKills
+            ladder.daysSurvivedAbs[username] = playerData.daysSurvived or 0
+            ladder.zKillsAbs[username] = playerData.zombieKills or 0
             if AshenMPRanking.sandboxSettings.sKills then
-                ladder.sKillsTot[username] = playerData.survivorKills
+                ladder.sKillsTot[username] = playerData.survivorKills or 0
             end
             ladder.deaths[username] = 0
         end
 
-        ladder.daysSurvived[username] = playerData.daysSurvived
+        ladder.daysSurvived[username] = playerData.daysSurvived or 0
         if playerData.daysSurvived > ladder.daysSurvivedAbs[username] then
-            ladder.daysSurvivedAbs[username] = playerData.daysSurvived;
+            ladder.daysSurvivedAbs[username] = playerData.daysSurvived or 0
         end
         
-        ladder.zKills[username] = playerData.zombieKills
+        ladder.zKills[username] = playerData.zombieKills or 0
         if playerData.zombieKills > ladder.zKillsAbs[username] then
-            ladder.zKillsAbs[username] = playerData.zombieKills
+            ladder.zKillsAbs[username] = playerData.zombieKills or 0
         end
         
         if AshenMPRanking.sandboxSettings.killsPerDay then
@@ -397,12 +397,12 @@ local function onPlayerData(player, playerData)
             if playerData.survivorKills > ladder.sKills[username] then
                 ladder.sKillsTot[username] = ladder.sKillsTot[username] + playerData.survivorKills - ladder.sKills[username]
             end
-            ladder.sKills[username] = playerData.survivorKills
+            ladder.sKills[username] = playerData.survivorKills or 0
         end
 
         if AshenMPRanking.sandboxSettings.perkScores then
             for k,v in pairs(playerData.perkScores) do
-                ladder.perkScores[k][username] = v
+                ladder.perkScores[k][username] = v or 0
             end
             -- get deposited $$ on LaResistenzaMarket
             if AshenMPRanking.sandboxSettings.lrm then
@@ -457,7 +457,7 @@ local function onPlayerData(player, playerData)
             SaveToFile()
         end
         -- reset parsedPlayersCounter
-        parsedPlayers = 0;
+        parsedPlayers = 0
     end
 end
 
@@ -516,6 +516,6 @@ function file_exists(file)
     return f ~= nil
 end
 
-Events.OnServerStarted.Add(initServer);
+Events.OnServerStarted.Add(initServer)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnClientCommand.Add(clientCommandDispatcher)
