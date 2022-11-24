@@ -132,6 +132,7 @@ local function loadFromFile()
                 otherPerks = 16,
                 lrm = 17,
                 killsPerDay = 18,
+                zKillsTot = 19,
         }
     
     -- get number of elements of stats
@@ -180,6 +181,7 @@ local function loadFromFile()
             
             ladder.zKills[username] = player_stats[stats.zKills].value
             ladder.zKillsAbs[username] = player_stats[stats.zKillsAbs].value
+            ladder.zKillsTot[username] = player_stats[stats.zKillsTot].value
             
             if AshenMPRanking.sandboxSettings.killsPerDay then
                 ladder.killsPerDay[username] = player_stats[stats.killsPerDay].value
@@ -286,6 +288,8 @@ local function SaveToFile()
         else
             text = text .. ";" .. 0
         end
+
+        text = text .. ";" .. ladder.zKillsTot[k]
         counter = counter + 1
     end
     dataFile:write(text)
@@ -309,6 +313,9 @@ local function initServer()
 
     ladder.zKillsAbs = {}
     oLadder.zKillsAbs = {}
+
+    ladder.zKillsTot = {}
+    oLadder.zKillsTot = {}
 
     if AshenMPRanking.sandboxSettings.killsPerDay then
         ladder.killsPerDay = {}
@@ -374,6 +381,7 @@ local function onPlayerData(player, playerData)
             if AshenMPRanking.sandboxSettings.sKills then
                 ladder.sKillsTot[username] = playerData.survivorKills or 0
             end
+            ladder.zKillsTot[username] = playerData.zombieKills or 0
             ladder.deaths[username] = 0
         end
 
@@ -381,7 +389,12 @@ local function onPlayerData(player, playerData)
         if playerData.daysSurvived > ladder.daysSurvivedAbs[username] then
             ladder.daysSurvivedAbs[username] = playerData.daysSurvived or 0
         end
-        
+
+        ladder.zKills[username] = ladder.zKills[username] or 0
+        if playerData.zombieKills > ladder.zKills[username] then
+            ladder.zKillsTot[username] = ladder.zKillsTot[username] + playerData.zombieKills - ladder.zKills[username]
+        end
+
         ladder.zKills[username] = playerData.zombieKills or 0
         if playerData.zombieKills > ladder.zKillsAbs[username] then
             ladder.zKillsAbs[username] = playerData.zombieKills or 0

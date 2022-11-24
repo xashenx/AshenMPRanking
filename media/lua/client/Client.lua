@@ -237,8 +237,8 @@ local function onCreateUI()
     AshenMPRanking.mainUI:nextLine()
     
     -- calculate the proper height for scrolllists
-    -- base is calculated with dayS, zKill and relative Absolutes
-    local height = BASE_HEIGHT * 4
+    -- base is calculated with dayS, zKill and relative Absolutes AND sKillTot
+    local height = BASE_HEIGHT * 5
     if AshenMPRanking.sandboxSettings.sKills then
         height = height + BASE_HEIGHT * 2
 
@@ -586,6 +586,7 @@ local onServerConfig = function(module, command, sandboxSettings)
 
     labels.zKills = getText("UI_zKills")
     labels.zKillsAbs = getText("UI_zKillsABS")
+    labels.zKillsTot = getText("UI_zKillsTOT")
     
     if AshenMPRanking.sandboxSettings.sKills then
         labels.sKills = getText("UI_sKills")

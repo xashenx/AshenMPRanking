@@ -5,6 +5,7 @@ UI_EN = {
     UI_aliveForAbs = "Record Vivo",
     UI_zKills = "Zombie",
     UI_zKillsABS = "Record Zombie",
+    UI_zKillsTOT = "Zombie Totali",
     UI_sKills = "PvP Kills",
     UI_sKillsTOT = "PvP Kills Totali",
     UI_deaths = "Morti",
