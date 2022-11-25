@@ -392,12 +392,10 @@ local function onPlayerData(player, playerData)
 
         ladder.zKills[username] = ladder.zKills[username] or 0
 
-        if playerData.zombieKills > ladder.zKills[username] then
-            if playerData.zombieKills > ladder.zKillsTot[username] then
-                ladder.zKillsTot[username] = playerData.zombieKills
-            else
-                ladder.zKillsTot[username] = ladder.zKillsTot[username] + playerData.zombieKills - ladder.zKills[username]
-            end
+        if playerData.zombieKills > ladder.zKillsTot[username] then
+            ladder.zKillsTot[username] = playerData.zombieKills
+        elseif playerData.zombieKills > ladder.zKills[username] then
+            ladder.zKillsTot[username] = ladder.zKillsTot[username] + playerData.zombieKills - ladder.zKills[username]
         end
 
         ladder.zKills[username] = playerData.zombieKills or 0
