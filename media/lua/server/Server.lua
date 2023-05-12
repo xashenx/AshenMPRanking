@@ -239,14 +239,44 @@ local function SaveToFile()
             text = k
         end
 
-        text = text .. ";" .. ladder.daysSurvived[k]
-        text = text .. ";" .. ladder.daysSurvivedAbs[k]
-        text = text .. ";" .. ladder.zKills[k]
-        text = text .. ";" .. ladder.zKillsAbs[k]
+        if ladder.daysSurvived[k] ~= nil then
+            text = text .. ";" .. ladder.daysSurvived[k]
+        else
+            text = text .. ";" .. 0
+        end
+        if ladder.daysSurvivedAbs[k] ~= nil then
+            text = text .. ";" .. ladder.daysSurvivedAbs[k]
+        else
+            text = text .. ";" .. 0
+        end
+        if ladder.zKills[k] ~= nil then
+            text = text .. ";" .. ladder.zKills[k]
+        else
+            text = text .. ";" .. 0
+        end
+        if ladder.zKillsAbs[k] ~= nil then
+            text = text .. ";" .. ladder.zKillsAbs[k]
+        else
+            text = text .. ";" .. 0
+        end
+        -- text = text .. ";" .. ladder.daysSurvived[k]
+        -- text = text .. ";" .. ladder.daysSurvivedAbs[k]
+        -- text = text .. ";" .. ladder.zKills[k]
+        -- text = text .. ";" .. ladder.zKillsAbs[k]
         
         if AshenMPRanking.sandboxSettings.sKills then
-            text = text .. ";" .. ladder.sKills[k]
-            text = text .. ";" .. ladder.sKillsTot[k]
+            if ladder.sKills[k] ~= nil then
+                text = text .. ";" .. ladder.sKills[k]
+            else
+                text = text .. ";" .. 0
+            end
+            if ladder.sKillsTot[k] ~= nil then
+                text = text .. ";" .. ladder.sKillsTot[k]
+            else
+                text = text .. ";" .. 0
+            end
+            -- text = text .. ";" .. ladder.sKills[k]
+            -- text = text .. ";" .. ladder.sKillsTot[k]
         else
             text = text .. ";" .. 0
             text = text .. ";" .. 0
@@ -284,7 +314,12 @@ local function SaveToFile()
         end
         
         if AshenMPRanking.sandboxSettings.killsPerDay then
-            text = text .. ";" .. ladder.killsPerDay[k]
+            if ladder.killsPerDay[k] ~= nil then
+                text = text .. ";" .. ladder.killsPerDay[k]
+            else
+                text = text .. ";" .. 0
+            end
+            -- text = text .. ";" .. ladder.killsPerDay[k]
         else
             text = text .. ";" .. 0
         end
@@ -292,11 +327,15 @@ local function SaveToFile()
         text = text .. ";" .. ladder.zKillsTot[k]
         counter = counter + 1
     end
-    dataFile:write(text)
-    dataFile:close()
 
-    -- set lastWrite time
-    lastWrite = os.time()
+    if text ~= "" then
+
+        dataFile:write(text)
+        dataFile:close()
+    
+        -- set lastWrite time
+        lastWrite = os.time()
+    end
 end
 
 local function initServer()
@@ -366,6 +405,13 @@ local function initServer()
 
     AshenMPRanking.sandboxSettings.server_name = getServerName()
 
+
+    -- write current run csv file
+    local dataFile = getFileWriter("/AshenMPRanking/" .. getServerName() .. "/ladder.csv", true, false)
+    if dataFile == nil then
+        dataFile:write("")
+        dataFile:close()
+    end
     loadFromFile()
     SaveToFile()
 end
