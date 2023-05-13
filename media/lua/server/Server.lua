@@ -428,7 +428,7 @@ local function onPlayerData(player, playerData)
             if AshenMPRanking.sandboxSettings.sKills then
                 ladder.sKillsTot[username] = playerData.survivorKills or 0
             end
-            ladder.zKillsTot[username] = playerData.zombieKills or 0
+            -- ladder.zKillsTot[username] = playerData.zombieKills or 0
             ladder.deaths[username] = 0
         end
 
@@ -439,7 +439,9 @@ local function onPlayerData(player, playerData)
 
         ladder.zKills[username] = ladder.zKills[username] or 0
 
-        if playerData.zombieKills > ladder.zKillsTot[username] then
+        if ladder.zKillsTot[username] == nil then
+            ladder.zKillsTot[username] = playerData.zombieKills
+        elseif playerData.zombieKills > ladder.zKillsTot[username] then
             ladder.zKillsTot[username] = playerData.zombieKills
         elseif playerData.zombieKills > ladder.zKills[username] then
             ladder.zKillsTot[username] = ladder.zKillsTot[username] + playerData.zombieKills - ladder.zKills[username]
