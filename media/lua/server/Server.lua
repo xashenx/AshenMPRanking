@@ -407,7 +407,8 @@ local function initServer()
 
 
     -- write current run csv file
-    local dataFile = getFileWriter("/AshenMPRanking/" .. getServerName() .. "/ladder.csv", true, false)
+    local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
+    local dataFile = getFileReader(file, false)
     if dataFile == nil then
         dataFile:write("")
         dataFile:close()
