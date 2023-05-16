@@ -107,7 +107,7 @@ end
 local function loadFromFile()
     -- reading current run ladder
     local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
-    local dataFile = getFileReader(file, false)
+    local dataFile = getFileReader(file, true)
     if dataFile == nil then
         print("No ladder file found, the file will be created as soon as the first player connects")
         return
@@ -408,11 +408,6 @@ local function initServer()
 
     -- write current run csv file
     local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
-    local dataFile = getFileReader(file, false)
-    if dataFile == nil then
-        dataFile:write("")
-        dataFile:close()
-    end
     loadFromFile()
     SaveToFile()
 end
