@@ -810,6 +810,24 @@ function file_exists(file)
     return f ~= nil
 end
 
+-- get/set TotalKills public functions
+function getTotalKills(username, value)
+    return ladder.zKillsTot[username]
+end
+
+function setTotalKills(username, value)
+    ladder.zKillsTot[username] = value
+end
+
+--get/set Deaths public functions
+function getDeaths(username, value)
+    return ladder.deaths[username]
+end
+
+function setDeaths(username, value)
+    ladder.deaths[username] = value
+end
+
 Events.OnServerStarted.Add(initServer)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnClientCommand.Add(clientCommandDispatcher)
