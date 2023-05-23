@@ -448,7 +448,35 @@ local function loadFromFile()
     -- reading current run ladder
     local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
     local dataFile = getFileReader(file, false)
-    -- pass if file is empty
+
+    local stats = {
+        username = 1,
+        daysSurvived = 2,
+        daysSurvivedAbs = 3,
+        zKills = 4,
+        zKillsAbs = 5,
+        sKills = 6,
+        sKillsTot = 7,
+        deaths = 8,
+        updated = 9,
+        passiv = 10,
+        agility = 11,
+        firearm =  12,
+        crafting = 13,
+        combat = 14, 
+        survivalist = 15,
+        otherPerks = 16,
+        lrm = 17,
+        killsPerDay = 18,
+        zKillsTot = 19,
+    }
+
+    -- get number of elements of stats
+    local statsSize = 0
+    for k,v in pairs(stats) do
+        statsSize = statsSize + 1
+    end
+    AshenMPRanking.sandboxSettings.numLadders = statsSize
 
     if dataFile == nil then
         print("No ladder file found, the file will be created as soon as the first player connects")
@@ -457,35 +485,6 @@ local function loadFromFile()
         return
     end
 
-    local stats = {
-                username = 1,
-                daysSurvived = 2,
-                daysSurvivedAbs = 3,
-                zKills = 4,
-                zKillsAbs = 5,
-                sKills = 6,
-                sKillsTot = 7,
-                deaths = 8,
-                updated = 9,
-                passiv = 10,
-                agility = 11,
-                firearm =  12,
-                crafting = 13,
-                combat = 14, 
-                survivalist = 15,
-                otherPerks = 16,
-                lrm = 17,
-                killsPerDay = 18,
-                zKillsTot = 19,
-        }
-    
-    -- get number of elements of stats
-    local statsSize = 0
-    for k,v in pairs(stats) do
-        statsSize = statsSize + 1
-    end
-
-    AshenMPRanking.sandboxSettings.numLadders = statsSize
     line = dataFile:readLine()
     
     -- print("AMPR DEBUG: Loading ladder from file")
