@@ -39,6 +39,7 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
     AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
     AshenMPRanking.sandboxSettings.writeOnFilePeriod = SandboxVars.AshenMPRanking.writeOnFilePeriod
+    AshenMPRanking.sandboxSettings.rankStaff = SandboxVars.AshenMPRanking.rankStaff
 
     -- LaResistenzaMarket setting
     AshenMPRanking.sandboxSettings.lrm = false
@@ -645,7 +646,7 @@ end
 local function onPlayerData(player, playerData)
     parsedPlayers = parsedPlayers + 1
     local username = playerData.username
-    if playerData.isAlive and player:getAccessLevel() == "None" then
+    if playerData.isAlive and player:getAccessLevel() == "None"  or AshenMPRanking.sandboxSettings.rankStaff then
         if ladder.daysSurvivedAbs[username] == nil then
             if checkInactive(1, username) then
                 print("AMPR DEBUG: restoring player " .. username .. " from INACTIVE to ACTIVE")

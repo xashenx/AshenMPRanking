@@ -102,3 +102,11 @@ option AshenMPRanking.lessDeaths
 	page = AshenMPRanking, 
 	translation = AshenMPRanking_lessDeaths,
 }
+
+option AshenMPRanking.rankStaff
+{
+	type = boolean, 
+	default = false,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_rankStaff,
+}
