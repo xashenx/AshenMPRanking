@@ -40,7 +40,7 @@ PERKS_OTHERPERKS = {}
 local function openLadderDesc(_, item)
     local title
     local foundSelf = false
-    ladderLength = AshenMPRanking.Options.ladderLength
+    ladderLength = AshenMPRanking.Options.ladderLength or 10
 
     AshenMPRanking.descUI:open()
     AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
@@ -123,11 +123,14 @@ end
 local function refreshSelfSurvived()
     -- checking the extended survival time
     local tmpSurvive = player:getTimeSurvived()
+    local receiveData = AshenMPRanking.Options.receiveData
     if tmpSurvive ~= timeSurvived then
         timeSurvived = tmpSurvive
         AshenMPRanking.mainUI["self_survive"]:setText(timeSurvived)
 
-        if AshenMPRanking.Options.receiveData then
+        -- check if receive is nil
+        if receiveData ~= nil or receiveData then
+        -- if receive then
             -- writing to file
             local dataFile = getFileWriter("/AshenMPRanking/self_survive.txt", true, false)
             dataFile:write(timeSurvived)
@@ -137,6 +140,7 @@ local function refreshSelfSurvived()
 end
 
 local function refreshSelfKills()
+    local receiveData = AshenMPRanking.Options.receiveData
     if zombieKills ~= player:getZombieKills() then
         zombieKills = player:getZombieKills()
 
@@ -146,7 +150,9 @@ local function refreshSelfKills()
             AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_0ZKills"))
         end
         
-        if AshenMPRanking.Options.receiveData then
+        -- if AshenMPRanking.Options.receiveData then
+        -- check if receive is nil
+        if receiveData ~= nil  or receiveData then
             -- write file
             local text
             if  zombieKills > 999 then
@@ -314,7 +320,7 @@ local function onCreateUI()
     Events.EveryHours.Add(refreshSelfSurvived)
     Events.OnPlayerUpdate.Add(refreshSelfKills)
 
-    ladderLength = AshenMPRanking.Options.ladderLength
+    ladderLength = AshenMPRanking.Options.ladderLength or 10
 end
 
 local function writeLadder(ladder, label, ladder_name)
@@ -449,6 +455,9 @@ local onLadderUpdate = function(module, command, args)
     if args.onlineplayers ~= nil then
         local hour = tonumber(os.date('%H'))
         -- setting hour with timezone setting
+        if AshenMPRanking.Options.timezone == nil then
+            AshenMPRanking.Options.timezone = 0
+        end
         hour = (hour + AshenMPRanking.Options.timezone) % 24
         hour = string.format("%02d", hour)
         local time = hour .. ":" .. os.date('%M')
@@ -533,8 +542,11 @@ local onLadderUpdate = function(module, command, args)
     end
 
     local writingCondition = renderItems or renderPerksItems
+    local receiveData = AshenMPRanking.Options.receiveData
     -- print('DEBUG AMPR writingCondition', writingCondition, renderItems, renderPerksItems, writeSelfS, writeSelfK)
-    if AshenMPRanking.Options.receiveData and writingCondition then
+    -- check if receive is nil
+    if (receiveData ~= nil  or receiveData) and writingCondition then
+    -- if AshenMPRanking.Options.receiveData and writingCondition then
         writeToFile(ladder)
     end
 end 
@@ -563,7 +575,10 @@ local function SendPlayerData()
     playerData.zombieKills = player:getZombieKills()
     playerData.survivorKills = player:getSurvivorKills()
     playerData.daysSurvived = player:getHoursSurvived() / 24
-    playerData.receiveData = AshenMPRanking.Options.receiveData
+
+    -- check if receive is nil
+    local receiveData = AshenMPRanking.Options.receiveData
+    playerData.receiveData = receiveData ~= nil or receiveData
 
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData)
 end
