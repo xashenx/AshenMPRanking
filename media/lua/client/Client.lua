@@ -41,6 +41,9 @@ local function openLadderDesc(_, item)
     local title
     local foundSelf = false
     ladderLength = AshenMPRanking.Options.ladderLength or 10
+    if ladderLength == 2 then
+        ladderLength = 10
+    end
 
     AshenMPRanking.descUI:open()
     AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
@@ -321,6 +324,9 @@ local function onCreateUI()
     Events.OnPlayerUpdate.Add(refreshSelfKills)
 
     ladderLength = AshenMPRanking.Options.ladderLength or 10
+    if ladderLength == 2 then
+        ladderLength = 10
+    end
 end
 
 local function writeLadder(ladder, label, ladder_name)
