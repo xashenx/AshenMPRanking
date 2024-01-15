@@ -2,16 +2,21 @@ if not isServer() then return end
 AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.sandboxSettings = {}
 AshenMPRanking.server = {}
+AshenMPRanking.file = nil
 
 local parsedPlayers = 0
 local write_required = false
 local ladder = {}
+local inactiveAccounts = {}
 local oLadder = {}
 local streamers = {}
 local configs = {}
 local lastUpdate = {}
 local miscellaneous = {}
 local lastWrite = 0
+-- tags for ModData
+local tag_active = 'active'
+local tag_inactive = 'inactive'
 
 -- function fetchSandboxVars()
 AshenMPRanking.server.fetchSandboxVars = function()
@@ -222,6 +227,14 @@ local function SaveToFile(data, filename, lastUpdateInactive)
             lastWrite = os.time()
         end
     end
+
+    -- save
+    ModData.add("AshenMPRanking.ladder", ladder)
+end
+
+local function saveModData(tag, data)
+    ModData.add(tag, data)
+    -- ModData.remove(tag)
 end
 
 local function moveBetweenActiveInactive(username, from, to)
@@ -281,154 +294,161 @@ end
 local function checkInactive(mode, target_username)
     -- TODO merge loadInactive and loadFromFile
     -- reading current run ladder
-    local file = "/AshenMPRanking/" .. getServerName() .. "/inactive.csv"
-    local dataFile = getFileReader(file, false)
-    local lastUpdateInactive = {}
+    if inactiveAccounts.daysSurvived == nil then
+        local file = "/AshenMPRanking/" .. getServerName() .. "/inactive.csv"
+        print('AMPR DEBUG: loading inactive from file')
+        dataFile = getFileReader(file, false)
 
-    -- if dataFile == nil then
-    --     print("AMPR DEBUG: No inactive file found!")
-    -- end
+        -- local lastUpdateInactive = {}
 
-    local inactiveAccounts = {}
-    inactiveAccounts.daysSurvived = {}
-    inactiveAccounts.daysSurvivedAbs = {}
-    inactiveAccounts.zKills = {}
-    inactiveAccounts.zKillsAbs = {}
-    inactiveAccounts.zKillsTot = {}
+        -- if dataFile == nil then
+        --     print("AMPR DEBUG: No inactive file found!")
+        -- end
 
-    if AshenMPRanking.sandboxSettings.killsPerDay then
-        inactiveAccounts.killsPerDay = {}
-    end
+        inactiveAccounts.daysSurvived = {}
+        inactiveAccounts.daysSurvivedAbs = {}
+        inactiveAccounts.zKills = {}
+        inactiveAccounts.zKillsAbs = {}
+        inactiveAccounts.zKillsTot = {}
+        inactiveAccounts.updated = {}
 
-    if AshenMPRanking.sandboxSettings.sKills then
-        inactiveAccounts.sKills = {}
-        inactiveAccounts.sKillsTot = {}
-    end
-
-    inactiveAccounts.deaths = {}
-
-    if AshenMPRanking.sandboxSettings.perkScores then
-        inactiveAccounts.perkScores = {}
-        inactiveAccounts.perkScores.passiv = {}
-        inactiveAccounts.perkScores.agility = {}
-        inactiveAccounts.perkScores.firearm = {}
-        inactiveAccounts.perkScores.crafting = {}
-        inactiveAccounts.perkScores.combat = {}
-        inactiveAccounts.perkScores.survivalist = {}
-        if AshenMPRanking.sandboxSettings.otherPerks then
-            inactiveAccounts.perkScores.otherPerks = {}
-        end
-        -- ladder for LaResistenzaMarket
-        if getGameTime():getModData().LRMPlayerInventory ~= nil then
-            AshenMPRanking.sandboxSettings.lrm = true
-        end
-    end
-
-    local stats = {
-                username = 1,
-                daysSurvived = 2,
-                daysSurvivedAbs = 3,
-                zKills = 4,
-                zKillsAbs = 5,
-                sKills = 6,
-                sKillsTot = 7,
-                deaths = 8,
-                updated = 9,
-                passiv = 10,
-                agility = 11,
-                firearm =  12,
-                crafting = 13,
-                combat = 14, 
-                survivalist = 15,
-                otherPerks = 16,
-                lrm = 17,
-                killsPerDay = 18,
-                zKillsTot = 19,
-        }
-    
-    line = ""
-    if dataFile ~= nil then
-        line = dataFile:readLine()
-    end
-    
-    -- print("AMPR DEBUG: Loading ladder from file")
-    while line ~= nil and line ~= "" do
-        local username
-        local player_stats = {}
-
-        for k,v in pairs(stats) do
-            -- insert v in table with value 0
-            player_stats[v] = {}
-            player_stats[v].description = k
-            player_stats[v].value = 0
-        end
-        
-        count = 1
-        for stat in string.gmatch(line, "[^;]+") do
-            if player_stats[count].description == "username" then
-                player_stats[count].value = stat
-            else
-                player_stats[count].value = tonumber(stat)
-            end
-                
-            count = count + 1
-        end
-
-        username = player_stats[stats.username].value
-        -- print("AMPR DEBUG parsing stats for player: ", username)
-
-        inactiveAccounts.daysSurvived[username] = player_stats[stats.daysSurvived].value
-        inactiveAccounts.daysSurvivedAbs[username] = player_stats[stats.daysSurvivedAbs].value
-        
-        inactiveAccounts.zKills[username] = player_stats[stats.zKills].value
-        inactiveAccounts.zKillsAbs[username] = player_stats[stats.zKillsAbs].value
-        inactiveAccounts.zKillsTot[username] = player_stats[stats.zKillsTot].value
-        lastUpdateInactive[username] = player_stats[stats.updated].value
-        
         if AshenMPRanking.sandboxSettings.killsPerDay then
-            inactiveAccounts.killsPerDay[username] = player_stats[stats.killsPerDay].value
+            inactiveAccounts.killsPerDay = {}
         end
 
         if AshenMPRanking.sandboxSettings.sKills then
-            inactiveAccounts.sKills[username] = player_stats[stats.sKills].value
-            inactiveAccounts.sKillsTot[username] = player_stats[stats.sKillsTot].value
+            inactiveAccounts.sKills = {}
+            inactiveAccounts.sKillsTot = {}
         end
-        
+
+        inactiveAccounts.deaths = {}
+
         if AshenMPRanking.sandboxSettings.perkScores then
-            inactiveAccounts.perkScores.passiv[username] = player_stats[stats.passiv].value
-            inactiveAccounts.perkScores.agility[username] = player_stats[stats.agility].value
-            inactiveAccounts.perkScores.firearm[username] = player_stats[stats.firearm].value
-            inactiveAccounts.perkScores.crafting[username] = player_stats[stats.crafting].value
-            inactiveAccounts.perkScores.combat[username] = player_stats[stats.combat].value
-            inactiveAccounts.perkScores.survivalist[username] = player_stats[stats.survivalist].value
+            inactiveAccounts.perkScores = {}
+            inactiveAccounts.perkScores.passiv = {}
+            inactiveAccounts.perkScores.agility = {}
+            inactiveAccounts.perkScores.firearm = {}
+            inactiveAccounts.perkScores.crafting = {}
+            inactiveAccounts.perkScores.combat = {}
+            inactiveAccounts.perkScores.survivalist = {}
             if AshenMPRanking.sandboxSettings.otherPerks then
-                inactiveAccounts.perkScores.otherPerks[username] = player_stats[stats.otherPerks].value
+                inactiveAccounts.perkScores.otherPerks = {}
             end
-            -- LaResistenzaMarket
-            if AshenMPRanking.sandboxSettings.lrm then
-                inactiveAccounts.perkScores.lrm[username] = player_stats[stats.lrm].value
+            -- ladder for LaResistenzaMarket
+            if getGameTime():getModData().LRMPlayerInventory ~= nil then
+                AshenMPRanking.sandboxSettings.lrm = true
             end
+        end
+
+        local stats = {
+                    username = 1,
+                    daysSurvived = 2,
+                    daysSurvivedAbs = 3,
+                    zKills = 4,
+                    zKillsAbs = 5,
+                    sKills = 6,
+                    sKillsTot = 7,
+                    deaths = 8,
+                    updated = 9,
+                    passiv = 10,
+                    agility = 11,
+                    firearm =  12,
+                    crafting = 13,
+                    combat = 14, 
+                    survivalist = 15,
+                    otherPerks = 16,
+                    lrm = 17,
+                    killsPerDay = 18,
+                    zKillsTot = 19,
+            }
+        
+        line = ""
+        if dataFile ~= nil then
+            line = dataFile:readLine()
         end
         
-        inactiveAccounts.deaths[username] = player_stats[stats.deaths].value
+        -- print("AMPR DEBUG: Loading ladder from file")
+        while line ~= nil and line ~= "" do
+            local username
+            local player_stats = {}
 
-        if username == target_username and mode == 1 then
-            lastUpdate[target_username] = player_stats[stats.updated].value
+            for k,v in pairs(stats) do
+                -- insert v in table with value 0
+                player_stats[v] = {}
+                player_stats[v].description = k
+                player_stats[v].value = 0
+            end
+            
+            count = 1
+            for stat in string.gmatch(line, "[^;]+") do
+                if player_stats[count].description == "username" then
+                    player_stats[count].value = stat
+                else
+                    player_stats[count].value = tonumber(stat)
+                end
+                    
+                count = count + 1
+            end
+
+            username = player_stats[stats.username].value
+            -- print("AMPR DEBUG parsing stats for player: ", username)
+
+            inactiveAccounts.daysSurvived[username] = player_stats[stats.daysSurvived].value
+            inactiveAccounts.daysSurvivedAbs[username] = player_stats[stats.daysSurvivedAbs].value
+            
+            inactiveAccounts.zKills[username] = player_stats[stats.zKills].value
+            inactiveAccounts.zKillsAbs[username] = player_stats[stats.zKillsAbs].value
+            inactiveAccounts.zKillsTot[username] = player_stats[stats.zKillsTot].value
+            -- lastUpdateInactive[username] = player_stats[stats.updated].value
+            -- lastUpdate[username] = player_stats[stats.updated].value
+            
+            if AshenMPRanking.sandboxSettings.killsPerDay then
+                inactiveAccounts.killsPerDay[username] = player_stats[stats.killsPerDay].value
+            end
+
+            if AshenMPRanking.sandboxSettings.sKills then
+                inactiveAccounts.sKills[username] = player_stats[stats.sKills].value
+                inactiveAccounts.sKillsTot[username] = player_stats[stats.sKillsTot].value
+            end
+            
+            if AshenMPRanking.sandboxSettings.perkScores then
+                inactiveAccounts.perkScores.passiv[username] = player_stats[stats.passiv].value
+                inactiveAccounts.perkScores.agility[username] = player_stats[stats.agility].value
+                inactiveAccounts.perkScores.firearm[username] = player_stats[stats.firearm].value
+                inactiveAccounts.perkScores.crafting[username] = player_stats[stats.crafting].value
+                inactiveAccounts.perkScores.combat[username] = player_stats[stats.combat].value
+                inactiveAccounts.perkScores.survivalist[username] = player_stats[stats.survivalist].value
+                if AshenMPRanking.sandboxSettings.otherPerks then
+                    inactiveAccounts.perkScores.otherPerks[username] = player_stats[stats.otherPerks].value
+                end
+                -- LaResistenzaMarket
+                if AshenMPRanking.sandboxSettings.lrm then
+                    inactiveAccounts.perkScores.lrm[username] = player_stats[stats.lrm].value
+                end
+            end
+            
+            inactiveAccounts.deaths[username] = player_stats[stats.deaths].value
+
+            inactiveAccounts.updated[username] = player_stats[stats.updated].value
+            -- if username == target_username and mode == 1 then
+            --     lastUpdate[target_username] = player_stats[stats.updated].value
+            -- end
+
+            line = dataFile:readLine()
         end
-
-        line = dataFile:readLine()
-    end
-    if dataFile ~= nil then
-        dataFile:close()
+        if dataFile ~= nil then
+            dataFile:close()
+        end
     end
 
     if mode == 1 then -- check if username is in inactiveAccounts
         if inactiveAccounts.daysSurvived[target_username] ~= nil then
             -- inactiveAccounts -> ladder
             moveBetweenActiveInactive(target_username, inactiveAccounts, ladder)
-            lastUpdate[username] = os.time()
-            -- write inactive file
-            SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
+            lastUpdate[target_username] = os.time()
+            -- -- write inactive file
+            -- SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
+            saveModData(tag_inactive, inactiveAccounts)
             return true
         else
             return false
@@ -436,52 +456,61 @@ local function checkInactive(mode, target_username)
     elseif mode == 2 then -- move account from active to inactive
         -- ladder -> inactiveAccounts
         moveBetweenActiveInactive(target_username, ladder, inactiveAccounts)
-        -- write inactive file
-        SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
+        -- -- write inactive file
+        -- SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
+        -- save mod data
         lastUpdate[target_username] = nil
+        saveModData(tag_inactive, inactiveAccounts)
         print("AMPR DEBUG: moving " .. target_username .. " from ACTIVE to INACTIVE")
     end
 end
 
 -- load last stats from file on load
-local function loadFromFile()
+local function loadFromFile(stats)
+    -- init structures
+    ladder.daysSurvived = {}
+    ladder.daysSurvivedAbs = {}
+    ladder.zKills = {}
+    ladder.zKillsAbs = {}
+    ladder.zKillsTot = {}
+    ladder.deaths = {}
+    
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+            ladder.killsPerDay = {}
+    end
+    
+    if AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills = {}
+        ladder.sKillsTot = {}
+    end
+    
+    if AshenMPRanking.sandboxSettings.perkScores then
+        ladder.perkScores = {}
+        ladder.perkScores.passiv = {}
+        ladder.perkScores.agility = {}
+        ladder.perkScores.firearm = {}
+        ladder.perkScores.crafting = {}
+        ladder.perkScores.combat = {}
+        ladder.perkScores.survivalist = {}
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            ladder.perkScores.otherPerks = {}
+        end
+        -- ladder for LaResistenzaMarket
+        if getGameTime():getModData().LRMPlayerInventory ~= nil then
+            ladder.perkScores.lrm = {}
+        end
+    end
+
+    print('AMPR: loading player from ladders.csv file')
     -- reading current run ladder
     local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
     local dataFile = getFileReader(file, false)
 
-    local stats = {
-        username = 1,
-        daysSurvived = 2,
-        daysSurvivedAbs = 3,
-        zKills = 4,
-        zKillsAbs = 5,
-        sKills = 6,
-        sKillsTot = 7,
-        deaths = 8,
-        updated = 9,
-        passiv = 10,
-        agility = 11,
-        firearm =  12,
-        crafting = 13,
-        combat = 14, 
-        survivalist = 15,
-        otherPerks = 16,
-        lrm = 17,
-        killsPerDay = 18,
-        zKillsTot = 19,
-    }
-
-    -- get number of elements of stats
-    local statsSize = 0
-    for k,v in pairs(stats) do
-        statsSize = statsSize + 1
-    end
-    AshenMPRanking.sandboxSettings.numLadders = statsSize
 
     if dataFile == nil then
-        print("No ladder file found, the file will be created as soon as the first player connects")
-        dataFile = getFileReader(file, true)
-        dataFile:close()
+        -- print("No ladder file found, the file will be created as soon as the first player connects")
+        -- dataFile = getFileWriter(file, true)
+        -- dataFile:close()
         return
     end
 
@@ -570,34 +599,21 @@ end
 local function initServer()
     AshenMPRanking.server.fetchSandboxVars()
 
-    ladder.daysSurvived = {}
     oLadder.daysSurvived = {}
-    
-    ladder.daysSurvivedAbs = {}
     oLadder.daysSurvivedAbs = {}
-    
-    ladder.zKills = {}
     oLadder.zKills = {}
-    
-    ladder.zKillsAbs = {}
     oLadder.zKillsAbs = {}
-    
-    ladder.zKillsTot = {}
     oLadder.zKillsTot = {}
     
     if AshenMPRanking.sandboxSettings.killsPerDay then
-        ladder.killsPerDay = {}
         oLadder.killsPerDay = {}
     end
     
     if AshenMPRanking.sandboxSettings.sKills then
-        ladder.sKills = {}
         oLadder.sKills = {}
-        ladder.sKillsTot = {}
         oLadder.sKillsTot = {}
     end
     
-    ladder.deaths = {}
     if AshenMPRanking.sandboxSettings.moreDeaths then
         oLadder.moreDeaths = {}
     end
@@ -606,13 +622,6 @@ local function initServer()
     end
     
     if AshenMPRanking.sandboxSettings.perkScores then
-        ladder.perkScores = {}
-        ladder.perkScores.passiv = {}
-        ladder.perkScores.agility = {}
-        ladder.perkScores.firearm = {}
-        ladder.perkScores.crafting = {}
-        ladder.perkScores.combat = {}
-        ladder.perkScores.survivalist = {}
         oLadder.perkScores = {}
         oLadder.perkScores.passiv = {}
         oLadder.perkScores.agility = {}
@@ -621,12 +630,10 @@ local function initServer()
         oLadder.perkScores.combat = {}
         oLadder.perkScores.survivalist = {}
         if AshenMPRanking.sandboxSettings.otherPerks then
-            ladder.perkScores.otherPerks = {}
             oLadder.perkScores.otherPerks = {}
         end
         -- ladder for LaResistenzaMarket
         if getGameTime():getModData().LRMPlayerInventory ~= nil then
-            ladder.perkScores.lrm = {}
             oLadder.perkScores.lrm = {}
             AshenMPRanking.sandboxSettings.lrm = true
         end
@@ -634,18 +641,65 @@ local function initServer()
     
     AshenMPRanking.sandboxSettings.server_name = getServerName()
     
+    local stats = {
+        username = 1,
+        daysSurvived = 2,
+        daysSurvivedAbs = 3,
+        zKills = 4,
+        zKillsAbs = 5,
+        sKills = 6,
+        sKillsTot = 7,
+        deaths = 8,
+        updated = 9,
+        passiv = 10,
+        agility = 11,
+        firearm =  12,
+        crafting = 13,
+        combat = 14, 
+        survivalist = 15,
+        otherPerks = 16,
+        lrm = 17,
+        killsPerDay = 18,
+        zKillsTot = 19,
+    }
+    
+    -- get number of elements of stats
+    local statsSize = 0
+    for k,v in pairs(stats) do
+        statsSize = statsSize + 1
+    end
+    AshenMPRanking.sandboxSettings.numLadders = statsSize
     
     -- write current run csv file
     -- local file = "/AshenMPRanking/" .. getServerName() .. "/ladder.csv"
-    loadFromFile()
-    SaveToFile(ladder, "ladder.csv", {})
+    -- check if ladder.daysSurvived is an empty table
+    if ladder.daysSurvived == nil then
+        loadFromFile(stats)
+    end
+    
+    -- check if any account is inactive
+    for username,v in pairs(lastUpdate) do
+        diff = os.difftime(os.time(), v) / (24 * 60 * 60)
+        if diff > AshenMPRanking.sandboxSettings.inactivityPurgeTime then
+            -- inactive account
+            checkInactive(2, username)
+        end
+    end
+
+    -- save to modData
+    saveModData(tag_active, ladder)
+    saveModData(tag_lastupdate, lastUpdate)
+    saveModData(tag_inactive, inactiveAccounts)
+
+    -- set lastWrite to now
+    lastWrite = os.time()
 end
 
 -- executed when a client(player) sends its information to the server
 local function onPlayerData(player, playerData)
     parsedPlayers = parsedPlayers + 1
     local username = playerData.username
-    if playerData.isAlive and player:getAccessLevel() == "None"  or AshenMPRanking.sandboxSettings.rankStaff then
+    if playerData.isAlive and player:getAccessLevel() == "None" or AshenMPRanking.sandboxSettings.rankStaff then
         if ladder.daysSurvivedAbs[username] == nil then
             if checkInactive(1, username) then
                 print("AMPR DEBUG: restoring player " .. username .. " from INACTIVE to ACTIVE")
@@ -748,7 +802,11 @@ local function onPlayerData(player, playerData)
         diff = os.difftime(os.time(), lastWrite) / 60
         if diff > AshenMPRanking.sandboxSettings.writeOnFilePeriod then
             -- print("AMPR DEBUG: writing ladder to file")
-            SaveToFile(ladder, "ladder.csv", {})
+            -- SaveToFile(ladder, "ladder.csv", {})
+            -- save to modData
+            saveModData(tag_active, ladder)
+            saveModData(tag_lastupdate, lastUpdate)
+            lastWrite = os.time()
         end
         -- reset parsedPlayersCounter
         parsedPlayers = 0
@@ -828,6 +886,40 @@ function setDeaths(username, value)
     ladder.deaths[username] = value
 end
 
+local function onInitGlobalModData(isNewGame)
+    -- load active players from ModData
+    tag_active = "AshenMPRanking." .. getServerName() .. ".ladder"
+    ladder = ModData.getOrCreate(tag_active)
+    -- print('loading ModData(ACTIVE) -> ' .. tag_active)
+    -- ladder = {}
+    -- if ladder.daysSurvived ~= nil then
+    --     for k,v in pairs(ladder.daysSurvived) do
+    --         print('ladder', k,v)
+    --     end
+    -- end
+
+    -- load active players from ModData
+    tag_lastupdate = "AshenMPRanking." .. getServerName() .. ".lastUpdate"
+    lastUpdate = ModData.getOrCreate(tag_lastupdate)
+    -- print('loading ModData(ACTIVE) -> ' .. tag_active)
+    -- lastUpdate = {}
+    -- for k,v in pairs(lastUpdate) do
+    --     print('lastUpdate', k,v)
+    -- end
+
+    -- loading inactive players from ModData
+    tag_inactive = "AshenMPRanking." .. getServerName() .. ".inactiveAccounts"
+    inactiveAccounts = ModData.getOrCreate(tag_inactive)
+    -- print('loading ModData(INACTIVE) -> ' .. tag_inactive)
+    -- inactiveAccounts = {}
+    -- if inactiveAccounts.daysSurvived ~= nil then
+    --     for k,v in pairs(inactiveAccounts.daysSurvived) do
+    --         print('inactive', k,v)
+    --     end
+    -- end
+end
+
 Events.OnServerStarted.Add(initServer)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnClientCommand.Add(clientCommandDispatcher)
+Events.OnInitGlobalModData.Add(onInitGlobalModData)

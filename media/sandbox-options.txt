@@ -22,7 +22,7 @@ option AshenMPRanking.inactivityPurgeTime
 option AshenMPRanking.writeOnFilePeriod
 {
 	type = integer, 
-	min = 5, 
+	min = 1, 
 	max = 60,	
 	default = 20,
 	page = AshenMPRanking, 
