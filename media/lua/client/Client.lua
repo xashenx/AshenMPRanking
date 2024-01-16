@@ -224,7 +224,7 @@ local function onCreateUI()
     -- AshenMPRanking.mainUI:setTitle(getText("UI_MainWTitle"))
     AshenMPRanking.mainUI:setTitle(AshenMPRanking.sandboxSettings.mainUiTitle)
     -- AshenMPRanking.mainUI:setWidthPercent(0.1)
-    AshenMPRanking.mainUI:setWidthPixel(275)
+    AshenMPRanking.mainUI:setWidthPixel(276)
     AshenMPRanking.mainUI:setKeyMN(157)
     AshenMPRanking.mainUI:addText("self_survive", "", "", "Center")
     AshenMPRanking.mainUI:addText("self_zkills", "", "", "Center")
@@ -248,6 +248,15 @@ local function onCreateUI()
     -- calculate the proper height for scrolllists
     -- base is calculated with dayS, zKill and relative Absolutes AND sKillTot
     local height = BASE_HEIGHT * 5
+    local perksHeight = 0
+    if AshenMPRanking.sandboxSettings.perkScores then
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            perksHeight = BASE_HEIGHT * 7
+        else
+            perksHeight = BASE_HEIGHT * 6
+        end
+    end
+
     if AshenMPRanking.sandboxSettings.sKills then
         height = height + BASE_HEIGHT * 2
 
@@ -282,13 +291,13 @@ local function onCreateUI()
         if AshenMPRanking.sandboxSettings.lessDeaths then
             height = height + BASE_HEIGHT
         end
-    elseif AshenMPRanking.sandboxSettings.perkScores then
-        height = BASE_HEIGHT * 6
     end
 
     -- default scrollList
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
+    -- get max height of the scrollList
+    height = math.max(height, perksHeight)
     AshenMPRanking.mainUI:setDefaultLineHeightPixel(height)
 
     if AshenMPRanking.sandboxSettings.perkScores then
