@@ -735,19 +735,53 @@ local function onPlayerData(player, playerData)
         end
         
         if AshenMPRanking.sandboxSettings.killsPerDay then
+            if ladder.killsPerDay == nil then
+                ladder.killsPerDay = {}
+            end
             local value =  tonumber(string.format("%.0f", playerData.zombieKills / playerData.daysSurvived))
             ladder.killsPerDay[username] =  value
+        elseif ladder.killsPerDay ~= nil then
+            ladder.killsPerDay = nil
         end
 
         if AshenMPRanking.sandboxSettings.sKills then
+            if ladder.sKills == nil then
+                ladder.sKills = {}
+                ladder.sKillsTot = {}
+            end
             ladder.sKills[username] = ladder.sKills[username] or 0
             if playerData.survivorKills > ladder.sKills[username] then
                 ladder.sKillsTot[username] = ladder.sKillsTot[username] + playerData.survivorKills - ladder.sKills[username]
             end
             ladder.sKills[username] = playerData.survivorKills or 0
+        elseif ladder.sKills ~= nil then
+            ladder.sKills = nil
+            ladder.sKillsTot = nil
         end
 
         if AshenMPRanking.sandboxSettings.perkScores then
+            if ladder.perkScores == nil then
+                ladder.perkScores = {}
+                ladder.perkScores.passiv = {}
+                ladder.perkScores.agility = {}
+                ladder.perkScores.firearm = {}
+                ladder.perkScores.crafting = {}
+                ladder.perkScores.combat = {}
+                ladder.perkScores.survivalist = {}
+                if AshenMPRanking.sandboxSettings.otherPerks then
+                    ladder.perkScores.otherPerks = {}
+                end
+                -- ladder for LaResistenzaMarket
+                if getGameTime():getModData().LRMPlayerInventory ~= nil then
+                    ladder.perkScores.lrm = {}
+                end
+            end
+            if AshenMPRanking.sandboxSettings.otherPerks and ladder.perkScores.otherPerks == nil then
+                ladder.perkScores.otherPerks = {}
+            end
+            if getGameTime():getModData().LRMPlayerInventory ~= nil and ladder.perkScores.lrm == nil then
+                ladder.perkScores.lrm = {}
+            end
             for k,v in pairs(playerData.perkScores) do
                 ladder.perkScores[k][username] = v or 0
             end
@@ -769,6 +803,8 @@ local function onPlayerData(player, playerData)
                     ladder.perkScores.lrm[username] = 0
                 end
             end
+        elseif ladder.perkScores ~= nil then
+            ladder.perkScores = nil
         end
 
         lastUpdate[username] = os.time()
