@@ -1,0 +1,16 @@
+Sandbox_IT = {
+	Sandbox_AshenMPRanking = "Ashen Placar Multijogador",
+	Sandbox_AshenMPRanking_MainUiTitle = "Titulo da janela principal",
+	Sandbox_AshenMPRanking_inactivityPurgeTime = "Tempo em dias para limpar o placar (inatividade)",
+	Sandbox_AshenMPRanking_writeOnFilePeriod = "Minutos para gravar os arquivo dos placares",
+	Sandbox_AshenMPRanking_periodicTick = "Taxa de atualizacoes do cliente (1m,10m,1h,1d)",
+	Sandbox_AshenMPRanking_summaryLB = "Ativar placar de resumo",
+	Sandbox_AshenMPRanking_killsPerDay = "Ativar placar de zumbis/dia",
+	Sandbox_AshenMPRanking_sKills = "Ativar placar de mortes de sobreviventes",
+	Sandbox_AshenMPRanking_perkScores = "Ativar placar de pontuacao das Perks",
+	Sandbox_AshenMPRanking_otherPerks = "Ativar placar de outras Perks",
+	Sandbox_AshenMPRanking_otherPerksList = "Lista de outras perks (separadas por virgula;)",
+	Sandbox_AshenMPRanking_moreDeaths = "Ativar placar com mais mortes",
+	Sandbox_AshenMPRanking_lessDeaths = "Ativar placar com menos mortes",
+	Sandbox_AshenMPRanking_rankStaff = "Classificar membros da equipe do servidor",
+}
