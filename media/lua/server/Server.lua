@@ -720,9 +720,11 @@ local function initServer()
     -- check if any account is inactive
     for username,v in pairs(lastUpdate) do
         -- first check if the player is a cheater
-        if ladder.perkScores.passiv[username] > AshenMPRanking.sandboxSettings.passivMaxScore then
-            print("AMPR DEBUG: " .. username .. " is a CHEATER, purging from leaderboards")
-            purgeCheater(username)
+        if ladder.perkScores.passiv[username] ~= nil then
+            if ladder.perkScores.passiv[username] > AshenMPRanking.sandboxSettings.passivMaxScore then
+                print("AMPR DEBUG: " .. username .. " is a CHEATER, purging from leaderboards")
+                purgeCheater(username)
+            end
         else
             diff = os.difftime(os.time(), v) / (24 * 60 * 60)
             if diff > AshenMPRanking.sandboxSettings.inactivityPurgeTime then
