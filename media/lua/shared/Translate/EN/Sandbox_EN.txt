@@ -13,4 +13,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_moreDeaths = "Enable More Deaths Leaderboard",
 	Sandbox_AshenMPRanking_lessDeaths = "Enable Less Deaths Leaderboard",
 	Sandbox_AshenMPRanking_rankStaff = "Rank staff members",
+	Sandbox_AshenMPRanking_passivMaxScore = "Passiv perks SUM max score",
 }

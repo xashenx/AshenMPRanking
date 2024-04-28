@@ -13,4 +13,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_moreDeaths = "Ativar placar com mais mortes",
 	Sandbox_AshenMPRanking_lessDeaths = "Ativar placar com menos mortes",
 	Sandbox_AshenMPRanking_rankStaff = "Classificar membros da equipe do servidor",
+	Sandbox_AshenMPRanking_passivMaxScore = "Pontuacao máxima SUM de vantagens passivase",
 }

@@ -45,6 +45,7 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
     AshenMPRanking.sandboxSettings.writeOnFilePeriod = SandboxVars.AshenMPRanking.writeOnFilePeriod
     AshenMPRanking.sandboxSettings.rankStaff = SandboxVars.AshenMPRanking.rankStaff
+    AshenMPRanking.sandboxSettings.passivMaxScore = SandboxVars.AshenMPRanking.passivMaxScore
 
     -- LaResistenzaMarket setting
     AshenMPRanking.sandboxSettings.lrm = false
@@ -465,6 +466,45 @@ local function checkInactive(mode, target_username)
     end
 end
 
+-- purge Cheater from leaderboards
+local function purgeCheater(username)
+    lastUpdate[username] = nil
+
+    ladder.daysSurvived[username] = nil
+    ladder.daysSurvivedAbs[username] = nil
+
+    ladder.zKills[username] = nil
+    ladder.zKillsAbs[username] = nil
+    ladder.zKillsTot[username] = nil
+    
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+        ladder.killsPerDay[username] = nil
+    end
+
+    if AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills[username] = nil
+        ladder.sKillsTot[username] = nil
+    end
+    
+    if AshenMPRanking.sandboxSettings.perkScores then
+        ladder.perkScores.passiv[username] = nil
+        ladder.perkScores.agility[username] = nil
+        ladder.perkScores.firearm[username] = nil
+        ladder.perkScores.crafting[username] = nil
+        ladder.perkScores.combat[username] = nil
+        ladder.perkScores.survivalist[username] = nil
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            ladder.perkScores.otherPerks[username] = nil
+        end
+        -- LaResistenzaMarket
+        if AshenMPRanking.sandboxSettings.lrm then
+            ladder.perkScores.lrm[username] = nil
+        end
+    end
+    
+    ladder.deaths[username] = nil
+end
+
 -- load last stats from file on load
 local function loadFromFile(stats)
     -- init structures
@@ -679,10 +719,16 @@ local function initServer()
     
     -- check if any account is inactive
     for username,v in pairs(lastUpdate) do
-        diff = os.difftime(os.time(), v) / (24 * 60 * 60)
-        if diff > AshenMPRanking.sandboxSettings.inactivityPurgeTime then
-            -- inactive account
-            checkInactive(2, username)
+        -- first check if the player is a cheater
+        if ladder.perkScores.passiv[username] > AshenMPRanking.sandboxSettings.passivMaxScore then
+            print("AMPR DEBUG: " .. username .. " is a CHEATER, purging from leaderboards")
+            purgeCheater(username)
+        else
+            diff = os.difftime(os.time(), v) / (24 * 60 * 60)
+            if diff > AshenMPRanking.sandboxSettings.inactivityPurgeTime then
+                -- inactive account
+                checkInactive(2, username)
+            end
         end
     end
 

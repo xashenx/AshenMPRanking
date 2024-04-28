@@ -13,4 +13,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_moreDeaths = "Abilita Classifica con Maggiori Morti",
 	Sandbox_AshenMPRanking_lessDeaths = "Abilita Classifica con Minori Morti",
 	Sandbox_AshenMPRanking_rankStaff = "Classifica per i membri dello staff",
+	Sandbox_AshenMPRanking_passivMaxScore = "Somma del punteggio massimo delle skill passive",
 }

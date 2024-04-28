@@ -110,3 +110,13 @@ option AshenMPRanking.rankStaff
 	page = AshenMPRanking, 
 	translation = AshenMPRanking_rankStaff,
 }
+
+option AshenMPRanking.passivMaxScore
+{
+	type = integer, 
+	min = 20, 
+	max = 40,	
+	default = 20,
+	page = AshenMPRanking,
+	translation = AshenMPRanking_passivMaxScore,
+}
