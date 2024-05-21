@@ -1,3 +1,7 @@
+require "ISUI/ISComboBox"
+
+ISComboBoxPopupLeaderboard = ISComboBoxPopup:derive("ISComboBoxPopupLeaderboard")
+
 if isServer() then return end;
 AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.sandboxSettings = {}
@@ -37,7 +41,7 @@ PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith",
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging"}
 PERKS_OTHERPERKS = {}
 
-local function openLadderDesc(_, item)
+local function openLadderDescOld(_, item)
     local title
     local foundSelf = false
     ladderLength = AshenMPRanking.Options.ladderLength or 10
@@ -47,7 +51,7 @@ local function openLadderDesc(_, item)
 
     AshenMPRanking.descUI:open()
     AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
-    
+
     i = 1
     for k,v in pairs(item) do
         if i > ladderLength and item.title ~= labels.summaryLB then
@@ -90,7 +94,7 @@ local function openLadderDesc(_, item)
                 local text = v.user:sub(1,10) .. " (" .. tostring(v.score) .. ")"
                 AshenMPRanking.descUI["score_" .. i]:setText(text)
             end
-            
+
             if v.user == username then
                 AshenMPRanking.descUI["position_" .. i]:setColor(1, 0, 1, 0.2)
                 AshenMPRanking.descUI["score_" .. i]:setColor(1, 0, 1, 0.2)
@@ -110,6 +114,105 @@ local function openLadderDesc(_, item)
     for j = i, AshenMPRanking.sandboxSettings.numLadders do
         AshenMPRanking.descUI["position_" .. j]:setText("")
         AshenMPRanking.descUI["score_" .. j]:setText("")
+    end
+end
+
+local function openLadderDesc(_, item)
+    local title
+    local foundSelf = false
+    ladderLength = AshenMPRanking.Options.ladderLength or 10
+    if ladderLength == 2 then
+        ladderLength = 10
+    end
+
+    AshenMPRanking.descUI:open()
+    AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
+
+    local leaderboard = ""
+    i = 1
+    for k,v in pairs(item) do
+        if i > ladderLength and item.title ~= labels.summaryLB then
+            if not foundSelf then
+                AshenMPRanking.descUI["position_" .. i]:setText("...")
+                -- AshenMPRanking.descUI["score_" .. i]:setText("")
+                -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+                if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+                    local text = '. ' .. item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
+                    AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position) .. text)
+                elseif title == labels.lrm or tostring(v.position) == labels.lrm then
+                    local value = item.player.score * 100
+                    local text = '. ' .. item.player.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
+                    AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position) .. text)
+                else
+                    local text = '. ' .. item.player.user:sub(1,10) .. " (" .. tostring(item.player.score) .. ")"
+                    AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position) .. text)
+                end
+                AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
+                -- AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
+                i = i + 2
+            end
+
+            break
+        end
+
+        if k ~= 'title' then
+            print(title, labels.summaryLB, title == labels.summaryLB, v.user, v.score)
+            -- AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
+            if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+                local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                if title == labels.summaryLB then
+                    text = ': ' .. text
+                else
+                    text = '. ' .. text
+                end
+                AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position) .. text)
+            elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
+                local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
+                if title == labels.summaryLB then
+                    text = ': ' .. text
+                else
+                    text = '. ' .. text
+                end
+                AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position) .. text)
+            elseif title == labels.lrm or tostring(v.position) == labels.lrm then
+                local value = v.score * 100
+                local text = v.user .. " (" .. string.format("%.0f", value) .. ")"
+                if title == labels.summaryLB then
+                    text = ': ' .. text
+                else
+                    text = '. ' .. text
+                end
+                AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position) .. text)
+            else
+                local text = v.user .. " (" .. tostring(v.score) .. ")"
+                if title == labels.summaryLB then
+                    text = ': ' .. text
+                else
+                    text = '. ' .. text
+                end
+                AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position) .. text)
+            end
+
+            if v.user == username then
+                AshenMPRanking.descUI["position_" .. i]:setColor(1, 0, 1, 0.2)
+                -- AshenMPRanking.descUI["score_" .. i]:setColor(1, 0, 1, 0.2)
+                foundSelf = true
+            else
+                AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
+                -- AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
+            end
+            i = i + 1
+        else
+            title = v
+            AshenMPRanking.descUI:setTitle(title)
+        end
+    end
+
+
+    -- for j = i to 15 set text of position, user and score to ""
+    for j = i, AshenMPRanking.sandboxSettings.numLadders do
+        AshenMPRanking.descUI["position_" .. j]:setText("")
+        -- AshenMPRanking.descUI["score_" .. j]:setText("")
     end
 end
 
@@ -152,7 +255,7 @@ local function refreshSelfKills()
         else
             AshenMPRanking.mainUI["self_zkills"]:setText(getText("UI_Self_0ZKills"))
         end
-        
+
         -- if AshenMPRanking.Options.receiveData then
         -- check if receive is nil
         if receiveData ~= nil  or receiveData then
@@ -218,16 +321,85 @@ local function LevelPerkListener(player, perk, perkLevel, addBuffer)
     end
 end
 
+local function onComboChange(xxx)
+    i = 1
+    -- get selected item from the combo box
+    local item = AshenMPRanking.mainUI["mycombo"]:getValue()
+    local data = AshenMPRanking.mainUI["mycombo"]:getOptionData(2)
+    local data1 = AshenMPRanking.mainUI["mycombo"]:getOptionData(item)
+    print('DEBUG AMPR onComboChange: ', data)
+    print('DEBUG AMPR onComboChange: ', data1)
+    for k,v in pairs(data) do
+        -- if i > ladderLength and item.title ~= labels.summaryLB then
+        --     if not foundSelf then
+        --         AshenMPRanking.descUI["position_" .. i]:setText("...")
+        --         AshenMPRanking.descUI["score_" .. i]:setText("")
+        --         AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+        --         if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+        --             local text = item.player.user:sub(1,10) .. " (" .. string.format("%.1f", item.player.score) .. ")"
+        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        --         elseif title == labels.lrm or tostring(v.position) == labels.lrm then
+        --             local value = item.player.score * 100
+        --             local text = item.player.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
+        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        --         else
+        --             local text = item.player.user:sub(1,10) .. " (" .. tostring(item.player.score) .. ")"
+        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        --         end
+        --         AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
+        --         AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
+        --         i = i + 2
+        --     end
+
+        --     break
+        -- end
+
+        if k ~= 'title' then
+            -- AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
+            -- if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+            --     local text = v.user:sub(1,10) .. " (" .. string.format("%.1f", v.score) .. ")"
+            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
+            -- elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
+            --     local text = v.user:sub(1,10) .. " (" .. string.format("%.1f", v.score) .. ")"
+            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
+            -- elseif title == labels.lrm or tostring(v.position) == labels.lrm then
+            --     local value = v.score * 100
+            --     local text = v.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
+            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
+            -- else
+            --     local text = v.user:sub(1,10) .. " (" .. tostring(v.score) .. ")"
+            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
+            -- end
+
+            -- if v.user == username then
+            --     AshenMPRanking.descUI["position_" .. i]:setColor(1, 0, 1, 0.2)
+            --     AshenMPRanking.descUI["score_" .. i]:setColor(1, 0, 1, 0.2)
+            --     foundSelf = true
+            -- else
+            --     AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
+            --     AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
+            -- end
+            i = i + 1
+        else
+            title = v
+            AshenMPRanking.mainUI["comboChange"]:setText(v)
+            -- AshenMPRanking.descUI:setTitle(title)
+        end
+    end
+end
+
 local function onCreateUI()
+    local fontHgt = getTextManager():getFontHeight(UIFont.Small);
     -- List UI
     AshenMPRanking.mainUI = NewUI() -- Create UI
     -- AshenMPRanking.mainUI:setTitle(getText("UI_MainWTitle"))
     AshenMPRanking.mainUI:setTitle(AshenMPRanking.sandboxSettings.mainUiTitle)
     -- AshenMPRanking.mainUI:setWidthPercent(0.1)
-    AshenMPRanking.mainUI:setWidthPixel(276)
+    -- AshenMPRanking.mainUI:setWidthPixel(276)
+    AshenMPRanking.mainUI:setWidthPixel(20 * fontHgt)
     AshenMPRanking.mainUI:setKeyMN(157)
-    AshenMPRanking.mainUI:addText("self_survive", "", "", "Center")
-    AshenMPRanking.mainUI:addText("self_zkills", "", "", "Center")
+    AshenMPRanking.mainUI:addText("self_survive", "", "Small", "Center")
+    AshenMPRanking.mainUI:addText("self_zkills", "", "Small", "Center")
     AshenMPRanking.mainUI:nextLine()
     AshenMPRanking.mainUI:addText("onlinePlayers", getText("UI_WaitingForUpdate"), "", "Center")
     AshenMPRanking.mainUI["onlinePlayers"]:setColor(1, 1, 1, 0)
@@ -239,57 +411,57 @@ local function onCreateUI()
     AshenMPRanking.mainUI:setLineHeightPixel(30)
     AshenMPRanking.mainUI:nextLine()
 
-    if AshenMPRanking.sandboxSettings.perkScores then
-        AshenMPRanking.mainUI:addText("StatsLabel", getText("UI_StatsLabel"), "", "Center")
-        AshenMPRanking.mainUI:addText("PerksLabel", getText("UI_PerksLabel"), "", "Center")
-    end
-    AshenMPRanking.mainUI:nextLine()
-    
+    -- if AshenMPRanking.sandboxSettings.perkScores then
+    --     AshenMPRanking.mainUI:addText("StatsLabel", getText("UI_StatsLabel"), "", "Center")
+    --     AshenMPRanking.mainUI:addText("PerksLabel", getText("UI_PerksLabel"), "", "Center")
+    -- end
+    -- AshenMPRanking.mainUI:nextLine()
+
     -- calculate the proper height for scrolllists
     -- base is calculated with dayS, zKill and relative Absolutes AND sKillTot
-    local height = BASE_HEIGHT * 5
+    -- local height = BASE_HEIGHT * 5
+    local height = fontHgt * 5
     local perksHeight = 0
     if AshenMPRanking.sandboxSettings.perkScores then
         if AshenMPRanking.sandboxSettings.otherPerks then
-            perksHeight = BASE_HEIGHT * 7
+            perksHeight = fontHgt * 7
         else
-            perksHeight = BASE_HEIGHT * 6
+            perksHeight = fontHgt * 6
         end
     end
-
     if AshenMPRanking.sandboxSettings.sKills then
-        height = height + BASE_HEIGHT * 2
+        height = height + fontHgt * 2
 
         if AshenMPRanking.sandboxSettings.summaryLB then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
 
         if AshenMPRanking.sandboxSettings.killsPerDay then
-            height = height + BASE_HEIGHT
-        end        
+            height = height + fontHgt
+        end
 
         if AshenMPRanking.sandboxSettings.moreDeaths then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
     elseif AshenMPRanking.sandboxSettings.moreDeaths or AshenMPRanking.sandboxSettings.lessDeaths then
         if AshenMPRanking.sandboxSettings.summaryLB then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
 
         if AshenMPRanking.sandboxSettings.killsPerDay then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
 
         if AshenMPRanking.sandboxSettings.moreDeaths then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
-            height = height + BASE_HEIGHT
+            height = height + fontHgt
         end
     end
 
@@ -307,26 +479,41 @@ local function onCreateUI()
         AshenMPRanking.mainUI:setLineHeightPixel(height)
     end
 
+    AshenMPRanking.mainUI:nextLine()
+    -- add combo box for ladder length
+    -- cycle items and get label to insert into combo box
+    -- local items = {}
+    AshenMPRanking.mainUI:addComboBox("mycombo", items)
+    AshenMPRanking.mainUI["mycombo"].onChange = onComboChange
+    AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addText("comboChange", "XXX", "Small", "Center")
+
+
+    -- when the combo box is changed, update the ladder length
+    -- AshenMPRanking.mainUI["mycombo"]:onTextChange(_, openLadderDesc)
+
     AshenMPRanking.mainUI:saveLayout() -- Create window
     AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
     -- AshenMPRanking.mainUI:setBorderToAllElements(true)
     -- AshenMPRanking.mainUI:close()
-    
+
     -- Description UI
     AshenMPRanking.descUI = NewUI()
     AshenMPRanking.descUI:setTitle(getText("UI_LadderTitle"))
     AshenMPRanking.descUI:isSubUIOf(AshenMPRanking.mainUI)
     -- AshenMPRanking.descUI:setWidthPercent(0.1)
-    AshenMPRanking.descUI:setWidthPixel(250)
-    
+    AshenMPRanking.descUI:setWidthPixel(fontHgt * 17)
+
     for i = 1, AshenMPRanking.sandboxSettings.numLadders do
-        AshenMPRanking.descUI:addText("position_" .. i, "", "", "Center")
-        AshenMPRanking.descUI:addText("score_" .. i, "", "", "Center")
+        AshenMPRanking.descUI:addText("position_" .. i, "", "Small", "Left")
+        -- set width of the text
+        -- AshenMPRanking.descUI:addText("score_" .. i, "", "Small", "Center")
+        -- set width of the text 250 - 50 - 50 = 150
+        -- AshenMPRanking.descUI["score_" .. i]:setWidthPixel(50)
         AshenMPRanking.descUI:nextLine()
     end
     AshenMPRanking.descUI:saveLayout()
     AshenMPRanking.descUI:close()
-    
     refreshSelfSurvived()
     refreshSelfKills()
     Events.EveryHours.Add(refreshSelfSurvived)
@@ -402,7 +589,7 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
             list[ladder_label]["player"].score = value
         end
 
-        
+
         if current_ranking[ladder_name] ~= nil and value > 0 and position <= ladderLength then
             if position > current_ranking[ladder_name] then
                 onRankChange("down", ladder_label)
@@ -412,7 +599,7 @@ local function updateRankingItems(ladder_name, ladder_label, player_username, po
         end
         current_ranking[ladder_name] = position
     end
-    
+
     list[ladder_label][tostring(position)] = {}
     list[ladder_label][tostring(position)].position = position
     list[ladder_label][tostring(position)].user = player_username
@@ -425,7 +612,7 @@ local function checkForChanges(new, old)
     if old == nil then
         return true
     end
-    
+
     for k,v in pairs(new) do
         for kk,vv in pairs(v) do
             if kk ~= "title" then
@@ -447,7 +634,7 @@ local function checkForChanges(new, old)
                             newScore = string.format("%.1f", newScore)
                             oldScore = string.format("%.1f", oldScore)
                         end
-                        
+
                         if new[k][kk].user ~= old[k][kk].user or newScore ~= oldScore then
                             -- print('DEBUG AMPR checkForChanges: ', k, kk, "CHANGED!")
                             laddersToWrite[k] = true
@@ -511,7 +698,7 @@ local onLadderUpdate = function(module, command, args)
             items[labels[k]].title = labels[k]
         end
     end
-    
+
     for i=1,#ladder.daysSurvivedAbs do
         for k,v in pairs(ladder) do
             if k == "perkScores" then
@@ -547,6 +734,7 @@ local onLadderUpdate = function(module, command, args)
 
     if renderItems then
         AshenMPRanking.mainUI["list"]:setItems(items)
+        AshenMPRanking.mainUI["mycombo"]:setItems(items)
     end
 
     renderPerksItems = checkForChanges(perksItems, tmpPerksItems)
@@ -564,7 +752,7 @@ local onLadderUpdate = function(module, command, args)
     -- if AshenMPRanking.Options.receiveData and writingCondition then
         writeToFile(ladder)
     end
-end 
+end
 
 local function onPlayerDeathReset(player)
     local data = {}
@@ -608,7 +796,7 @@ local onServerConfig = function(module, command, sandboxSettings)
     end
     Events.OnServerCommand.Remove(onServerConfig)
     Events.OnPlayerUpdate.Remove(PlayerUpdateGetServerConfigs)
-    
+
     AshenMPRanking.sandboxSettings = sandboxSettings
 
     labels.daysSurvived = getText("UI_aliveFor")
@@ -617,7 +805,7 @@ local onServerConfig = function(module, command, sandboxSettings)
     labels.zKills = getText("UI_zKills")
     labels.zKillsAbs = getText("UI_zKillsABS")
     labels.zKillsTot = getText("UI_zKillsTOT")
-    
+
     if AshenMPRanking.sandboxSettings.sKills then
         labels.sKills = getText("UI_sKills")
         labels.sKillsTot = getText("UI_sKillsTOT")
@@ -659,12 +847,12 @@ local onServerConfig = function(module, command, sandboxSettings)
     if AshenMPRanking.sandboxSettings.lrm then
         labels.lrm = getText("UI_LRM")
     end
-    
+
     if initUI then
         onCreateUI()
         initUI = false
         Events.OnServerCommand.Add(onLadderUpdate)
-    
+
         if AshenMPRanking.sandboxSettings.periodicTick == 1 then
             Events.EveryOneMinute.Add(SendPlayerData)
         elseif AshenMPRanking.sandboxSettings.periodicTick == 2 then
