@@ -45,4 +45,8 @@ UI_EN = {
     UI_Options_iconHeight_tooltip = "Usato per evitare soprapposizioni con altri pulsanti",
     UI_Options_timezone = "Fuso orario",
     UI_Options_timezone_tooltip = "Usato per impostare il corretto orario per gli aggiornamenti",
+    UI_PlayerAdded = "Giocatore %s aggiunto alla classifica",
+    UI_PlayerRemoved = "Giocatore %s rimosso dalla classifica",
+    UI_ErrorPlayerRanked = "Giocatore %s presente in classifica",
+    UI_ErrorPlayerNotRanked = "Giocatore %s non presente in classifica",
 }

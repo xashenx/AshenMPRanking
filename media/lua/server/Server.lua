@@ -466,8 +466,55 @@ local function checkInactive(mode, target_username)
     end
 end
 
+-- add a new player to the ladder
+local function addNewUser(username)
+    if lastUpdate[username] ~= nil then
+        return string.format(getText("UI_ErrorPlayerRanked"), username)
+    end
+    lastUpdate[username] = os.time()
+
+    -- generate random values for the fields
+    ladder.daysSurvived[username] = ZombRand(0, 10)
+    ladder.daysSurvivedAbs[username] = ZombRand(0, 10)
+
+    ladder.zKills[username] = ZombRand(0, 1000)
+    ladder.zKillsAbs[username] = ZombRand(0, 1000)
+    ladder.zKillsTot[username] = ZombRand(0, 1000)
+    
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+        ladder.killsPerDay[username] = ZombRand(0, 150)
+    end
+
+    if AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills[username] = ZombRand(0, 150)
+        ladder.sKillsTot[username] = ZombRand(0, 150)
+    end
+    
+    if AshenMPRanking.sandboxSettings.perkScores then
+        ladder.perkScores.passiv[username] = ZombRand(0, 20)
+        ladder.perkScores.agility[username] = ZombRand(0, 30)
+        ladder.perkScores.firearm[username] = ZombRand(0, 20)
+        ladder.perkScores.crafting[username] = ZombRand(0, 80)
+        ladder.perkScores.combat[username] = ZombRand(0, 60)
+        ladder.perkScores.survivalist[username] = ZombRand(0, 30)
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            ladder.perkScores.otherPerks[username] = ZombRand(0, 10)
+        end
+        -- LaResistenzaMarket
+        if AshenMPRanking.sandboxSettings.lrm then
+            ladder.perkScores.lrm[username] = ZombRand(0, 1000)
+        end
+    end
+    
+    ladder.deaths[username] = ZombRand(0, 10)
+end
+
 -- purge Cheater from leaderboards
 local function purgeCheater(username)
+    if lastUpdate[username] == nil then
+        return string.format(getText("UI_ErrorPlayerNotRanked"), username)
+    end
+
     lastUpdate[username] = nil
 
     ladder.daysSurvived[username] = nil
@@ -942,6 +989,22 @@ local clientCommandDispatcher = function(module, command, player, args)
         onPlayerDeathReset(player, args)
     elseif command == "getServerConfig" then
         sendServerConfig(player)
+    elseif command == "removeFromRankings" then
+        local fail_msg = purgeCheater(args.username)
+        if fail_msg ~= nil then
+            args.fail_msg = "UI_ErrorPlayerNotRanked"
+        else
+            args.success_msg = "UI_PlayerRemoved"
+        end
+        sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+    elseif command == "addToRankings" then
+        local fail_msg = addNewUser(args.username)
+        if fail_msg ~= nil then
+            args.fail_msg = "UI_ErrorPlayerRanked"
+        else
+            args.success_msg = "UI_PlayerAdded"
+        end
+        sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
     end
 end
 

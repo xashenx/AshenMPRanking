@@ -45,4 +45,8 @@ UI_EN = {
     UI_Options_iconHeight_tooltip = "To fix overlapping with other buttons",
     UI_Options_timezone = "Your timezone",
     UI_Options_timezone_tooltip = "Used to set the right time for the last update",
+    UI_PlayerAdded = "Player %s is now ranked",
+    UI_PlayerRemoved = "Player %s is no longer ranked",
+    UI_ErrorPlayerRanked = "Player %s is already ranked",
+    UI_ErrorPlayerNotRanked = "Player %s is not ranked",
 }

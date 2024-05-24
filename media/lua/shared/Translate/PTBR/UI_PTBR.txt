@@ -45,4 +45,8 @@ UI_PTBR = {
     UI_Options_iconHeight_tooltip = "Para corrigir a sobreposiao com outros botoes",
     UI_Options_timezone = "Seu fuso horario",
     UI_Options_timezone_tooltip = "Usado para definir a hora certa para a ultima atualizacao",
+    UI_PlayerAdded = "Jogador %s adicionado ao ranking",
+    UI_PlayerRemoved = "Jogador %s removido do ranking",
+    UI_ErrorPlayerRanked = "Jogador %s ja esta no ranking",
+    UI_ErrorPlayerNotRanked = "Jogador %s nao esta no ranking",
 }
