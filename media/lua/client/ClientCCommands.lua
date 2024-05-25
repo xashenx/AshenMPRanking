@@ -3,9 +3,9 @@ if isServer() then return end;
 require "Chat/ISChat"
 
 -- The or is necessary for reloading to keep prior commands and not cause an infinite loop with ISChat.onCommandEntered referring to itself.
-Commandeer_CommandHandler = Commandeer_CommandHandler or {}
-Commandeer_CommandHandler.commands = Commandeer_CommandHandler.commands or {}
-Commandeer_CommandHandler.oldCommandHandler = Commandeer_CommandHandler.oldCommandHandler or ISChat.onCommandEntered
+AMPR_CommandHandler = AMPR_CommandHandler or {}
+AMPR_CommandHandler.commands = AMPR_CommandHandler.commands or {}
+AMPR_CommandHandler.oldCommandHandler = AMPR_CommandHandler.oldCommandHandler or ISChat.onCommandEntered
 
 ISChat.onCommandEntered = function(self)
 	local commandText = ISChat.instance.textEntry:getText();
@@ -16,7 +16,7 @@ ISChat.onCommandEntered = function(self)
 		return;
 	end
 	
-	for command, commandfunc in pairs(Commandeer_CommandHandler.commands) do
+	for command, commandfunc in pairs(AMPR_CommandHandler.commands) do
 		-- it's too bad that lua regex lacks \b for word boundaries
 		if (#commandText == #command and luautils.stringStarts(commandText, command)) or luautils.stringStarts(commandText, command.." ") then
 			ISChat.instance:unfocus(); -- unfocus must be done here since it sets text to ""
@@ -34,16 +34,16 @@ ISChat.onCommandEntered = function(self)
 			return; -- this mod totally unnecessary!
 		end
 	end
-	Commandeer_CommandHandler.oldCommandHandler(self);
+	AMPR_CommandHandler.oldCommandHandler(self);
 end
 
-Commandeer_CommandHandler.oldCreateChildren = ISChat.createChildren;
+AMPR_CommandHandler.oldCreateChildren = ISChat.createChildren;
 function ISChat.createChildren(self)
-	Commandeer_CommandHandler.oldCreateChildren(self)
+	AMPR_CommandHandler.oldCreateChildren(self)
 	self.textEntry.onCommandEntered = ISChat.onCommandEntered;
 end
 
-Commandeer_CommandHandler.commands["/removeranking"] = function(param)
+AMPR_CommandHandler.commands["/removeranking"] = function(param)
     local player = getPlayer()
     
     if player:getAccessLevel() ~= "Admin" then
@@ -63,7 +63,7 @@ Commandeer_CommandHandler.commands["/removeranking"] = function(param)
     end
 end
 
-Commandeer_CommandHandler.commands["/addranking"] = function(param)
+AMPR_CommandHandler.commands["/addranking"] = function(param)
     local player = getPlayer()
     if player:getAccessLevel() ~= "Admin" then
         local text = string.format("%s %s: ((%s))", player:getUsername(), "is trying to use /addranking without rights", player:getAccessLevel())
@@ -82,15 +82,87 @@ Commandeer_CommandHandler.commands["/addranking"] = function(param)
     end
 end
 
-Commandeer_CommandHandler.commands["/ar"] = Commandeer_CommandHandler.commands["/addranking"]
-Commandeer_CommandHandler.commands["/rr"] = Commandeer_CommandHandler.commands["/removeranking"]
+AMPR_CommandHandler.commands["/showinactive"] = function(param)
+    local player = getPlayer()
+    if player:getAccessLevel() ~= "Admin" then
+        local text = string.format("%s %s: ((%s))", player:getUsername(), "is trying to use /addranking without rights", player:getAccessLevel())
+        return
+    end
+    
+	if not param or param == "" then
+		return "Usage: /addranking [username]";
+	end
+
+    -- param might be string with spaces, so we need to split it
+    local data = {}
+    for toAdd in string.gmatch(param, "%S+") do
+        data.username = toAdd
+        sendClientCommand(player, "AshenMPRanking", "addToRankings", data)
+    end
+end
+
+AMPR_CommandHandler.commands["/showinactive"] = function()
+    local player = getPlayer()
+    if player:getAccessLevel() ~= "Admin" then
+        local text = string.format("%s %s: ((%s))", player:getUsername(), "is trying to use /showinactive without rights", player:getAccessLevel())
+        return
+    end
+    
+    -- param might be string with spaces, so we need to split it
+    local data = {}
+    sendClientCommand(player, "AshenMPRanking", "showInactive", data)
+end
+
+AMPR_CommandHandler.commands["/activetoinactive"] = function(param)
+    local player = getPlayer()
+    if player:getAccessLevel() ~= "Admin" then
+        local text = string.format("%s %s: ((%s))", player:getUsername(), "is trying to use /activetoinactive without rights", player:getAccessLevel())
+        return
+    end
+    
+	if not param or param == "" then
+		return "Usage: /activetoinactive [username]";
+	end
+
+    -- param might be string with spaces, so we need to split it
+    local data = {}
+    for toAdd in string.gmatch(param, "%S+") do
+        data.username = toAdd
+        sendClientCommand(player, "AshenMPRanking", "activeToInactive", data)
+    end
+end
+
+AMPR_CommandHandler.commands["/inactivetoactive"] = function(param)
+    local player = getPlayer()
+    if player:getAccessLevel() ~= "Admin" then
+        local text = string.format("%s %s: ((%s))", player:getUsername(), "is trying to use /inactivetoactive without rights", player:getAccessLevel())
+        return
+    end
+    
+	if not param or param == "" then
+		return "Usage: /inactivetoactive [username]";
+	end
+
+    -- param might be string with spaces, so we need to split it
+    local data = {}
+    for toAdd in string.gmatch(param, "%S+") do
+        data.username = toAdd
+        sendClientCommand(player, "AshenMPRanking", "inactiveToActive", data)
+    end
+end
+
+AMPR_CommandHandler.commands["/arar"] = AMPR_CommandHandler.commands["/addranking"]
+AMPR_CommandHandler.commands["/arrr"] = AMPR_CommandHandler.commands["/removeranking"]
+AMPR_CommandHandler.commands["/ara2i"] = AMPR_CommandHandler.commands["/activetoinactive"]
+AMPR_CommandHandler.commands["/ari2a"] = AMPR_CommandHandler.commands["/inactivetoactive"]
+AMPR_CommandHandler.commands["/arsi"] = AMPR_CommandHandler.commands["/showinactive"]
 
 local onServerResponse = function(module, command, reponseData)
     -- handles the response from the server
     if module ~= "AshenMPRanking" or command ~= "ccServerResponse" then
         return
     end
-
+    
     local text = ""
     if reponseData.fail_msg ~= nil then
         text = "*%s*" .. getText(reponseData.fail_msg)

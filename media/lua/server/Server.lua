@@ -450,19 +450,25 @@ local function checkInactive(mode, target_username)
             -- -- write inactive file
             -- SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
             saveModData(tag_inactive, inactiveAccounts)
+            print("AMPR DEBUG: moving " .. target_username .. " from INACTIVE to ACTIVE")
             return true
         else
             return false
         end
     elseif mode == 2 then -- move account from active to inactive
-        -- ladder -> inactiveAccounts
-        moveBetweenActiveInactive(target_username, ladder, inactiveAccounts)
-        -- -- write inactive file
-        -- SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
-        -- save mod data
-        lastUpdate[target_username] = nil
-        saveModData(tag_inactive, inactiveAccounts)
-        print("AMPR DEBUG: moving " .. target_username .. " from ACTIVE to INACTIVE")
+        if lastUpdate[target_username] ~= nil then
+            -- ladder -> inactiveAccounts
+            moveBetweenActiveInactive(target_username, ladder, inactiveAccounts)
+            -- -- write inactive file
+            -- SaveToFile(inactiveAccounts, "inactive.csv", lastUpdateInactive)
+            -- save mod data
+            lastUpdate[target_username] = nil
+            saveModData(tag_inactive, inactiveAccounts)
+            print("AMPR DEBUG: moving " .. target_username .. " from ACTIVE to INACTIVE")
+            return true
+        else
+            return false
+        end
     end
 end
 
@@ -989,20 +995,61 @@ local clientCommandDispatcher = function(module, command, player, args)
         onPlayerDeathReset(player, args)
     elseif command == "getServerConfig" then
         sendServerConfig(player)
-    elseif command == "removeFromRankings" then
-        local fail_msg = purgeCheater(args.username)
-        if fail_msg ~= nil then
-            args.fail_msg = "UI_ErrorPlayerNotRanked"
-        else
-            args.success_msg = "UI_PlayerRemoved"
+    elseif command == "addToRankings" then
+        if inactiveAccounts.daysSurvived[args.username] ~= nil then
+            args.fail_msg = "UI_ErrorPlayerInactive"
+        else 
+            local fail_msg = addNewUser(args.username)
+            if fail_msg ~= nil then
+                args.fail_msg = "UI_ErrorPlayerRanked"
+            else
+                args.success_msg = "UI_PlayerAdded"
+            end         
         end
         sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
-    elseif command == "addToRankings" then
-        local fail_msg = addNewUser(args.username)
-        if fail_msg ~= nil then
-            args.fail_msg = "UI_ErrorPlayerRanked"
+    elseif command == "removeFromRankings" then
+        if inactiveAccounts.daysSurvived[args.username] ~= nil then
+            args.fail_msg = "UI_ErrorPlayerInactive"
         else
-            args.success_msg = "UI_PlayerAdded"
+            local fail_msg = purgeCheater(args.username)
+            if fail_msg ~= nil then
+                args.fail_msg = "UI_ErrorPlayerNotRanked"
+            else
+                args.success_msg = "UI_PlayerRemoved"
+            end
+        end
+        sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+    elseif command == "showInactive" then
+        -- checkInactive(3, "") -- calling checkInactive with mode 3 to populate
+        if inactiveAccounts.daysSurvived == nil then
+            args.fail_msg = "UI_NoInactive"
+            sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+        else
+            args = {}
+            args.success_msg = ""
+            for k,v in pairs(inactiveAccounts.daysSurvived) do
+                -- add to args
+                args.success_msg = args.success_msg  .. " - " .. k
+            end
+            if args.success_msg == "" then
+                args.fail_msg = "UI_NoInactive"
+            end
+            sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+        end 
+    elseif command == "activeToInactive" then
+        local result = checkInactive(2, args.username)
+        if result then
+            args.success_msg = "UI_ActiveToInactive"
+        else
+            args.fail_msg = "UI_ErrorPlayerNotRanked"
+        end
+        sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+    elseif command == "inactiveToActive" then
+        local result = checkInactive(1, args.username)
+        if result then
+            args.success_msg = "UI_InactiveToActive"
+        else
+            args.fail_msg = "UI_ErrorPlayerNotInactive"
         end
         sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
     end

@@ -49,4 +49,9 @@ UI_EN = {
     UI_PlayerRemoved = "Giocatore %s rimosso dalla classifica",
     UI_ErrorPlayerRanked = "Giocatore %s presente in classifica",
     UI_ErrorPlayerNotRanked = "Giocatore %s non presente in classifica",
+    UI_NoInactive = "Nessun giocatore in classifica inattiva",
+    UI_ActiveToInactive = "Giocatore %s spostato in classifica inattiva",
+    UI_InactiveToActive = "Giocatore %s spostato in classifica attiva",
+    UI_ErrorPlayerNotInactive = "Giocatore %s non presente in classifica inattiva",
+    UI_ErrorPlayerInactive = "Giocatore presente nella classifica inattiva, spostarlo con /inactivetoactive %s",
 }

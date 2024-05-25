@@ -49,4 +49,9 @@ UI_PTBR = {
     UI_PlayerRemoved = "Jogador %s removido do ranking",
     UI_ErrorPlayerRanked = "Jogador %s ja esta no ranking",
     UI_ErrorPlayerNotRanked = "Jogador %s nao esta no ranking",
+    UI_NoInactive = "Nenhum jogador inativo",
+    UI_ActiveToInactive = "Jogador %s movido para inativo",
+    UI_InactiveToActive = "Jogador %s movido para ativo",
+    UI_ErrorPlayerNotInactive = "Jogador %s nao esta inativo",
+    UI_ErrorPlayerInactive = "Jogador presente no ranking inativo, mova-o com /inactivetoactive %s",
 }
