@@ -851,6 +851,7 @@ local function onPlayerData(player, playerData)
                 ladder.sKillsTot = {}
             end
             ladder.sKills[username] = ladder.sKills[username] or 0
+            ladder.sKillsTot[username] = ladder.sKillsTot[username] or 0
             if playerData.survivorKills > ladder.sKills[username] then
                 ladder.sKillsTot[username] = ladder.sKillsTot[username] + playerData.survivorKills - ladder.sKills[username]
             end
@@ -1111,6 +1112,47 @@ local function onInitGlobalModData(isNewGame)
     --         print('inactive', k,v)
     --     end
     -- end
+end
+
+AshenMPRanking.api = {}
+-- associamo getKills a una variabile di AshenMPRanking
+AshenMPRanking.api.getKills = function(username)
+    return ladder.zKills[username]
+end
+
+AshenMPRanking.api.getPosition = function(laddertype, laddername, position)
+    if laddertype == nil then
+        -- for k,v in pairs(oLadder[laddername]) do
+        --     -- print(k, v)
+        --     if k == position then
+        --         local result = {}
+        --         result.username = v[1]
+        --         result.score = v[2]
+        --         print(result.username, result.score)
+        --     end
+        -- end
+        if oLadder[laddername] ~= nil then
+            if oLadder[laddername][position] ~= nil then
+                local result = {}
+                result.username = oLadder[laddername][position][1]
+                result.score = oLadder[laddername][position][2]
+                return result
+            end
+        else
+            return "No data"
+        end
+    else 
+        if oLadder[laddertype][laddername] ~= nil then
+            if oLadder[laddertype][laddername][position] ~= nil then
+                local result = {}
+                result.username = oLadder[laddertype][laddername][position][1]
+                result.score = oLadder[laddertype][laddername][position][2]
+                return result
+            end
+        else
+            return "No data"
+        end
+    end
 end
 
 Events.OnServerStarted.Add(initServer)
