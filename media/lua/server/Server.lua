@@ -772,18 +772,19 @@ local function initServer()
     
     -- check if any account is inactive
     for username,v in pairs(lastUpdate) do
-        -- first check if the player is a cheater
-        if ladder.perkScores.passiv[username] ~= nil then
-            if ladder.perkScores.passiv[username] > AshenMPRanking.sandboxSettings.passivMaxScore then
-                print("AMPR DEBUG: " .. username .. " is a CHEATER, purging from leaderboards")
-                purgeCheater(username)
+        if AshenMPRanking.sandboxSettings.perkScores then
+            -- automatic check for cheaters
+            if ladder.perkScores.passiv[username] ~= nil then
+                if ladder.perkScores.passiv[username] > AshenMPRanking.sandboxSettings.passivMaxScore then
+                    print("AMPR DEBUG: " .. username .. " is a CHEATER, purging from leaderboards")
+                    purgeCheater(username)
+                end
             end
-        else
-            diff = os.difftime(os.time(), v) / (24 * 60 * 60)
-            if diff > AshenMPRanking.sandboxSettings.inactivityPurgeTime then
-                -- inactive account
-                checkInactive(2, username)
-            end
+        end
+        diff = os.difftime(os.time(), v) / (24 * 60 * 60)
+        if diff > AshenMPRanking.sandboxSettings.inactivityPurgeTime then
+            -- inactive account
+            checkInactive(2, username)
         end
     end
 
@@ -1082,6 +1083,7 @@ function setDeaths(username, value)
 end
 
 local function onInitGlobalModData(isNewGame)
+    AshenMPRanking.server.fetchSandboxVars()
     -- load active players from ModData
     tag_active = "AshenMPRanking." .. getServerName() .. ".ladder"
     ladder = ModData.getOrCreate(tag_active)
@@ -1112,6 +1114,51 @@ local function onInitGlobalModData(isNewGame)
     --         print('inactive', k,v)
     --     end
     -- end
+
+    if not AshenMPRanking.sandboxSettings.killsPerDay then
+        ladder.killsPerDay = nil
+        inactiveAccounts.killsPerDay = nil
+    elseif ladder.killsPerDay == nil then
+        ladder.killsPerDay = {}
+        inactiveAccounts.killsPerDay = {}
+    end
+
+    if not AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills = nil
+        ladder.sKillsTot = nil
+        inactiveAccounts.sKills = nil
+        inactiveAccounts.sKillsTot = nil
+    elseif ladder.sKills == nil then
+        ladder.sKills = {}
+        ladder.sKillsTot = {}
+        inactiveAccounts.sKills = {}
+        inactiveAccounts.sKillsTot = {}
+    end
+    
+    print('DAJEEE')
+    if not AshenMPRanking.sandboxSettings.perkScores then
+        print('DAJEEE1')
+        ladder.perkScores = nil
+        inactiveAccounts.perkScores = nil
+    elseif ladder.perkScores == nil then
+        print('DAJEEE2')
+        ladder.perkScores = {}
+        ladder.perkScores.passiv = {}
+        ladder.perkScores.agility = {}
+        ladder.perkScores.firearm = {}
+        ladder.perkScores.crafting = {}
+        ladder.perkScores.combat = {}
+        ladder.perkScores.survivalist = {}
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            ladder.perkScores.otherPerks = {}
+            inactiveAccounts.perkScores.otherPerks = {}
+        end
+        -- ladder for LaResistenzaMarket
+        if getGameTime():getModData().LRMPlayerInventory ~= nil then
+            ladder.perkScores.lrm = {}
+            inactiveAccounts.perkScores.lrm = {}
+        end
+    end
 end
 
 AshenMPRanking.api = {}
