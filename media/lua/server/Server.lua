@@ -1135,13 +1135,10 @@ local function onInitGlobalModData(isNewGame)
         inactiveAccounts.sKillsTot = {}
     end
     
-    print('DAJEEE')
     if not AshenMPRanking.sandboxSettings.perkScores then
-        print('DAJEEE1')
         ladder.perkScores = nil
         inactiveAccounts.perkScores = nil
     elseif ladder.perkScores == nil then
-        print('DAJEEE2')
         ladder.perkScores = {}
         ladder.perkScores.passiv = {}
         ladder.perkScores.agility = {}
