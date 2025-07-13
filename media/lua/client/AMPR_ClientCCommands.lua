@@ -56,9 +56,16 @@ AMPR_CommandHandler.commands["/removeranking"] = function(param)
 	end
 
     local data = {}
+    local param_no_quotes = param
     -- param might be string with spaces, so we need to split it
-    for toRemove in string.gmatch(param, "%S+") do
-        data.username = toRemove
+    for username in string.gmatch(param, '"([^"]+)"') do
+        data.username = username
+        sendClientCommand(player, "AshenMPRanking", "removeFromRankings", data)
+        -- Remove the quoted username from param_no_quotes
+        param_no_quotes = param_no_quotes:gsub('"' .. username .. '"', "")
+    end
+    for username in string.gmatch(param_no_quotes, "%S+") do
+        data.username = username
         sendClientCommand(player, "AshenMPRanking", "removeFromRankings", data)
     end
 end
@@ -76,8 +83,16 @@ AMPR_CommandHandler.commands["/addranking"] = function(param)
 
     -- param might be string with spaces, so we need to split it
     local data = {}
-    for toAdd in string.gmatch(param, "%S+") do
-        data.username = toAdd
+    local param_no_quotes = param
+    -- param might be string with spaces, so we need to split it
+    for username in string.gmatch(param, '"([^"]+)"') do
+        data.username = username
+        sendClientCommand(player, "AshenMPRanking", "addToRankings", data)
+        -- Remove the quoted username from param_no_quotes
+        param_no_quotes = param_no_quotes:gsub('"' .. username .. '"', "")
+    end
+    for username in string.gmatch(param_no_quotes, "%S+") do
+        data.username = username
         sendClientCommand(player, "AshenMPRanking", "addToRankings", data)
     end
 end
@@ -126,8 +141,16 @@ AMPR_CommandHandler.commands["/activetoinactive"] = function(param)
 
     -- param might be string with spaces, so we need to split it
     local data = {}
-    for toAdd in string.gmatch(param, "%S+") do
-        data.username = toAdd
+    local param_no_quotes = param
+    -- param might be string with spaces, so we need to split it
+    for username in string.gmatch(param, '"([^"]+)"') do
+        data.username = username
+        sendClientCommand(player, "AshenMPRanking", "activeToInactive", data)
+        -- Remove the quoted username from param_no_quotes
+        param_no_quotes = param_no_quotes:gsub('"' .. username .. '"', "")
+    end
+    for username in string.gmatch(param_no_quotes, "%S+") do
+        data.username = username
         sendClientCommand(player, "AshenMPRanking", "activeToInactive", data)
     end
 end
@@ -145,10 +168,30 @@ AMPR_CommandHandler.commands["/inactivetoactive"] = function(param)
 
     -- param might be string with spaces, so we need to split it
     local data = {}
-    for toAdd in string.gmatch(param, "%S+") do
-        data.username = toAdd
+    local param_no_quotes = param
+    -- param might be string with spaces, so we need to split it
+    for username in string.gmatch(param, '"([^"]+)"') do
+        data.username = username
+        sendClientCommand(player, "AshenMPRanking", "inactiveToActive", data)
+        -- Remove the quoted username from param_no_quotes
+        param_no_quotes = param_no_quotes:gsub('"' .. username .. '"', "")
+    end
+    for username in string.gmatch(param_no_quotes, "%S+") do
+        data.username = username
         sendClientCommand(player, "AshenMPRanking", "inactiveToActive", data)
     end
+end
+
+AMPR_CommandHandler.commands["/resetranking"] = function(param)
+    local player = getPlayer()
+    if player:getAccessLevel() ~= "Admin" then
+        local text = string.format("%s %s: ((%s))", player:getUsername(), "is trying to use /resetranking without rights", player:getAccessLevel())
+        return
+    end
+    
+    -- param might be string with spaces, so we need to split it
+    local data = {}
+    sendClientCommand(player, "AshenMPRanking", "ResetRanking", data)
 end
 
 AMPR_CommandHandler.commands["/arar"] = AMPR_CommandHandler.commands["/addranking"]
@@ -156,6 +199,7 @@ AMPR_CommandHandler.commands["/arrr"] = AMPR_CommandHandler.commands["/removeran
 AMPR_CommandHandler.commands["/ara2i"] = AMPR_CommandHandler.commands["/activetoinactive"]
 AMPR_CommandHandler.commands["/ari2a"] = AMPR_CommandHandler.commands["/inactivetoactive"]
 AMPR_CommandHandler.commands["/arsi"] = AMPR_CommandHandler.commands["/showinactive"]
+AMPR_CommandHandler.commands["/arreset"] = AMPR_CommandHandler.commands["/resetranking"]
 
 local onServerResponse = function(module, command, reponseData)
     -- handles the response from the server

@@ -54,4 +54,6 @@ UI_EN = {
     UI_InactiveToActive = "Giocatore %s spostato in classifica attiva",
     UI_ErrorPlayerNotInactive = "Giocatore %s non presente in classifica inattiva",
     UI_ErrorPlayerInactive = "Giocatore presente nella classifica inattiva, spostarlo con /inactivetoactive %s",
+    UI_ResetRanking = "I dati delle classifiche sono stati resettati",
+    UI_ErrorResetRanking = "Errore durante il reset delle classifiche",
 }

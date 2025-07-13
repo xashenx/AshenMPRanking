@@ -952,6 +952,49 @@ local function onPlayerData(player, playerData)
     end
 end
 
+local function resetRanking()
+    -- save to modData
+    saveModData(tag_active, nil)
+    saveModData(tag_lastupdate, nil)
+    saveModData(tag_inactive, nil)
+
+    -- init structures
+    ladder.daysSurvived = {}
+    ladder.daysSurvivedAbs = {}
+    ladder.zKills = {}
+    ladder.zKillsAbs = {}
+    ladder.zKillsTot = {}
+    ladder.deaths = {}
+    
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+            ladder.killsPerDay = {}
+    end
+    
+    if AshenMPRanking.sandboxSettings.sKills then
+        ladder.sKills = {}
+        ladder.sKillsTot = {}
+    end
+    
+    if AshenMPRanking.sandboxSettings.perkScores then
+        ladder.perkScores = {}
+        ladder.perkScores.passiv = {}
+        ladder.perkScores.agility = {}
+        ladder.perkScores.firearm = {}
+        ladder.perkScores.crafting = {}
+        ladder.perkScores.combat = {}
+        ladder.perkScores.survivalist = {}
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            ladder.perkScores.otherPerks = {}
+        end
+        -- ladder for LaResistenzaMarket
+        if getGameTime():getModData().LRMPlayerInventory ~= nil then
+            ladder.perkScores.lrm = {}
+        end
+    end
+
+    initServer()
+end
+
 local function sendServerConfig(player)
     local args = {}
     args.onlineplayers = miscellaneous.onlineplayers
@@ -1053,6 +1096,11 @@ local clientCommandDispatcher = function(module, command, player, args)
         else
             args.fail_msg = "UI_ErrorPlayerNotInactive"
         end
+        sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+    elseif command == "ResetRanking" then
+        resetRanking()
+        args = {}
+        args.success_msg = "UI_ResetRanking"
         sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
     end
 end
