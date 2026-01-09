@@ -1,0 +1,122 @@
+VERSION = 1,
+
+
+option AshenMPRanking.mainUiTitle
+{
+	type = string, 
+	default = Ranking,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_MainUiTitle,
+}
+
+option AshenMPRanking.inactivityPurgeTime
+{
+	type = integer, 
+	min = 7, 
+	max = 365,	
+	default = 15,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_inactivityPurgeTime,
+}
+
+option AshenMPRanking.writeOnFilePeriod
+{
+	type = integer, 
+	min = 1, 
+	max = 60,	
+	default = 20,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_writeOnFilePeriod,
+}
+
+option AshenMPRanking.periodicTick
+{
+	type = integer, 
+	min = 1, 
+	max = 4,	
+	default = 2,
+	page = AshenMPRanking,
+	translation = AshenMPRanking_periodicTick,
+}
+
+option AshenMPRanking.summaryLB
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_summaryLB,
+}
+
+option AshenMPRanking.killsPerDay
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_killsPerDay,
+}
+
+option AshenMPRanking.sKills
+{
+	type = boolean, 
+	default = false,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_sKills,
+}
+
+option AshenMPRanking.perkScores
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_perkScores,
+}
+
+option AshenMPRanking.otherPerks
+{
+	type = boolean, 
+	default = false,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_otherPerks,
+}
+
+option AshenMPRanking.otherPerksList
+{
+	type = string, 
+	default = ,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_otherPerksList,
+}
+
+option AshenMPRanking.moreDeaths
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_moreDeaths,
+}
+
+option AshenMPRanking.lessDeaths
+{
+	type = boolean, 
+	default = true,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_lessDeaths,
+}
+
+option AshenMPRanking.rankStaff
+{
+	type = boolean, 
+	default = false,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_rankStaff,
+}
+
+option AshenMPRanking.physicalcategoryMaxScore
+{
+	type = integer, 
+	min = 60, 
+	max = 60,	
+	default = 60,
+	page = AshenMPRanking,
+	translation = AshenMPRanking_physicalcategoryMaxScore,
+}
