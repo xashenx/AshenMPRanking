@@ -1,12 +1,51 @@
 if isServer() then return end;
 
-ClientObj = ClientObj or {}
+MenuActions = MenuActions or {}
 
-function ClientObj:onAddUserClick(button)
+function MenuActions:onAddUserClick(button)
     if button.internal == "OK" then
+        -- print("Parent Name IT: " .. button.parent.entry:getInternalText())
+        -- print("Parent Name Placeholder: " .. button.parent.entry:getPlaceholderText())
         local text = button.parent.entry:getText()
         if text and text ~= "" then
             sendClientCommand("AshenMPRanking", "addToRankings", { username = text })
+        end
+    end
+end
+
+function MenuActions:onRemoveUserClick(button)
+    if button.internal == "OK" then
+        local text = button.parent.entry:getText()
+        if text and text ~= "" then
+            sendClientCommand("AshenMPRanking", "removeFromRankings", { username = text })
+        end
+    end
+end
+
+function MenuActions:onA2IClick(button)
+    if button.internal == "OK" then
+        local text = button.parent.entry:getText()
+        if text and text ~= "" then
+            sendClientCommand("AshenMPRanking", "activeToInactive", { username = text })
+        end
+    end
+end
+
+function MenuActions:onI2AClick(button)
+    if button.internal == "OK" then
+        local text = button.parent.entry:getText()
+        if text and text ~= "" then
+            sendClientCommand("AshenMPRanking", "inactiveToActive", { username = text })
+        end
+    end
+end
+
+function MenuActions:onConfirmReset(button)
+    if button.internal == "OK" then
+        print("RESET CONFIRMED: " .. button.parent.entry:getText())
+        local text = button.parent.entry:getText()
+        if text == "YES" then
+            sendClientCommand("AshenMPRanking", "ResetRanking", {})
         end
     end
 end
@@ -22,11 +61,31 @@ local function doMenu(playerIndex, context, worldobjects, test)
 
     local opt = context:addOption("Ashen MP Ranking", worldobjects, nil)
     context:addSubMenu(opt, menu)
-    menu:addOption("Reset Ranking", nil, function() sendClientCommand("AshenMPRanking", "ResetRanking", {}) end)
     menu:addOption("Add User", nil, function()
-        local modal = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", ClientObj, ClientObj.onAddUserClick, playerIndex)
-        modal:initialise()
-        modal:addToUIManager()
+        local addUseInput = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", MenuActions, MenuActions.onAddUserClick, playerIndex)
+        addUseInput:initialise()
+        addUseInput:addToUIManager()
+    end)
+    menu:addOption("Remove User", nil, function()
+        local removeUseInput = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", MenuActions, MenuActions.onRemoveUserClick, playerIndex)
+        removeUseInput:initialise()
+        removeUseInput:addToUIManager()
+    end)
+    menu:addOption("Show Inactive", nil, function() sendClientCommand("AshenMPRanking", "showInactive", {}) end)
+    menu:addOption("Move User Active2Inactive", nil, function()
+        local a2iInput = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", MenuActions, MenuActions.onA2IClick, playerIndex)
+        a2iInput:initialise()
+        a2iInput:addToUIManager()
+    end)
+    menu:addOption("Move User Inactive2Active", nil, function()
+        local i2aInput = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", MenuActions, MenuActions.onI2AClick, playerIndex)
+        i2aInput:initialise()
+        i2aInput:addToUIManager()
+    end)
+    menu:addOption("Reset Ranking", nil, function()
+        local resetInput = ISTextBox:new(0, 0, 280, 180, "Confirm Reset (type YES):", "", MenuActions, MenuActions.onConfirmReset, playerIndex)
+        resetInput:initialise()
+        resetInput:addToUIManager()
     end)
     return true
 end

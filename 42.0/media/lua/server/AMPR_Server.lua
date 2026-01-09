@@ -176,8 +176,6 @@ local function SaveToFile(data, filename, lastUpdateInactive)
         end
         
         if AshenMPRanking.sandboxSettings.perkScores then
-            -- text = text .. ";" .. data.perkScores.passiv[k]
-            -- text = text .. ";" .. data.perkScores.agility[k]
             text = text .. ";" .. data.perkScores.physicalcategory[k]
             text = text .. ";" .. data.perkScores.farmingcategory[k]
             text = text .. ";" .. data.perkScores.firearm[k]
@@ -266,10 +264,6 @@ local function moveBetweenActiveInactive(username, from, to)
     end
     
     if AshenMPRanking.sandboxSettings.perkScores then
-        to.perkScores.passiv[username] = from.perkScores.passiv[username]
-        from.perkScores.passiv[username] = nil
-        -- to.perkScores.agility[username] = from.perkScores.agility[username]
-        -- from.perkScores.agility[username] = nil
         to.perkScores.physicalcategory[username] = from.perkScores.physicalcategory[username]
         from.perkScores.physicalcategory[username] = nil
         to.perkScores.farmingcategory[username] = from.perkScores.farmingcategory[username]
@@ -332,8 +326,6 @@ local function checkInactive(mode, target_username)
 
         if AshenMPRanking.sandboxSettings.perkScores then
             inactiveAccounts.perkScores = {}
-            -- inactiveAccounts.perkScores.passiv = {}
-            -- inactiveAccounts.perkScores.agility = {}
             inactiveAccounts.perkScores.physicalcategory = {}
             inactiveAccounts.perkScores.farmingcategory = {}
             inactiveAccounts.perkScores.firearm = {}
@@ -359,8 +351,6 @@ local function checkInactive(mode, target_username)
                     sKillsTot = 7,
                     deaths = 8,
                     updated = 9,
-                    -- passiv = 10,
-                    -- agility = 11,
                     physicalcategory = 10,
                     farmingcategory = 11,
                     firearm =  12,
@@ -423,8 +413,6 @@ local function checkInactive(mode, target_username)
             end
             
             if AshenMPRanking.sandboxSettings.perkScores then
-                -- inactiveAccounts.perkScores.passiv[username] = player_stats[stats.passiv].value
-                -- inactiveAccounts.perkScores.agility[username] = player_stats[stats.agility].value
                 inactiveAccounts.perkScores.physicalcategory[username] = player_stats[stats.physicalcategory].value
                 inactiveAccounts.perkScores.farmingcategory[username] = player_stats[stats.farmingcategory].value
                 inactiveAccounts.perkScores.firearm[username] = player_stats[stats.firearm].value
@@ -509,8 +497,6 @@ local function addNewUser(username)
     end
     
     if AshenMPRanking.sandboxSettings.perkScores then
-        -- ladder.perkScores.passiv[username] = ZombRand(0, 20)
-        -- ladder.perkScores.agility[username] = ZombRand(0, 30)
         ladder.perkScores.physicalcategory[username] = ZombRand(0, 20)
         ladder.perkScores.farmingcategory[username] = ZombRand(0, 30)
         ladder.perkScores.firearm[username] = ZombRand(0, 20)
@@ -554,8 +540,6 @@ local function purgeCheater(username)
     end
     
     if AshenMPRanking.sandboxSettings.perkScores then
-        -- ladder.perkScores.passiv[username] = nil
-        -- ladder.perkScores.agility[username] = nil
         ladder.perkScores.physicalcategory[username] = nil
         ladder.perkScores.farmingcategory[username] = nil
         ladder.perkScores.firearm[username] = nil
@@ -595,8 +579,6 @@ local function loadFromFile(stats)
     
     if AshenMPRanking.sandboxSettings.perkScores then
         ladder.perkScores = {}
-        -- ladder.perkScores.passiv = {}
-        -- ladder.perkScores.agility = {}
         ladder.perkScores.physicalcategory = {}
         ladder.perkScores.farmingcategory = {}
         ladder.perkScores.firearm = {}
@@ -675,8 +657,6 @@ local function loadFromFile(stats)
         end
         
         if AshenMPRanking.sandboxSettings.perkScores then
-            -- ladder.perkScores.passiv[username] = player_stats[stats.passiv].value
-            -- ladder.perkScores.agility[username] = player_stats[stats.agility].value
             ladder.perkScores.physicalcategory[username] = player_stats[stats.physicalcategory].value
             ladder.perkScores.farmingcategory[username] = player_stats[stats.farmingcategory].value
             ladder.perkScores.firearm[username] = player_stats[stats.firearm].value
@@ -736,8 +716,6 @@ local function initServer()
     
     if AshenMPRanking.sandboxSettings.perkScores then
         oLadder.perkScores = {}
-        -- oLadder.perkScores.passiv = {}
-        -- oLadder.perkScores.agility = {}
         oLadder.perkScores.physicalcategory = {}
         oLadder.perkScores.farmingcategory = {}
         oLadder.perkScores.firearm = {}
@@ -766,8 +744,6 @@ local function initServer()
         sKillsTot = 7,
         deaths = 8,
         updated = 9,
-        -- passiv = 10,
-        -- agility = 11,
         physicalcategory = 10,
         farmingcategory = 11,
         firearm =  12,
@@ -889,8 +865,6 @@ local function onPlayerData(player, playerData)
         if AshenMPRanking.sandboxSettings.perkScores then
             if ladder.perkScores == nil then
                 ladder.perkScores = {}
-                -- ladder.perkScores.passiv = {}
-                -- ladder.perkScores.agility = {}
                 ladder.perkScores.physicalcategory = {}
                 ladder.perkScores.farmingcategory = {}
                 ladder.perkScores.firearm = {}
@@ -1004,8 +978,6 @@ local function resetRanking()
     
     if AshenMPRanking.sandboxSettings.perkScores then
         ladder.perkScores = {}
-        -- ladder.perkScores.passiv = {}
-        -- ladder.perkScores.agility = {}
         ladder.perkScores.physicalcategory = {}
         ladder.perkScores.farmingcategory = {}
         ladder.perkScores.firearm = {}
@@ -1217,8 +1189,6 @@ local function onInitGlobalModData(isNewGame)
         inactiveAccounts.perkScores = nil
     elseif ladder.perkScores == nil then
         ladder.perkScores = {}
-        -- ladder.perkScores.passiv = {}
-        -- ladder.perkScores.agility = {}
         ladder.perkScores.physicalcategory = {}
         ladder.perkScores.farmingcategory = {}
         ladder.perkScores.firearm = {}
