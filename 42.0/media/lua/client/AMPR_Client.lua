@@ -922,7 +922,7 @@ end
 
 local function onCharReset()
     toolbarButton = {}
-    toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 200, 50, 50, "", nil, showWindowToolbar)
+    toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 350, 50, 50, "", nil, showWindowToolbar)
     toolbarButton:setImage(AshenMPRanking.textureOff)
     toolbarButton:setDisplayBackground(false)
     -- toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
