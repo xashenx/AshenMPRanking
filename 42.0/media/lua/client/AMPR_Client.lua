@@ -810,6 +810,13 @@ local function onPlayerDeathReset(player)
     data.username = player:getUsername()
     Events.LevelPerk.Remove(LevelPerkListener)
     sendClientCommand(player, "AshenMPRanking", "PlayerIsDead", data)
+
+    local killer = player:getAttackedBy()
+    if not killer then return end
+    if killer:isZombie() then return end
+    
+    -- print("updateSurvivorKills: " .. player:getUsername() .. " was KILLED by " .. killer:getUsername())
+    sendClientCommand(getPlayer(), "AshenMPRanking", "ServerUpdateSurvivorKills", {killerOnlineID = killer:getOnlineID()})
 end
 
 -- Called on the player to parse its player data and send it to the server every ten (in-game) minutes
@@ -934,9 +941,18 @@ local function onCharReset()
     username = player:getUsername()
 
     initVars = true
+    
     Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
     Events.OnServerCommand.Add(onServerConfig)
 end
 
+local function clientUpdateSurvivorKills(module, command, args)
+    if module ~= "AshenMPRanking" or command ~= "ClientUpdateSurvivorKills" then return end
+
+    local thisPlayer = getPlayer();
+    thisPlayer:setSurvivorKills(thisPlayer:getSurvivorKills() + 1);
+end
+
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnCreatePlayer.Add(onCharReset)
+Events.OnServerCommand.Add(clientUpdateSurvivorKills)

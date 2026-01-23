@@ -1103,6 +1103,9 @@ local clientCommandDispatcher = function(module, command, player, args)
         args = {}
         args.success_msg = "UI_ResetRanking"
         sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+    elseif command == "ServerUpdateSurvivorKills" then
+        local killer = getPlayerByOnlineID(args.killerOnlineID)
+        sendServerCommand(killer, "AshenMPRanking", "ClientUpdateSurvivorKills", {})
     end
 end
 
