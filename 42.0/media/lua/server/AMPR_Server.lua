@@ -913,7 +913,7 @@ local function onPlayerData(player, playerData)
 
         lastUpdate[username] = os.time()
     -- elseif accesslevel not equal to None
-    elseif player:getAccessLevel() ~= "None" and ladder.deaths[username] ~= nil then
+    elseif player:getAccessLevel() ~= "user" and ladder.deaths[username] ~= nil then
         -- print("AMPR purging data of elevated account: ", playerData.username)
         -- remove username from drop_player
         for k,v in pairs(ladder) do
