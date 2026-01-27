@@ -800,8 +800,12 @@ end
 -- executed when a client(player) sends its information to the server
 local function onPlayerData(player, playerData)
     parsedPlayers = parsedPlayers + 1
+
+    -- return if player is not alive
+    if not playerData.isAlive then return end
+
     local username = playerData.username
-    if playerData.isAlive and player:getAccessLevel() == "user" or AshenMPRanking.sandboxSettings.rankStaff then
+    if player:getAccessLevel() == "user" or AshenMPRanking.sandboxSettings.rankStaff then
         if ladder.daysSurvivedAbs[username] == nil then
             if checkInactive(1, username) then
                 print("AMPR DEBUG: restoring player " .. username .. " from INACTIVE to ACTIVE")
