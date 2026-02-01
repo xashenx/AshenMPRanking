@@ -967,44 +967,46 @@ local function onPlayerData(player, playerData)
         end
 
         lastUpdate[username] = os.time()
-        -- print ladder after update for this player on one line
-        local ladderLine = "AMPR DEBUG - Ladder after update for " .. playerData.username .. ": "
-        for k,v in pairs(ladder) do
-            if type(v) == "table" then
-                ladderLine = ladderLine .. k .. "="
-                if k == "perkScores" then
-                    -- Handle nested tables like perkScores
-                    if v ~= nil then
-                        ladderLine = ladderLine .. "{"
-                        for kk,vv in pairs(v) do
-                            if vv[playerData.username] ~= nil then
-                                ladderLine = ladderLine .. kk .. "=" .. tostring(vv[playerData.username]) .. " "
-                            else
-                                ladderLine = ladderLine .. kk .. "=nil "
+        if AshenMPRanking.sandboxSettings.debugMode then
+            -- print ladder after update for this player on one line
+            local ladderLine = "AMPR DEBUG - Ladder after update for " .. playerData.username .. ": "
+            for k,v in pairs(ladder) do
+                if type(v) == "table" then
+                    ladderLine = ladderLine .. k .. "="
+                    if k == "perkScores" then
+                        -- Handle nested tables like perkScores
+                        if v ~= nil then
+                            ladderLine = ladderLine .. "{"
+                            for kk,vv in pairs(v) do
+                                if vv[playerData.username] ~= nil then
+                                    ladderLine = ladderLine .. kk .. "=" .. tostring(vv[playerData.username]) .. " "
+                                else
+                                    ladderLine = ladderLine .. kk .. "=nil "
+                                end
                             end
+                            ladderLine = ladderLine .. "} "
+                        else
+                            ladderLine = ladderLine .. "nil "
                         end
-                        ladderLine = ladderLine .. "} "
+                    elseif v[playerData.username] ~= nil then
+                        if type(v[playerData.username]) == "table" then
+                            ladderLine = ladderLine .. "{"
+                            for kk,vv in pairs(v[playerData.username]) do
+                                ladderLine = ladderLine .. kk .. "=" .. tostring(vv) .. " "
+                            end
+                            ladderLine = ladderLine .. "} "
+                        else
+                            ladderLine = ladderLine .. tostring(v[playerData.username]) .. " "
+                        end
                     else
                         ladderLine = ladderLine .. "nil "
                     end
-                elseif v[playerData.username] ~= nil then
-                    if type(v[playerData.username]) == "table" then
-                        ladderLine = ladderLine .. "{"
-                        for kk,vv in pairs(v[playerData.username]) do
-                            ladderLine = ladderLine .. kk .. "=" .. tostring(vv) .. " "
-                        end
-                        ladderLine = ladderLine .. "} "
-                    else
-                        ladderLine = ladderLine .. tostring(v[playerData.username]) .. " "
-                    end
                 else
-                    ladderLine = ladderLine .. "nil "
+                    ladderLine = ladderLine .. k .. "=" .. tostring(v) .. " "
                 end
-            else
-                ladderLine = ladderLine .. k .. "=" .. tostring(v) .. " "
             end
+            print(ladderLine)
         end
-        print(ladderLine)
     -- elseif accesslevel not equal to None
     elseif player:getAccessLevel() ~= "user" and ladder.deaths[username] ~= nil then
         -- print("AMPR purging data of elevated account: ", playerData.username)
