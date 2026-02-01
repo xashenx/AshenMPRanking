@@ -14,4 +14,5 @@ Sandbox_PTBR = {
 	Sandbox_AshenMPRanking_lessDeaths = "Ativar placar com menos mortes",
 	Sandbox_AshenMPRanking_rankStaff = "Classificar membros da equipe do servidor",
 	Sandbox_AshenMPRanking_physicalcategoryMaxScore = "Pontuacao máxima SUM de vantagens fisico",
+	Sandbox_AshenMPRanking_debugMode = "Ativar modo de depuracao",
 }

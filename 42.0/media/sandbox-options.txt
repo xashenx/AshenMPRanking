@@ -120,3 +120,11 @@ option AshenMPRanking.physicalcategoryMaxScore
 	page = AshenMPRanking,
 	translation = AshenMPRanking_physicalcategoryMaxScore,
 }
+
+option AshenMPRanking.debugMode
+{
+	type = boolean, 
+	default = false,
+	page = AshenMPRanking, 
+	translation = AshenMPRanking_debugMode,
+}

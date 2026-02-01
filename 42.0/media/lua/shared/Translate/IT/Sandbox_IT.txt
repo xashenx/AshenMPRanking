@@ -14,4 +14,5 @@ Sandbox_IT = {
 	Sandbox_AshenMPRanking_lessDeaths = "Abilita Classifica con Minori Morti",
 	Sandbox_AshenMPRanking_rankStaff = "Classifica per i membri dello staff",
 	Sandbox_AshenMPRanking_physicalcategoryMaxScore = "Somma del punteggio massimo delle skill fisiche",
+	Sandbox_AshenMPRanking_debugMode = "Abilita modalità debug",
 }
