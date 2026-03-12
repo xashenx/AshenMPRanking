@@ -2,3 +2,6 @@ name=AshenTesting
 id=AshenTesting
 description=This mod collects data from all players and calculate ladders.
 poster=poster.png
+modversion=42.0.0
+author=Ashen
+versionMin=42.0.0
