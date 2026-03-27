@@ -1,0 +1,18 @@
+{
+    "Sandbox_AshenMPRanking": "Ashen 連線排行榜",
+    "Sandbox_AshenMPRanking_MainUiTitle": "主介面視窗標題",
+    "Sandbox_AshenMPRanking_inactivityPurgeTime": "清理閒置玩家排行榜的天數",
+    "Sandbox_AshenMPRanking_writeOnFilePeriod": "排行榜寫入檔案的間隔分鐘數",
+    "Sandbox_AshenMPRanking_periodicTick": "用戶端更新頻率(1m,10m,1h,1d)",
+    "Sandbox_AshenMPRanking_summaryLB": "啟用綜合排行榜",
+    "Sandbox_AshenMPRanking_killsPerDay": "啟用日均擊殺排行榜",
+    "Sandbox_AshenMPRanking_sKills": "啟用玩家擊殺排行榜",
+    "Sandbox_AshenMPRanking_perkScores": "啟用技能總分排行榜",
+    "Sandbox_AshenMPRanking_otherPerks": "啟用其他技能排行榜",
+    "Sandbox_AshenMPRanking_otherPerksList": "其他技能列表(使用;分隔)",
+    "Sandbox_AshenMPRanking_moreDeaths": "啟用死亡次數最多排行榜",
+    "Sandbox_AshenMPRanking_lessDeaths": "啟用死亡次數最少排行榜",
+    "Sandbox_AshenMPRanking_rankStaff": "將管理員列入排行榜",
+    "Sandbox_AshenMPRanking_physicalcategoryMaxScore": "體質類技能加總最高分",
+    "Sandbox_AshenMPRanking_debugMode": "啟用除錯模式"
+}
