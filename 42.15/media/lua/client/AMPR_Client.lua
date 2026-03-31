@@ -838,6 +838,9 @@ local function SendPlayerData()
     playerData.survivorKills = player:getSurvivorKills()
     playerData.daysSurvived = player:getHoursSurvived() / 24
 
+    -- 260331 temporary fix for LevelPerkListener not being called when a player levels up a perk
+    getPerkPoints()
+
     -- check if receive is nil
     local receiveData = AshenMPRanking.Options.receiveData
     playerData.receiveData = receiveData ~= nil or receiveData
