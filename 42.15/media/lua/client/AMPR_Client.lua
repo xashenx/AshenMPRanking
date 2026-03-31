@@ -44,7 +44,7 @@ PERKS_OTHERPERKS = {}
 local function openLadderDesc(_, item)
     local title
     local foundSelf = false
-    ladderLength = AshenMPRanking.Options.ladderLength or 10
+    ladderLength = tonumber(AshenMPRanking.Options.ladderLength) or 10
     if ladderLength == 2 then
         ladderLength = 10
     end
@@ -574,7 +574,7 @@ local function onCreateUI()
     Events.EveryHours.Add(refreshSelfSurvived)
     Events.OnPlayerUpdate.Add(refreshSelfKills)
 
-    ladderLength = AshenMPRanking.Options.ladderLength or 10
+    ladderLength = tonumber(AshenMPRanking.Options.ladderLength) or 10
     if ladderLength == 2 then
         ladderLength = 10
     end

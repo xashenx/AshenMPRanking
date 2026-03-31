@@ -1063,7 +1063,7 @@ local function resetRanking()
     ladder.deaths = {}
     
     if AshenMPRanking.sandboxSettings.killsPerDay then
-            ladder.killsPerDay = {}
+        ladder.killsPerDay = {}
     end
     
     if AshenMPRanking.sandboxSettings.sKills then
