@@ -98,10 +98,18 @@ local onServerResponse = function(module, command, reponseData)
     
     local text = ""
     if reponseData.fail_msg ~= nil then
-        text = "*%s*" .. getText(reponseData.fail_msg)
-        processSayMessage(string.format(text, "red", reponseData.username))
+        if reponseData.username then
+            text = string.gsub(getText(reponseData.fail_msg), "%%%%s", reponseData.username)
+        else
+            text = getText(reponseData.fail_msg)
+        end
+        processSayMessage(string.format(text, "red"))
     elseif reponseData.success_msg ~= nil then
-        text = "*%s*" .. getText(reponseData.success_msg)
+        if reponseData.username then
+            text = string.gsub(getText(reponseData.success_msg), "%%%%s", reponseData.username)
+        else
+            text = getText(reponseData.success_msg)
+        end
         processSayMessage(string.format(text, "green", reponseData.username))
     end
 end
