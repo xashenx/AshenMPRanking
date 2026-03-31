@@ -35,7 +35,7 @@ local BASE_HEIGHT = 20
 
 PERKS_FIREARM = {"Aiming", "Reloading"}
 PERKS_COMBAT = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
-PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Mansonry", "FlintKnapping", "Pottery", "Carving", "Glassmaking", "AnimalCare"}
+PERKS_CRAFTING = {"Cooking", "Woodwork", "Farming", "Electricity", "Blacksmith", "MetalWelding", "Mechanics", "Tailoring", "Melting", "Masonry", "FlintKnapping", "Pottery", "Carving", "Glassmaking", "AnimalCare"}
 PERKS_FARMING = {"Farming", "Husbandry", "Butchering"}
 PERKS_PHYSICAL = {"Fitness", "Strength", "Sprinting", "Lightfoot", "Nimble"}
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging", "Tracking", "Doctor"}
