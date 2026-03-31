@@ -59,11 +59,23 @@ local function openLadderDesc(_, item)
         AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
     end
 
+    -- for j = i to 15 set text of position, user and score to ""
+    for i = 1, 17 do
+        if title ~= labels.summaryLB then
+            AshenMPRanking.descUI["position_" .. i]:setText("")
+            AshenMPRanking.descUI["score_" .. i]:setText("")
+        else
+            AshenMPRanking.summaryUI["ladder_" .. i]:setText("")
+            AshenMPRanking.summaryUI["user_" .. i]:setText("")
+            AshenMPRanking.summaryUI["you_" .. i]:setText("")
+        end
+    end
+
     local leaderboard = ""
     i = 1
     for k,v in pairs(item) do
         if i > ladderLength and item.title ~= labels.summaryLB then
-            if not foundSelf then
+            if not foundSelf and item.player ~= nil then
                 AshenMPRanking.descUI["position_" .. i]:setText("...")
                 -- AshenMPRanking.descUI["score_" .. i]:setText("")
                 -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
@@ -218,18 +230,6 @@ local function openLadderDesc(_, item)
         else
             title = v
             AshenMPRanking.descUI:setTitle(title)
-        end
-    end
-
-    -- for j = i to 15 set text of position, user and score to ""
-    for j = i, ladderLength+2 do
-        if title ~= labels.summaryLB then
-            AshenMPRanking.descUI["position_" .. j]:setText("")
-            AshenMPRanking.descUI["score_" .. j]:setText("")
-        else
-            AshenMPRanking.summaryUI["ladder_" .. j]:setText("")
-            AshenMPRanking.summaryUI["user_" .. j]:setText("")
-            AshenMPRanking.summaryUI["you_" .. j]:setText("")
         end
     end
 end
@@ -546,6 +546,7 @@ local function onCreateUI()
     AshenMPRanking.summaryUI["you"]:setColor(1, 10, 0,929, 1)
     AshenMPRanking.summaryUI:nextLine()
 
+    -- for i = 1, 17 do
     for i = 1, 17 do
         AshenMPRanking.descUI:addText("position_" .. i, "", "Small", "Center")
         AshenMPRanking.descUI["position_" .. i]:setWidthPixel(2 * fontHgt)
