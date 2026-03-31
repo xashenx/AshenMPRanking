@@ -21,7 +21,7 @@ local function applyOptions()
 
     if options then
         AshenMPRanking.Options.receiveData = options:getOption("receiveData"):getValue()
-        AshenMPRanking.Options.ladderLength = tonumber(options:getOption("ladderLength"):getValue())
+        AshenMPRanking.Options.ladderLength = tonumber(options:getOption("ladderLength"):getValue()) * 5
     else
         print("AshenMPRanking: Could not load saved settings.  Using defaults.")
     end
