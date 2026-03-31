@@ -55,5 +55,10 @@
     "UI_ErrorPlayerNotInactive": "玩家 %s 並非閒置狀態",
     "UI_ErrorPlayerInactive": "該玩家在閒置榜中，請使用指令 /inactivetoactive %s 移動",
     "UI_ResetRanking": "排行榜資料已重置",
-    "UI_ErrorResetRanking": "排行榜重置時發生錯誤"
+    "UI_ErrorResetRanking": "排行榜重置時發生錯誤",
+    "UI_AshenMPRanking_Options_Title": "Ashen Multiplayer Ranking",
+    "UI_AshenMPRanking_Options_receiveData": "接收資料",
+    "UI_AshenMPRanking_Options_receiveData_Tooltip": "為實況主生成資料檔案",
+    "UI_AshenMPRanking_Options_ladderLength": "排行榜長度",
+    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "排行榜中顯示的最大玩家數量"
 }

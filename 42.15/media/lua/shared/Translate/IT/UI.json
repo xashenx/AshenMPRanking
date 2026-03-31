@@ -55,5 +55,10 @@
     "UI_ErrorPlayerNotInactive": "Giocatore %s non presente in classifica inattiva",
     "UI_ErrorPlayerInactive": "Giocatore presente nella classifica inattiva, spostarlo con /inactivetoactive %s",
     "UI_ResetRanking": "I dati delle classifiche sono stati resettati",
-    "UI_ErrorResetRanking": "Errore durante il reset delle classifiche"
+    "UI_ErrorResetRanking": "Errore durante il reset delle classifiche",
+    "UI_AshenMPRanking_Options_Title": "Ashen Multiplayer Ranking",
+    "UI_AshenMPRanking_Options_receiveData": "Ricevi i dati",
+    "UI_AshenMPRanking_Options_receiveData_Tooltip": "Scrittura file per streamers",
+    "UI_AshenMPRanking_Options_ladderLength": "Lunghezza classifica",
+    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Numero massimo di giocatori mostrati nella classifica"
 }

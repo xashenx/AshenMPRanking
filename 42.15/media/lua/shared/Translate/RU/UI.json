@@ -55,5 +55,10 @@
     "UI_ErrorPlayerNotInactive": "Игрок %s не неактивен",
     "UI_ErrorPlayerInactive": "Игрок в неактивном рейтинге, переместите /inactivetoactive %s",
     "UI_ResetRanking": "Данные рейтингов сброшены",
-    "UI_ErrorResetRanking": "Ошибка сброса рейтингов"
+    "UI_ErrorResetRanking": "Ошибка сброса рейтингов",
+    "UI_AshenMPRanking_Options_Title": "Ashen Multiplayer Ranking",
+    "UI_AshenMPRanking_Options_receiveData": "Получать данные",
+    "UI_AshenMPRanking_Options_receiveData_Tooltip": "Запись файлов для стримеров",
+    "UI_AshenMPRanking_Options_ladderLength": "Длина таблицы",
+    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Макс. кол-во игроков в таблице"
 }
