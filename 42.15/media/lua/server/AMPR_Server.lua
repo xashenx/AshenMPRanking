@@ -1088,6 +1088,8 @@ local function resetRanking()
         end
     end
 
+    lastUpdate = {}
+
     initServer()
 end
 
