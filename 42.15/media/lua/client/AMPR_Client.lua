@@ -61,7 +61,7 @@ local function openLadderDesc(_, item)
 
     -- for j = i to 15 set text of position, user and score to ""
     for i = 1, 17 do
-        if title ~= labels.summaryLB then
+        if item.title ~= labels.summaryLB then
             AshenMPRanking.descUI["position_" .. i]:setText("")
             AshenMPRanking.descUI["score_" .. i]:setText("")
         else
@@ -736,6 +736,8 @@ local onLadderUpdate = function(module, command, args)
         items[labels.summaryLB].title = labels.summaryLB
     end
 
+
+    local max_cardinality = 1
     for k,v in pairs(ladder) do
         if k == "perkScores" then
             for kk,vv in pairs(v) do
@@ -743,16 +745,24 @@ local onLadderUpdate = function(module, command, args)
                 -- perksItems[labels[kk]] = labels[kk] .. " <LINE><LINE>"
                 perksItems[labels[kk]] = {}
                 perksItems[labels[kk]].title = labels[kk]
+                -- get max cardinality of perkScores ladders
+                if #vv > max_cardinality then
+                    max_cardinality = #vv
+                end
             end
         else
             tmpItems[labels[k]] = items[labels[k]]
             -- items[labels[k]] = labels[k] .. " <LINE><LINE>"
             items[labels[k]] = {}
             items[labels[k]].title = labels[k]
+            if #v > max_cardinality then
+                max_cardinality = #v
+            end
         end
     end
 
-    for i=1,#ladder.daysSurvivedAbs do
+    -- TODO optimize this by only iterating over the ladders and positions that are necessary (up to ladderLength and until the player is found)
+    for i=1,max_cardinality do
         for k,v in pairs(ladder) do
             if k == "perkScores" then
                 for kk,vv in pairs(v) do
