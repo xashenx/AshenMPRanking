@@ -64,10 +64,17 @@ local function openLadderDesc(_, item)
         if item.title ~= labels.summaryLB then
             AshenMPRanking.descUI["position_" .. i]:setText("")
             AshenMPRanking.descUI["score_" .. i]:setText("")
+            -- reset color to transparent
+            AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
+            AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
         else
             AshenMPRanking.summaryUI["ladder_" .. i]:setText("")
             AshenMPRanking.summaryUI["user_" .. i]:setText("")
             AshenMPRanking.summaryUI["you_" .. i]:setText("")
+            -- reset color to transparent
+            AshenMPRanking.summaryUI["ladder_" .. i]:setColor(1, 1, 1, 1)
+            AshenMPRanking.summaryUI["user_" .. i]:setColor(1, 1, 1, 1)
+            AshenMPRanking.summaryUI["you_" .. i]:setColor(1, 1, 1, 1)
         end
     end
 
@@ -81,11 +88,6 @@ local function openLadderDesc(_, item)
                 -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
                 if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
                     local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
-                    AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-                    AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-                elseif title == labels.lrm or tostring(v.position) == labels.lrm then
-                    local value = item.player.score * 100
-                    local text = item.player.user .. " (" .. string.format("%.0f", value) .. ")"
                     AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
                     AshenMPRanking.descUI["score_" .. i+1]:setText(text)
                 else
@@ -122,34 +124,6 @@ local function openLadderDesc(_, item)
                     end
                 elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
                     local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
-                    if title ~= labels.summaryLB then
-                        AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.descUI["score_" .. i]:setText(text)
-                    else
-                        AshenMPRanking.summaryUI["ladder_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.summaryUI["user_" .. i]:setText(text)
-                        if username ~= v.user then
-                            -- check if v.position is in items or perksItems
-                            if items[v.position] ~= nil then
-                                if items[v.position].player ~= nil then
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(items[v.position].player.position))
-                                else
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                                end
-                            elseif perksItems[v.position] ~= nil then
-                                if perksItems[v.position].player ~= nil then
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(perksItems[v.position].player.position))
-                                else
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                                end
-                            end
-                        else
-                            AshenMPRanking.summaryUI["you_" .. i]:setText("")
-                        end
-                    end
-                elseif title == labels.lrm or tostring(v.position) == labels.lrm then
-                    local value = v.score * 100
-                    local text = v.user .. " (" .. string.format("%.0f", value) .. ")"
                     if title ~= labels.summaryLB then
                         AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
                         AshenMPRanking.descUI["score_" .. i]:setText(text)
@@ -546,7 +520,6 @@ local function onCreateUI()
     AshenMPRanking.summaryUI["you"]:setColor(1, 10, 0,929, 1)
     AshenMPRanking.summaryUI:nextLine()
 
-    -- for i = 1, 17 do
     for i = 1, 17 do
         AshenMPRanking.descUI:addText("position_" .. i, "", "Small", "Center")
         AshenMPRanking.descUI["position_" .. i]:setWidthPixel(2 * fontHgt)
@@ -592,9 +565,6 @@ local function writeLadder(ladder, label, ladder_name)
 
         if ladder_name == "daysSurvived" or ladder_name == "daysSurvivedAbs" then
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. string.format("%." .. 1 .. "f", ladder[i][2]) .. ")"
-        elseif ladder_name == "lrm" then
-            value = ladder[i][2] * 100
-            text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. string.format("%.0f", value) .. ")"
         else
             text = text .. "#" .. i .. " " .. ladder[i][1] .. " (" .. ladder[i][2] .. ")"
         end
@@ -636,6 +606,10 @@ local function onRankChange(movement, ladder_label)
 end
 
 local function updateRankingItems(ladder_name, ladder_label, player_username, position, value, list)
+    -- -- Add debug print to see what's happening
+    -- if ladder_name == "zKills" and player_username == "ashen" then
+    --     print('DEBUG updateRankingItems called: ', player_username, ' == ', username, ' ? ', player_username == username)
+    -- end
 
     if player_username == username then
         list[ladder_label]["player"] = {}
@@ -736,7 +710,6 @@ local onLadderUpdate = function(module, command, args)
         items[labels.summaryLB].title = labels.summaryLB
     end
 
-
     local max_cardinality = 1
     for k,v in pairs(ladder) do
         if k == "perkScores" then
@@ -777,6 +750,17 @@ local onLadderUpdate = function(module, command, args)
                     end
                 end
             else
+                -- if k == "zKills" then
+                --     print("DEBUG AMPR local username: ", username, " ladder: ", k, " position: ", i, " length: ", #v)
+                --     if username == "ashen" then
+                --         if #v >= i then
+                --             print("DEBUG AMPR username: ", v[i][1])
+                --             if v[i][1] == "ashen" then
+                --                 print('DEBUG AMPR updateRankingItems: ', i, v[i][2], #v >= i and (i <= ladderLength or v[i][1] == username), #v, i, ladderLength)
+                --             end
+                --         end
+                --     end
+                -- end
                 if #v >= i and (i <= ladderLength or v[i][1] == username) then
                     updateRankingItems(k, labels[k], v[i][1], i, v[i][2], items)
                     -- if summaryLB and i == 1 add to the list
@@ -859,18 +843,34 @@ local function SendPlayerData()
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData)
 end
 
-local function PlayerUpdateGetServerConfigs(player)
-    sendClientCommand(player, "AshenMPRanking", "getServerConfig", {})
-end
-
-local onServerConfig = function(module, command, sandboxSettings)
-    if module ~= "AshenMPRanking" or command ~= "ServerConfigs" or not initVars then
-        return
+local function initClientConfig()
+    -- Read sandbox settings directly from SandboxVars (already synced by PZ Java engine)
+    AshenMPRanking.sandboxSettings.mainUiTitle = SandboxVars.AshenMPRanking.mainUiTitle
+    AshenMPRanking.sandboxSettings.sKills = SandboxVars.AshenMPRanking.sKills
+    AshenMPRanking.sandboxSettings.killsPerDay = SandboxVars.AshenMPRanking.killsPerDay
+    AshenMPRanking.sandboxSettings.inactivityPurgeTime = SandboxVars.AshenMPRanking.inactivityPurgeTime
+    AshenMPRanking.sandboxSettings.periodicTick = SandboxVars.AshenMPRanking.periodicTick
+    AshenMPRanking.sandboxSettings.perkScores = SandboxVars.AshenMPRanking.perkScores
+    AshenMPRanking.sandboxSettings.otherPerks = SandboxVars.AshenMPRanking.otherPerks
+    if AshenMPRanking.sandboxSettings.otherPerks then
+        for token in string.gmatch(SandboxVars.AshenMPRanking.otherPerksList, "[^;%s]+") do
+            if AshenMPRanking.sandboxSettings.otherPerksList == nil then
+                AshenMPRanking.sandboxSettings.otherPerksList = {}
+            end
+            table.insert(AshenMPRanking.sandboxSettings.otherPerksList, token)
+        end
+        if AshenMPRanking.sandboxSettings.otherPerksList == nil then
+            AshenMPRanking.sandboxSettings.otherPerks = false
+        end
     end
-    Events.OnServerCommand.Remove(onServerConfig)
-    Events.OnPlayerUpdate.Remove(PlayerUpdateGetServerConfigs)
-
-    AshenMPRanking.sandboxSettings = sandboxSettings
+    AshenMPRanking.sandboxSettings.moreDeaths = SandboxVars.AshenMPRanking.moreDeaths
+    AshenMPRanking.sandboxSettings.lessDeaths = SandboxVars.AshenMPRanking.lessDeaths
+    AshenMPRanking.sandboxSettings.summaryLB = SandboxVars.AshenMPRanking.summaryLB
+    AshenMPRanking.sandboxSettings.writeOnFilePeriod = SandboxVars.AshenMPRanking.writeOnFilePeriod
+    AshenMPRanking.sandboxSettings.rankStaff = SandboxVars.AshenMPRanking.rankStaff
+    AshenMPRanking.sandboxSettings.physicalcategoryMaxScore = SandboxVars.AshenMPRanking.physicalcategoryMaxScore
+    AshenMPRanking.sandboxSettings.debugMode = SandboxVars.AshenMPRanking.debugMode
+    AshenMPRanking.sandboxSettings.server_name = getServerName()
 
     labels.daysSurvived = getText("UI_aliveFor")
     labels.daysSurvivedAbs = getText("UI_aliveForAbs")
@@ -885,8 +885,6 @@ local onServerConfig = function(module, command, sandboxSettings)
     end
 
     if AshenMPRanking.sandboxSettings.perkScores then
-        -- labels.passiv = getText("UI_passiv")
-        -- labels.agility = getText("UI_agility")
         labels.physicalcategory = getText("UI_physicalcategory")
         labels.farmingcategory = getText("UI_farmingcategory")
         labels.firearm = getText("UI_firearm")
@@ -918,11 +916,6 @@ local onServerConfig = function(module, command, sandboxSettings)
         labels.lessDeaths = getText("UI_lessDeaths")
     end
 
-    -- LaResistenzaMarket
-    if AshenMPRanking.sandboxSettings.lrm then
-        labels.lrm = getText("UI_LRM")
-    end
-
     if initUI then
         onCreateUI()
         initUI = false
@@ -939,26 +932,67 @@ local onServerConfig = function(module, command, sandboxSettings)
         end
     end
 
+    -- Request initial ladder data from server (single unicast)
+    -- Vorshim code to optimize data flow
+    sendClientCommand(player, "AshenMPRanking", "getLadder", {})
+
     initVars = false
 end
 
+-- Vorshim reworked routine to optimize and fix button positioning
 local function onCharReset()
-    toolbarButton = {}
-    toolbarButton = ISButton:new(0, ISEquippedItem.instance.movableBtn:getY() + ISEquippedItem.instance.movableBtn:getHeight() + 350, 50, 50, "", nil, showWindowToolbar)
+    local inst = ISEquippedItem.instance
+    local refBtn = inst.invBtn
+
+    -- Calcola Y dal bottom dell'ultimo bottone visibile
+    local maxBottom = 0
+    for _, child in pairs(inst:getChildren()) do
+        if child.Type == "ISButton" and child:isVisible() then
+            maxBottom = math.max(maxBottom, child:getBottom())
+        end
+    end
+
+    local btnW = refBtn and refBtn:getWidth() or 50
+    local btnH = refBtn and refBtn:getHeight() or 50
+
+    toolbarButton = ISButton:new(0, maxBottom + 6, btnW, btnH, "", nil, showWindowToolbar)
     toolbarButton:setImage(AshenMPRanking.textureOff)
     toolbarButton:setDisplayBackground(false)
-    -- toolbarButton.borderColor = {r=1, g=1, b=1, a=0.1}
+    toolbarButton.internal = "AMPRBtn"
 
-    ISEquippedItem.instance:addChild(toolbarButton)
-    ISEquippedItem.instance:setHeight(math.max(ISEquippedItem.instance:getHeight(), toolbarButton:getY() + 400))
+    -- Override render: scala texture al bottone (fix 4K/64px)
+    function toolbarButton:render()
+        local tex = self.image
+        if tex then
+            local s = math.min(self:getWidth(), self:getHeight())
+            local x = (self:getWidth() - s) / 2
+            local y = (self:getHeight() - s) / 2
+            self:drawTextureScaledAspect(tex, x, y, s, s, 1.0, 1, 1, 1)
+        end
+    end
+
+    inst:addChild(toolbarButton)
+    inst:shrinkWrap()
 
     player = getSpecificPlayer(0)
     username = player:getUsername()
 
     initVars = true
-    
-    Events.OnPlayerUpdate.Add(PlayerUpdateGetServerConfigs)
-    Events.OnServerCommand.Add(onServerConfig)
+
+    local tickCount = 0
+    local function delayedInit()
+        tickCount = tickCount + 1
+        if tickCount >= 200 then
+            Events.OnTick.Remove(delayedInit)
+            initClientConfig()
+            -- Fix: impedire auto-apertura mainUI
+            if AshenMPRanking.mainUI and type(AshenMPRanking.mainUI.close) == "function" then
+                AshenMPRanking.mainUI:close()
+                toolbarButton:setImage(AshenMPRanking.textureOff)
+            end
+        end
+    end
+    Events.OnTick.Add(delayedInit)
 end
 
 local function clientUpdateSurvivorKills(module, command, args)
@@ -966,6 +1000,27 @@ local function clientUpdateSurvivorKills(module, command, args)
 
     local thisPlayer = getPlayer();
     thisPlayer:setSurvivorKills(thisPlayer:getSurvivorKills() + 1);
+end
+
+-- Prerender: riposizionamento dinamico del bottone AMPR
+-- VORSHIM CREDITS
+local original_prerender = ISEquippedItem.prerender
+function ISEquippedItem:prerender()
+    original_prerender(self)
+    if self == ISEquippedItem.instance and toolbarButton and toolbarButton:isVisible() then
+        local maxBottom = 0
+        for _, child in pairs(self:getChildren()) do
+            if child == toolbarButton then break end
+            if child.Type == "ISButton" and child:isVisible() then
+                maxBottom = math.max(maxBottom, child:getBottom())
+            end
+        end
+        local targetY = maxBottom + 6
+        if toolbarButton:getY() ~= targetY then
+            toolbarButton:setY(targetY)
+            self:shrinkWrap()
+        end
+    end
 end
 
 Events.OnPlayerDeath.Add(onPlayerDeathReset)

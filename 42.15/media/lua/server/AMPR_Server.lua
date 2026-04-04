@@ -47,9 +47,6 @@ AshenMPRanking.server.fetchSandboxVars = function()
     AshenMPRanking.sandboxSettings.rankStaff = SandboxVars.AshenMPRanking.rankStaff
     AshenMPRanking.sandboxSettings.physicalcategoryMaxScore = SandboxVars.AshenMPRanking.physicalcategoryMaxScore
 
-    -- LaResistenzaMarket setting
-    AshenMPRanking.sandboxSettings.lrm = false
-
     -- debug sandbox vars
     AshenMPRanking.sandboxSettings.debugMode = SandboxVars.AshenMPRanking.debugMode
 end
@@ -111,6 +108,31 @@ local function sort_ladders()
             end
         end
     end
+end
+
+-- Truncate ladder to max N entries per leaderboard to reduce network payload
+-- Vorshim code to test if truncating the ladder before sending it to clients can reduce the network payload and improve performance, especially for players with a large number of entries in the leaderboard. The function takes the source ladder and the maximum number of entries to keep, and returns a truncated version of the ladder.
+local function truncateLadder(srcLadder, maxEntries)
+    local truncated = {}
+    for k, v in pairs(srcLadder) do
+        if k == "perkScores" then
+            truncated.perkScores = {}
+            for kk, vv in pairs(v) do
+                local t = {}
+                for i = 1, math.min(#vv, maxEntries) do
+                    t[i] = vv[i]
+                end
+                truncated.perkScores[kk] = t
+            end
+        else
+            local t = {}
+            for i = 1, math.min(#v, maxEntries) do
+                t[i] = v[i]
+            end
+            truncated[k] = t
+        end
+    end
+    return truncated
 end
 
 -- Parse player data and save it to a .csv file inside Lua/ServerPlayersData/ folder
@@ -190,11 +212,7 @@ local function SaveToFile(data, filename, lastUpdateInactive)
             else
                 text = text .. ";" .. 0
             end
-            if AshenMPRanking.sandboxSettings.lrm then
-                text = text .. ";" .. data.perkScores.lrm[k]
-            else
-                text = text .. ";" .. 0
-            end
+            text = text .. ";" .. 0
         else
             text = text .. ";" .. 0
             text = text .. ";" .. 0
@@ -283,11 +301,6 @@ local function moveBetweenActiveInactive(username, from, to)
             to.perkScores.otherPerks[username] = from.perkScores.otherPerks[username]
             from.perkScores.otherPerks[username] = nil
         end
-        -- LaResistenzaMarket
-        if AshenMPRanking.sandboxSettings.lrm then
-            to.perkScores.lrm[username] = from.perkScores.lrm[username]
-            from.perkScores.lrm[username] = nil
-        end
     end
     
     to.deaths[username] = from.deaths[username]
@@ -337,10 +350,6 @@ local function checkInactive(mode, target_username)
             inactiveAccounts.perkScores.survivalist = {}
             if AshenMPRanking.sandboxSettings.otherPerks then
                 inactiveAccounts.perkScores.otherPerks = {}
-            end
-            -- ladder for LaResistenzaMarket
-            if getGameTime():getModData().LRMPlayerInventory ~= nil then
-                AshenMPRanking.sandboxSettings.lrm = true
             end
         end
 
@@ -425,10 +434,6 @@ local function checkInactive(mode, target_username)
                 if AshenMPRanking.sandboxSettings.otherPerks then
                     inactiveAccounts.perkScores.otherPerks[username] = player_stats[stats.otherPerks].value
                 end
-                -- LaResistenzaMarket
-                if AshenMPRanking.sandboxSettings.lrm then
-                    inactiveAccounts.perkScores.lrm[username] = player_stats[stats.lrm].value
-                end
             end
             
             inactiveAccounts.deaths[username] = player_stats[stats.deaths].value
@@ -509,10 +514,6 @@ local function addNewUser(username)
         if AshenMPRanking.sandboxSettings.otherPerks then
             ladder.perkScores.otherPerks[username] = ZombRand(0, 10)
         end
-        -- LaResistenzaMarket
-        if AshenMPRanking.sandboxSettings.lrm then
-            ladder.perkScores.lrm[username] = ZombRand(0, 1000)
-        end
     end
     
     ladder.deaths[username] = ZombRand(0, 10)
@@ -552,10 +553,6 @@ local function purgeCheater(username)
         if AshenMPRanking.sandboxSettings.otherPerks then
             ladder.perkScores.otherPerks[username] = nil
         end
-        -- LaResistenzaMarket
-        if AshenMPRanking.sandboxSettings.lrm then
-            ladder.perkScores.lrm[username] = nil
-        end
     end
     
     ladder.deaths[username] = nil
@@ -590,10 +587,6 @@ local function loadFromFile(stats)
         ladder.perkScores.survivalist = {}
         if AshenMPRanking.sandboxSettings.otherPerks then
             ladder.perkScores.otherPerks = {}
-        end
-        -- ladder for LaResistenzaMarket
-        if getGameTime():getModData().LRMPlayerInventory ~= nil then
-            ladder.perkScores.lrm = {}
         end
     end
 
@@ -669,10 +662,6 @@ local function loadFromFile(stats)
             if AshenMPRanking.sandboxSettings.otherPerks then
                 ladder.perkScores.otherPerks[username] = player_stats[stats.otherPerks].value
             end
-            -- LaResistenzaMarket
-            if AshenMPRanking.sandboxSettings.lrm then
-                ladder.perkScores.lrm[username] = player_stats[stats.lrm].value
-            end
         end
         
         ladder.deaths[username] = player_stats[stats.deaths].value
@@ -727,11 +716,6 @@ local function initServer()
         oLadder.perkScores.survivalist = {}
         if AshenMPRanking.sandboxSettings.otherPerks then
             oLadder.perkScores.otherPerks = {}
-        end
-        -- ladder for LaResistenzaMarket
-        if getGameTime():getModData().LRMPlayerInventory ~= nil then
-            oLadder.perkScores.lrm = {}
-            AshenMPRanking.sandboxSettings.lrm = true
         end
     end
     
@@ -929,38 +913,13 @@ local function onPlayerData(player, playerData)
                 if AshenMPRanking.sandboxSettings.otherPerks then
                     ladder.perkScores.otherPerks = {}
                 end
-                -- ladder for LaResistenzaMarket
-                if getGameTime():getModData().LRMPlayerInventory ~= nil then
-                    ladder.perkScores.lrm = {}
-                end
             end
             if AshenMPRanking.sandboxSettings.otherPerks and ladder.perkScores.otherPerks == nil then
                 ladder.perkScores.otherPerks = {}
             end
-            if getGameTime():getModData().LRMPlayerInventory ~= nil and ladder.perkScores.lrm == nil then
-                ladder.perkScores.lrm = {}
-            end
             for k,v in pairs(playerData.perkScores) do
                 -- print("AMPR DEBUG - setting perk score for ", username, k, v)
                 ladder.perkScores[k][username] = v or 0
-            end
-            -- get deposited $$ on LaResistenzaMarket
-            if AshenMPRanking.sandboxSettings.lrm then
-                if getGameTime():getModData().LRMPlayerInventory.players ~= nil then
-                    local money = 0
-                    -- print("AMPR DEBUG - checking balance for: ", playerData.username, playerData.steamID)
-                    if getGameTime():getModData().LRMPlayerInventory.players[playerData.steamID] ~= nil then
-                        money = getGameTime():getModData().LRMPlayerInventory.players[playerData.steamID].score
-                        -- print("AMPR DEBUG BALANCE FOR ", username, money)
-                    else
-                        -- print("AMPR DEBUG no entry for ", username, playerData.steamID)
-                        money = 0
-                    end
-                    ladder.perkScores.lrm[username] = money
-                else
-                    -- print("AMPR DEBUG players not initialized ", username, playerData.steamID)
-                    ladder.perkScores.lrm[username] = 0
-                end
             end
         elseif ladder.perkScores ~= nil then
             ladder.perkScores = nil
@@ -1030,6 +989,8 @@ local function onPlayerData(player, playerData)
         miscellaneous.onlineplayers = tostring(getOnlinePlayers():size())
         local args = {}
         args.onlineplayers = miscellaneous.onlineplayers
+        -- Vorshim test with truncated ladder
+        -- args.ladder = truncateLadder(oLadder, 15)
         args.ladder = oLadder
         sendServerCommand("AshenMPRanking", "LadderUpdate", args)
 
@@ -1082,10 +1043,6 @@ local function resetRanking()
         if AshenMPRanking.sandboxSettings.otherPerks then
             ladder.perkScores.otherPerks = {}
         end
-        -- ladder for LaResistenzaMarket
-        if getGameTime():getModData().LRMPlayerInventory ~= nil then
-            ladder.perkScores.lrm = {}
-        end
     end
 
     lastUpdate = {}
@@ -1093,11 +1050,13 @@ local function resetRanking()
     initServer()
 end
 
-local function sendServerConfig(player)
+-- local function sendServerConfig(player) -- old function naming
+local function sendLadderToPlayer(player)
     local args = {}
     args.onlineplayers = miscellaneous.onlineplayers
+    -- args.ladder = truncateLadder(oLadder, 15)
     args.ladder = oLadder
-    sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
+    -- sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
     sendServerCommand(player, "AshenMPRanking", "LadderUpdate", args)
 end
 
@@ -1136,8 +1095,9 @@ local clientCommandDispatcher = function(module, command, player, args)
         onPlayerData(player, args)
     elseif command == "PlayerIsDead" then
         onPlayerDeathReset(player, args)
-    elseif command == "getServerConfig" then
-        sendServerConfig(player)
+    elseif command == "getLadder" or command == "getServerConfig" then
+        -- sendServerConfig(player)
+        sendLadderToPlayer(player)
     elseif command == "addToRankings" then
         if inactiveAccounts.daysSurvived[args.username] ~= nil then
             args.fail_msg = "UI_ErrorPlayerInactive"
@@ -1298,11 +1258,6 @@ local function onInitGlobalModData(isNewGame)
         if AshenMPRanking.sandboxSettings.otherPerks then
             ladder.perkScores.otherPerks = {}
             inactiveAccounts.perkScores.otherPerks = {}
-        end
-        -- ladder for LaResistenzaMarket
-        if getGameTime():getModData().LRMPlayerInventory ~= nil then
-            ladder.perkScores.lrm = {}
-            inactiveAccounts.perkScores.lrm = {}
         end
     end
 end
