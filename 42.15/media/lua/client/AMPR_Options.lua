@@ -16,11 +16,16 @@ local config = {
     ladderLength = nil,
 }
 
+AshenMPRanking.forceRender = false
+
 local function applyOptions()
     local options = PZAPI.ModOptions:getOptions(MODULE_ID)
 
     if options then
         AshenMPRanking.Options.receiveData = options:getOption("receiveData"):getValue()
+        if tonumber(options:getOption("ladderLength"):getValue()) * 5 ~= AshenMPRanking.Options.ladderLength then
+            AshenMPRanking.forceRender = true
+        end
         AshenMPRanking.Options.ladderLength = tonumber(options:getOption("ladderLength"):getValue()) * 5
     else
         print("AshenMPRanking: Could not load saved settings.  Using defaults.")

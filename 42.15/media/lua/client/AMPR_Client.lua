@@ -802,7 +802,7 @@ local onLadderUpdate = function(module, command, args)
     renderItems = checkForChanges(items, tmpItems)
     -- print('DEBUG AMPR renderItems: ', renderItems)
 
-    if renderItems then
+    if renderItems or AshenMPRanking.forceRender then
         AshenMPRanking.mainUI["list"]:setItems(items)
         -- AshenMPRanking.mainUI["mycombo"]:setItems(items)
     end
@@ -810,8 +810,12 @@ local onLadderUpdate = function(module, command, args)
     renderPerksItems = checkForChanges(perksItems, tmpPerksItems)
     -- print('DEBUG AMPR renderPerksItems: ', renderPerksItems)
 
-    if AshenMPRanking.sandboxSettings.perkScores and renderPerksItems then
+    if AshenMPRanking.sandboxSettings.perkScores and (renderPerksItems or AshenMPRanking.forceRender) then
         AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
+    end
+
+    if AshenMPRanking.forceRender then
+        AshenMPRanking.forceRender = false
     end
 
     local writingCondition = renderItems or renderPerksItems
