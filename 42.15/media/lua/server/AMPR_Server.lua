@@ -9,6 +9,7 @@ local write_required = false
 local ladder = {}
 local inactiveAccounts = {}
 local oLadder = {}
+local optimized_data = nil
 local streamers = {}
 local configs = {}
 local lastUpdate = {}
@@ -108,6 +109,55 @@ local function sort_ladders()
             end
         end
     end
+end
+
+-- crea una versione ottimizzata della ladder da inviare ai client, con un numero limitato di voci per ogni classifica e una sezione user_positions per tenere traccia della posizione degli utenti non inclusi nelle classifiche principali
+local function generateOptimizedData(ladderLength)
+    local optimized = {
+        ladders = {},
+        user_positions = {}
+    }
+    
+    for k, v in pairs(oLadder) do
+        if k == "perkScores" then
+            optimized.ladders.perkScores = {}
+            for kk, vv in pairs(v) do
+                optimized.ladders.perkScores[kk] = {}
+                for i = 1, #vv do
+                    if i <= ladderLength then
+                        optimized.ladders.perkScores[kk][i] = vv[i]
+                    end
+
+                    -- Genera user_positions
+                    local username = vv[i][1]
+                    if optimized.user_positions[username] == nil then
+                        optimized.user_positions[username] = {}
+                    end
+                    if optimized.user_positions[username]["perkScores"] == nil then
+                        optimized.user_positions[username]["perkScores"] = {}
+                    end
+                    optimized.user_positions[username]["perkScores"][kk] = {i,vv[i][2]}
+                end
+            end
+        else
+            optimized.ladders[k] = {}
+            for i = 1, #v do
+                if i <= ladderLength then
+                    optimized.ladders[k][i] = v[i]
+                end
+
+                -- Genera user_positions
+                local username = v[i][1]
+                if optimized.user_positions[username] == nil then
+                    optimized.user_positions[username] = {}
+                end
+                optimized.user_positions[username][k] = {i,v[i][2]}
+                -- print('DEBUG AMPR username: ', username, ' ladder: ', k, ' position: ', optimized.user_positions[username][k][1], ' score: ', optimized.user_positions[username][k][2])
+            end
+        end
+    end
+    
+    return optimized
 end
 
 -- Truncate ladder to max N entries per leaderboard to reduce network payload
@@ -986,12 +1036,17 @@ local function onPlayerData(player, playerData)
         -- sort ladders
         sort_ladders()
 
+        -- Genera struttura ottimizzata (solo per client che la supportano)
+        optimized_data = generateOptimizedData(15) -- o parametro configurabile
+
         miscellaneous.onlineplayers = tostring(getOnlinePlayers():size())
         local args = {}
         args.onlineplayers = miscellaneous.onlineplayers
         -- Vorshim test with truncated ladder
         -- args.ladder = truncateLadder(oLadder, 15)
-        args.ladder = oLadder
+        -- Invia la struttura ottimizzata invece di oLadder completo
+        args.ladder = optimized_data.ladders
+        args.user_positions = optimized_data.user_positions
         sendServerCommand("AshenMPRanking", "LadderUpdate", args)
 
         -- time difference in minutes from the last write
@@ -1055,7 +1110,19 @@ local function sendLadderToPlayer(player)
     local args = {}
     args.onlineplayers = miscellaneous.onlineplayers
     -- args.ladder = truncateLadder(oLadder, 15)
-    args.ladder = oLadder
+
+    -- Genera struttura ottimizzata (solo per client che la supportano)
+    if optimized_data == nil then
+         optimized_data = generateOptimizedData(15) -- o parametro configurabile
+    end
+
+    local args = {}
+    args.onlineplayers = miscellaneous.onlineplayers
+    -- Invia la struttura ottimizzata invece di oLadder completo
+    args.ladder = optimized_data.ladders
+    args.user_positions = optimized_data.user_positions
+    
+    -- args.ladder = oLadder
     -- sendServerCommand(player, "AshenMPRanking", "ServerConfigs", AshenMPRanking.sandboxSettings)
     sendServerCommand(player, "AshenMPRanking", "LadderUpdate", args)
 end

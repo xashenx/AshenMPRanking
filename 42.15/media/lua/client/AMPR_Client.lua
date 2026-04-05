@@ -81,27 +81,27 @@ local function openLadderDesc(_, item)
     local leaderboard = ""
     i = 1
     for k,v in pairs(item) do
-        if i > ladderLength and item.title ~= labels.summaryLB then
-            if not foundSelf and item.player ~= nil then
-                AshenMPRanking.descUI["position_" .. i]:setText("...")
-                -- AshenMPRanking.descUI["score_" .. i]:setText("")
-                -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-                if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-                    local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
-                    AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-                    AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-                else
-                    local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
-                    AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-                    AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-                end
-                AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
-                AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
-                i = i + 2
-            end
+        -- if i > ladderLength and item.title ~= labels.summaryLB then
+        --     if not foundSelf and item.player ~= nil then
+        --         AshenMPRanking.descUI["position_" .. i]:setText("...")
+        --         -- AshenMPRanking.descUI["score_" .. i]:setText("")
+        --         -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+        --         if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+        --             local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
+        --             AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        --         else
+        --             local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
+        --             AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        --         end
+        --         AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
+        --         AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
+        --         i = i + 2
+        --     end
 
-            break
-        end
+        --     break
+        -- end
 
         if k ~= 'title' then
             -- print(title, labels.summaryLB, title == labels.summaryLB, v.user, v.score)
@@ -205,6 +205,23 @@ local function openLadderDesc(_, item)
             title = v
             AshenMPRanking.descUI:setTitle(title)
         end
+    end
+
+    if not foundSelf and item.player ~= nil then
+        AshenMPRanking.descUI["position_" .. i]:setText("...")
+        -- AshenMPRanking.descUI["score_" .. i]:setText("")
+        -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+        if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
+            local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
+            AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+            AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        else
+            local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
+            AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
+            AshenMPRanking.descUI["score_" .. i+1]:setText(text)
+        end
+        AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
+        AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
     end
 end
 
@@ -734,8 +751,25 @@ local onLadderUpdate = function(module, command, args)
         end
     end
 
-    -- TODO optimize this by only iterating over the ladders and positions that are necessary (up to ladderLength and until the player is found)
-    for i=1,max_cardinality do
+    if args.user_positions[username] ~= nil then
+        for k,v in pairs(args.user_positions[username]) do
+            if k == "perkScores" then
+                for kk,vv in pairs(v) do
+                    perksItems[labels[kk]]["player"] = {}
+                    perksItems[labels[kk]]["player"].position = vv[1]
+                    perksItems[labels[kk]]["player"].user = username
+                    perksItems[labels[kk]]["player"].score = vv[2]
+                end
+            else
+                items[labels[k]]["player"] = {}
+                items[labels[k]]["player"].position = v[1]
+                items[labels[k]]["player"].user = username
+                items[labels[k]]["player"].score = v[2]
+            end
+        end
+    end
+
+    for i=1,ladderLength do
         for k,v in pairs(ladder) do
             if k == "perkScores" then
                 for kk,vv in pairs(v) do
@@ -750,17 +784,6 @@ local onLadderUpdate = function(module, command, args)
                     end
                 end
             else
-                -- if k == "zKills" then
-                --     print("DEBUG AMPR local username: ", username, " ladder: ", k, " position: ", i, " length: ", #v)
-                --     if username == "ashen" then
-                --         if #v >= i then
-                --             print("DEBUG AMPR username: ", v[i][1])
-                --             if v[i][1] == "ashen" then
-                --                 print('DEBUG AMPR updateRankingItems: ', i, v[i][2], #v >= i and (i <= ladderLength or v[i][1] == username), #v, i, ladderLength)
-                --             end
-                --         end
-                --     end
-                -- end
                 if #v >= i and (i <= ladderLength or v[i][1] == username) then
                     updateRankingItems(k, labels[k], v[i][1], i, v[i][2], items)
                     -- if summaryLB and i == 1 add to the list
@@ -976,15 +999,16 @@ local function onCharReset()
 
     player = getSpecificPlayer(0)
     username = player:getUsername()
-
     initVars = true
-
+    
     local tickCount = 0
     local function delayedInit()
         tickCount = tickCount + 1
         if tickCount >= 200 then
             Events.OnTick.Remove(delayedInit)
             initClientConfig()
+            -- update username
+            username = player:getUsername()
             -- Fix: impedire auto-apertura mainUI
             if AshenMPRanking.mainUI and type(AshenMPRanking.mainUI.close) == "function" then
                 AshenMPRanking.mainUI:close()
