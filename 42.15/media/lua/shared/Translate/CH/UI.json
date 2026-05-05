@@ -60,5 +60,7 @@
     "UI_AshenMPRanking_Options_receiveData": "接收資料",
     "UI_AshenMPRanking_Options_receiveData_Tooltip": "為實況主生成資料檔案",
     "UI_AshenMPRanking_Options_ladderLength": "排行榜長度",
-    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "排行榜中顯示的最大玩家數量"
+    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "排行榜中顯示的最大玩家數量",
+    "UI_AshenMPRanking_Options_hotkey": "快捷鍵",
+    "UI_AshenMPRanking_Options_hotkey_Tooltip": "用於顯示/隱藏主介面的按鍵"
 }

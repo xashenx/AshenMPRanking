@@ -60,5 +60,7 @@
     "UI_AshenMPRanking_Options_receiveData": "Получать данные",
     "UI_AshenMPRanking_Options_receiveData_Tooltip": "Запись файлов для стримеров",
     "UI_AshenMPRanking_Options_ladderLength": "Длина таблицы",
-    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Макс. кол-во игроков в таблице"
+    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Макс. кол-во игроков в таблице",
+    "UI_AshenMPRanking_Options_hotkey": "Горячая клавиша",
+    "UI_AshenMPRanking_Options_hotkey_Tooltip": "Клавиша для показа/скрытия главного окна"
 }

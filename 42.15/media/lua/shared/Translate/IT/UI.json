@@ -60,5 +60,7 @@
     "UI_AshenMPRanking_Options_receiveData": "Ricevi i dati",
     "UI_AshenMPRanking_Options_receiveData_Tooltip": "Scrittura file per streamers",
     "UI_AshenMPRanking_Options_ladderLength": "Lunghezza classifica",
-    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Numero massimo di giocatori mostrati nella classifica"
+    "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Numero massimo di giocatori mostrati nella classifica",
+    "UI_AshenMPRanking_Options_hotkey": "Hotkey",
+    "UI_AshenMPRanking_Options_hotkey_Tooltip": "Tasto da utilizzare visualizzare/nascondere la finestra"
 }
