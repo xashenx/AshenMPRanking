@@ -569,6 +569,9 @@ local function onCreateUI()
     if ladderLength == 2 then
         ladderLength = 10
     end
+
+    -- apply client options
+    AshenMPRanking.Options.applyOptions()
 end
 
 local function writeLadder(ladder, label, ladder_name)
