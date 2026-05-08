@@ -3,6 +3,7 @@ AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.sandboxSettings = {}
 AshenMPRanking.server = {}
 AshenMPRanking.file = nil
+AshenMPRanking.plugin = AshenMPRanking.plugin or {}
 
 local parsedPlayers = 0
 local write_required = false
@@ -355,6 +356,17 @@ local function moveBetweenActiveInactive(username, from, to)
     
     to.deaths[username] = from.deaths[username]
     from.deaths[username] = nil
+
+    -- TODO handle custom ladders
+    for k,v in pairs(from) do
+        if string.match(k, "custom_") then
+            if to[k] == nil then
+                to[k] = {}
+            end
+            to[k][username] = from[k][username]
+            from[k][username] = nil
+        end
+    end
 end
 
 -- load inactive accounts
@@ -891,6 +903,13 @@ local function onPlayerData(player, playerData)
 
     local username = playerData.username
     if player:getAccessLevel() == "user" or AshenMPRanking.sandboxSettings.rankStaff then
+        for k,v in pairs(playerData) do
+            -- k starts with "custom_" then it's a custom stat, add it to playerData with key without "custom_"
+            if string.sub(k, 1, 7) == "custom_" then
+                ladder[k][username] = playerData[k]
+            end
+        end
+
         if ladder.daysSurvivedAbs[username] == nil then
             if checkInactive(1, username) then
                 print("AMPR DEBUG: restoring player " .. username .. " from INACTIVE to ACTIVE")
@@ -1369,6 +1388,47 @@ AshenMPRanking.api.getPosition = function(laddertype, laddername, position)
         end
     end
 end
+
+-- PLUGIN
+local function shallowCopy(src)
+    local dst = {}
+    for k, v in pairs(src) do
+        dst[k] = v
+    end
+    return dst
+end
+
+AshenMPRanking.plugin.addCustomLadder = function (ladderName)
+    local tmp = nil
+    local tmpO = nil
+    if ladder["custom_" .. ladderName] == nil then
+        -- init custom ladder structure
+        ladder["custom_" .. ladderName] = {}
+        oLadder["custom_" .. ladderName] = {}
+        print('DEBUG AMPR customLadder added: ', ladderName)
+    else
+        -- init custom ladder structure
+        tmp = shallowCopy(ladder["custom_" .. ladderName] or {})
+        tmpO = shallowCopy(oLadder["custom_" .. ladderName] or {})
+        ladder["custom_" .. ladderName] = nil
+        oLadder["custom_" .. ladderName] = nil
+        -- copy again data into structures
+        ladder["custom_" .. ladderName] = tmp
+        oLadder["custom_" .. ladderName] = tmpO
+    end
+end
+
+AshenMPRanking.plugin.removeCustomLadder = function (ladderName)
+    if ladder["custom_" .. ladderName] ~= nil then
+        print('DEBUG AMPR customLadder removed: ', ladderName)
+        ladder["custom_" .. ladderName] = nil
+        oLadder["custom_" .. ladderName] = nil
+
+        -- delete also from inactive accounts
+        inactiveAccounts["custom_" .. ladderName] = nil
+    end
+end
+-- END PLUGIN
 
 Events.OnServerStarted.Add(initServer)
 Events.OnPlayerDeath.Add(onPlayerDeathReset)

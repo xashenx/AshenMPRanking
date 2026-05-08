@@ -9,6 +9,7 @@ AshenMPRanking.textureOff = getTexture("media/textures/icon_off.png")
 AshenMPRanking.textureOn = getTexture("media/textures/icon_on.png")
 AshenMPRanking.mainUI = {}
 AshenMPRanking.descUI = {}
+AshenMPRanking.plugin = AshenMPRanking.plugin or {}
 
 local items = {}
 local perksItems = {}
@@ -32,6 +33,9 @@ playerData.perkScores = {}
 local laddersToWrite = {}
 
 local BASE_HEIGHT = 20
+
+local customLadders = {}
+local customExtraLadders = 0
 
 PERKS_FIREARM = {"Aiming", "Reloading"}
 PERKS_COMBAT = {"Blunt", "Axe", "Spear", "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt"}
@@ -480,6 +484,10 @@ local function onCreateUI()
 
         if AshenMPRanking.sandboxSettings.lessDeaths then
             height = height + fontHgt
+        end
+
+        if customExtraLadders > 0 then
+            height = height + (customExtraLadders * fontHgt)
         end
     end
 
@@ -1021,6 +1029,9 @@ local function onCharReset()
                 AshenMPRanking.mainUI:close()
                 toolbarButton:setImage(AshenMPRanking.textureOff)
             end
+            for ladderName,ladderLabel in pairs(customLadders) do
+                labels["custom_" .. ladderName] = ladderLabel
+            end
         end
     end
     Events.OnTick.Add(delayedInit)
@@ -1053,6 +1064,22 @@ function ISEquippedItem:prerender()
         end
     end
 end
+
+-- PLUGIN
+AshenMPRanking.plugin.addCustomLadder = function (ladderName, ladderLabel)
+    customLadders[ladderName] = ladderLabel
+    customExtraLadders = customExtraLadders + 1
+end
+
+AshenMPRanking.plugin.removeCustomLadder = function (ladderName)
+    customLadders[ladderName] = nil
+    customExtraLadders = customExtraLadders - 1
+end
+
+AshenMPRanking.plugin.updatePlayerData = function (ladderName, value)
+    playerData["custom_" .. ladderName] = value
+end
+-- END PLUGIN
 
 Events.OnPlayerDeath.Add(onPlayerDeathReset)
 Events.OnCreatePlayer.Add(onCharReset)
