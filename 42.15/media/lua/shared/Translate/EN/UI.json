@@ -53,7 +53,7 @@
     "UI_ActiveToInactive": "Player %s is now inactive",
     "UI_InactiveToActive": "Player %s is now active",
     "UI_ErrorPlayerNotInactive": "Player %s is not inactive",
-    "UI_ErrorPlayerInactive": "Player present in the inactive ranking, move him with /inactivetoactive %s",
+    "UI_ErrorPlayerInactive": "Player present in the inactive ranking",
     "UI_ResetRanking": "Rankings data have been reset",
     "UI_ErrorResetRanking": "Error during rankings reset",
     "UI_AshenMPRanking_Options_Title": "Ashen Multiplayer Ranking",

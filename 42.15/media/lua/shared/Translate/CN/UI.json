@@ -53,7 +53,7 @@
     "UI_ActiveToInactive": "玩家 %s 已标记为闲置",
     "UI_InactiveToActive": "玩家 %s 已恢复为活跃",
     "UI_ErrorPlayerNotInactive": "玩家 %s 并非闲置状态",
-    "UI_ErrorPlayerInactive": "该玩家在闲置榜单中，请使用指令 /inactivetoactive %s 移动",
+    "UI_ErrorPlayerInactive": "该玩家在闲置榜单中",
     "UI_ResetRanking": "排行榜数据已重置",
     "UI_ErrorResetRanking": "排行榜重置时出现错误",
     "UI_AshenMPRanking_Options_Title": "Ashen Multiplayer Ranking",

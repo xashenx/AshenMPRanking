@@ -53,7 +53,7 @@
     "UI_ActiveToInactive": "Игрок %s стал неактивным",
     "UI_InactiveToActive": "Игрок %s стал активным",
     "UI_ErrorPlayerNotInactive": "Игрок %s не неактивен",
-    "UI_ErrorPlayerInactive": "Игрок в неактивном рейтинге, переместите /inactivetoactive %s",
+    "UI_ErrorPlayerInactive": "Игрок в неактивном рейтинге",
     "UI_ResetRanking": "Данные рейтингов сброшены",
     "UI_ErrorResetRanking": "Ошибка сброса рейтингов",
     "UI_AshenMPRanking_Options_Title": "Ashen Multiplayer Ranking",
