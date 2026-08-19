@@ -45,15 +45,67 @@ PERKS_PHYSICAL = {"Fitness", "Strength", "Sprinting", "Lightfoot", "Nimble"}
 PERKS_SURVIVALIST = {"Fishing", "Trapping", "PlantScavenging", "Tracking", "Doctor"}
 PERKS_OTHERPERKS = {}
 
+-- a summary row's `.position` field is overloaded to hold the *other* ladder's label
+-- (see onLadderUpdate), so the daysSurvived/daysSurvivedAbs check has to look at both
+local function isDaysSurvivedEntry(title, v)
+    return title == labels.daysSurvived or title == labels.daysSurvivedAbs
+        or tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs
+end
+
+local function formatScore(isDaysSurvived, score)
+    if isDaysSurvived then
+        return string.format("%.1f", score)
+    end
+    return tostring(score)
+end
+
+-- resolves "where do I rank" for the ladder shown on a summary row
+local function summaryYouText(v)
+    if v.user == username then
+        return ""
+    end
+    local ranked = items[v.position] or perksItems[v.position]
+    if ranked ~= nil and ranked.player ~= nil then
+        return tostring(ranked.player.position)
+    end
+    return getText("UI_Unranked")
+end
+
+-- custom row renderer for descUI/summaryUI: single-line text, colored by colorState
+-- ("self" = highlighted in green like the original UI, "outOfRange" = red "you, but not ranked")
+local function drawLadderListItem(self, y, listItem, alt)
+    if not listItem.height then listItem.height = self.itemheight end
+    if y < -self:getYScroll() then return y + listItem.height end
+    if y > self:getHeight() - self:getYScroll() then return y + listItem.height end
+
+    if self.selected == listItem.index then
+        self:drawRect(0, y, self:getWidth(), listItem.height - 1, 0.3, 0.7, 0.35, 0.15)
+    end
+    self:drawRectBorder(0, y, self:getWidth(), listItem.height, 0.5, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    local itemPadY = self.itemPadY or (listItem.height - self.fontHgt) / 2
+
+    local r, g, b = 0.9, 0.9, 0.9
+    local state = listItem.item and listItem.item.colorState
+    if state == "self" then
+        r, g, b = 0, 1, 0.2
+    elseif state == "outOfRange" then
+        r, g, b = 1, 0, 0
+    end
+    self:drawText(listItem.text, 15, y + itemPadY, r, g, b, 0.9, self.font)
+
+    return y + listItem.height
+end
+
 local function openLadderDesc(_, item)
-    local title
-    local foundSelf = false
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength) or 10
     if ladderLength == 2 then
         ladderLength = 10
     end
 
-    if item.title == labels.summaryLB then
+    local title = item.title
+    local isSummary = title == labels.summaryLB
+
+    if isSummary then
         AshenMPRanking.descUI:close()
         AshenMPRanking.summaryUI:open()
         AshenMPRanking.summaryUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
@@ -61,171 +113,42 @@ local function openLadderDesc(_, item)
         AshenMPRanking.summaryUI:close()
         AshenMPRanking.descUI:open()
         AshenMPRanking.descUI:setPositionPixel(AshenMPRanking.mainUI:getX() + AshenMPRanking.mainUI:getWidth(), AshenMPRanking.mainUI:getY())
+        AshenMPRanking.descUI:setTitle(title)
     end
 
-    -- for j = i to 15 set text of position, user and score to ""
-    for i = 1, 17 do
-        if item.title ~= labels.summaryLB then
-            AshenMPRanking.descUI["position_" .. i]:setText("")
-            AshenMPRanking.descUI["score_" .. i]:setText("")
-            -- reset color to transparent
-            AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
-            AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
-        else
-            AshenMPRanking.summaryUI["ladder_" .. i]:setText("")
-            AshenMPRanking.summaryUI["user_" .. i]:setText("")
-            AshenMPRanking.summaryUI["you_" .. i]:setText("")
-            -- reset color to transparent
-            AshenMPRanking.summaryUI["ladder_" .. i]:setColor(1, 1, 1, 1)
-            AshenMPRanking.summaryUI["user_" .. i]:setColor(1, 1, 1, 1)
-            AshenMPRanking.summaryUI["you_" .. i]:setColor(1, 1, 1, 1)
-        end
-    end
+    local list = isSummary and AshenMPRanking.summaryUI["list"] or AshenMPRanking.descUI["list"]
+    list:clear()
 
-    local leaderboard = ""
-    i = 1
-    for k,v in pairs(item) do
-        -- if i > ladderLength and item.title ~= labels.summaryLB then
-        --     if not foundSelf and item.player ~= nil then
-        --         AshenMPRanking.descUI["position_" .. i]:setText("...")
-        --         -- AshenMPRanking.descUI["score_" .. i]:setText("")
-        --         -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-        --         if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-        --             local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
-        --             AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        --         else
-        --             local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
-        --             AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        --         end
-        --         AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
-        --         AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
-        --         i = i + 2
-        --     end
+    local foundSelf = false
 
-        --     break
-        -- end
+    for k, v in pairs(item) do
+        if k ~= 'title' and k ~= 'player' then
+            local isSelf = v.user == username
+            if isSelf then foundSelf = true end
 
-        if k ~= 'title' then
-            -- print(title, labels.summaryLB, title == labels.summaryLB, v.user, v.score)
-            -- AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
-            if k ~= 'player' then
-                if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-                    local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
-                    if item.title ~= labels.summaryLB then
-                        AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.descUI["score_" .. i]:setText(text)
-                    else
-                        AshenMPRanking.summaryUI["ladder_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.summaryUI["user_" .. i]:setText(text)
-                        --- if v.user is not equal to username add to text "YOU are [item.player.position]"
-                        if v.user ~= username then
-                            AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(items[v.position].player.position))
-                        else
-                            AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                        end
-                    end
-                elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
-                    local text = v.user .. " (" .. string.format("%.1f", v.score) .. ")"
-                    if title ~= labels.summaryLB then
-                        AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.descUI["score_" .. i]:setText(text)
-                    else
-                        AshenMPRanking.summaryUI["ladder_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.summaryUI["user_" .. i]:setText(text)
-                        if username ~= v.user then
-                            -- check if v.position is in items or perksItems
-                            if items[v.position] ~= nil then
-                                if items[v.position].player ~= nil then
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(items[v.position].player.position))
-                                else
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                                end
-                            elseif perksItems[v.position] ~= nil then
-                                if perksItems[v.position].player ~= nil then
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(perksItems[v.position].player.position))
-                                else
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                                end
-                            end
-                        else
-                            AshenMPRanking.summaryUI["you_" .. i]:setText("")
-                        end
-                    end
-                else
-                    local text = v.user .. " (" .. tostring(v.score) .. ")"
-                    if title ~= labels.summaryLB then
-                        AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.descUI["score_" .. i]:setText(text)
-                    else
-                        AshenMPRanking.summaryUI["ladder_" .. i]:setText(tostring(v.position))
-                        AshenMPRanking.summaryUI["user_" .. i]:setText(text)
-                        if username ~= v.user then
-                            -- check if v.position is in items or perksItems
-                            if items[v.position] ~= nil then
-                                if items[v.position].player ~= nil then
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(items[v.position].player.position))
-                                else
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                                end
-                            elseif perksItems[v.position] ~= nil then
-                                if perksItems[v.position].player ~= nil then
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(tostring(perksItems[v.position].player.position))
-                                else
-                                    AshenMPRanking.summaryUI["you_" .. i]:setText(getText("UI_Unranked"))
-                                end
-                            end
-                        else
-                            AshenMPRanking.summaryUI["you_" .. i]:setText("")
-                        end
-                    end
+            local scoreText = formatScore(isDaysSurvivedEntry(title, v), v.score)
+            local rowText
 
+            if isSummary then
+                local youText = summaryYouText(v)
+                rowText = v.position .. ": " .. v.user .. " (" .. scoreText .. ")"
+                if youText ~= "" then
+                    rowText = rowText .. "  [" .. getText("UI_SummaryYou") .. ": " .. youText .. "]"
                 end
-
-                if v.user == username then
-                    foundSelf = true
-                    if title ~= labels.summaryLB then
-                        AshenMPRanking.descUI["position_" .. i]:setColor(1, 0, 1, 0.2)
-                        AshenMPRanking.descUI["score_" .. i]:setColor(1, 0, 1, 0.2)
-                    else
-                        AshenMPRanking.summaryUI["ladder_" .. i]:setColor(1, 0, 1, 0.2)
-                        AshenMPRanking.summaryUI["user_" .. i]:setColor(1, 0, 1, 0.2)
-                        AshenMPRanking.summaryUI["you_" .. i]:setColor(1, 0, 1, 0.2)
-                    end
-                else
-                    if title ~= labels.summaryLB then
-                        AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
-                        AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
-                    else
-                        AshenMPRanking.summaryUI["ladder_" .. i]:setColor(1, 1, 1, 1)
-                        AshenMPRanking.summaryUI["user_" .. i]:setColor(1, 1, 1, 1)
-                        AshenMPRanking.summaryUI["you_" .. i]:setColor(1, 1, 1, 1)
-                    end
-                end
-                i = i + 1
+            else
+                rowText = "#" .. tostring(v.position) .. "  " .. v.user .. " (" .. scoreText .. ")"
             end
-        else
-            title = v
-            AshenMPRanking.descUI:setTitle(title)
+
+            list:addItem(rowText, {colorState = isSelf and "self" or nil})
         end
     end
 
-    if not foundSelf and item.player ~= nil then
-        AshenMPRanking.descUI["position_" .. i]:setText("...")
-        -- AshenMPRanking.descUI["score_" .. i]:setText("")
-        -- AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-        if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-            local text = item.player.user .. " (" .. string.format("%.1f", item.player.score) .. ")"
-            AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-            AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        else
-            local text = item.player.user .. " (" .. tostring(item.player.score) .. ")"
-            AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-            AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        end
-        AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
-        AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
+    -- if the player isn't in the top N shown above, append their own position/score
+    if not isSummary and not foundSelf and item.player ~= nil then
+        local text = tostring(item.player.position) .. "  " .. item.player.user .. " (" ..
+            formatScore(isDaysSurvivedEntry(title, item.player), item.player.score) .. ")"
+        list:addItem("...", {})
+        list:addItem(text, {colorState = "outOfRange"})
     end
 end
 
@@ -446,6 +369,9 @@ end
 
 local function onCreateUI()
     local fontHgt = getTextManager():getFontHeight(UIFont.Small);
+    -- shared cap for every scrollable list in the mod (main list, perks list, desc/summary popups)
+    -- so the windows stay a consistent, reasonable size no matter how many ladders are active
+    local POPUP_LIST_HEIGHT = fontHgt * 15
     -- List UI
     AshenMPRanking.mainUI = NewUI() -- Create UI
     -- AshenMPRanking.mainUI:setTitle(getText("UI_MainWTitle"))
@@ -528,8 +454,10 @@ local function onCreateUI()
     -- default scrollList
     AshenMPRanking.mainUI:addScrollList("list", items); -- Create list
     AshenMPRanking.mainUI["list"]:setOnMouseDownFunction(_, openLadderDesc)
-    -- get max height of the scrollList
+    -- get max height of the scrollList, capped so the window doesn't grow unbounded
+    -- when many ladders (sandbox options + custom ladders) are active - it scrolls instead
     height = math.max(height, perksHeight)
+    height = math.min(height, POPUP_LIST_HEIGHT)
     AshenMPRanking.mainUI:setDefaultLineHeightPixel(height)
     
     if AshenMPRanking.sandboxSettings.perkScores then
@@ -557,46 +485,24 @@ local function onCreateUI()
     -- AshenMPRanking.mainUI:setBorderToAllElements(true)
     -- AshenMPRanking.mainUI:close()
 
-    -- Description UI
+    -- Description UI (scrollable: a ladder can have more entries than fit on screen)
     AshenMPRanking.descUI = NewUI()
     AshenMPRanking.descUI:setTitle(getText("UI_LadderTitle"))
     AshenMPRanking.descUI:isSubUIOf(AshenMPRanking.mainUI)
     AshenMPRanking.descUI:setWidthPixel(fontHgt * 18)
+    AshenMPRanking.descUI:addScrollList("list", {})
+    AshenMPRanking.descUI["list"].doDrawItem = drawLadderListItem
+    AshenMPRanking.descUI:setLineHeightPixel(POPUP_LIST_HEIGHT)
 
-    -- Summary UI
+    -- Summary UI (scrollable: the number of categories grows with sandbox options + custom ladders)
     AshenMPRanking.summaryUI = NewUI()
     AshenMPRanking.summaryUI:setTitle(getText("UI_LadderTitle"))
     AshenMPRanking.summaryUI:isSubUIOf(AshenMPRanking.mainUI)
     AshenMPRanking.summaryUI:setWidthPixel(fontHgt * 28)
-    AshenMPRanking.summaryUI:addText("leaderboard", getText("UI_SummaryLeaderboard"), "Small", "Center")
-    AshenMPRanking.summaryUI["leaderboard"]:setWidthPixel(9 * fontHgt)
-    AshenMPRanking.summaryUI:addText("best", getText("UI_SummaryBest"), "Small", "Center")
-    AshenMPRanking.summaryUI["best"]:setWidthPixel(15 * fontHgt)
-    AshenMPRanking.summaryUI:addText("you", getText("UI_SummaryYou"), "Small", "Center")
-    AshenMPRanking.summaryUI["you"]:setWidthPixel(3 * fontHgt)
-    AshenMPRanking.summaryUI["leaderboard"]:setColor(1, 10, 0,929, 1)
-    AshenMPRanking.summaryUI["best"]:setColor(1, 10, 0,929, 1)
-    AshenMPRanking.summaryUI["you"]:setColor(1, 10, 0,929, 1)
-    AshenMPRanking.summaryUI:nextLine()
+    AshenMPRanking.summaryUI:addScrollList("list", {})
+    AshenMPRanking.summaryUI["list"].doDrawItem = drawLadderListItem
+    AshenMPRanking.summaryUI:setLineHeightPixel(POPUP_LIST_HEIGHT)
 
-    for i = 1, 17 do
-        AshenMPRanking.descUI:addText("position_" .. i, "", "Small", "Center")
-        AshenMPRanking.descUI["position_" .. i]:setWidthPixel(2 * fontHgt)
-        AshenMPRanking.descUI:addText("score_" .. i, "", "Small", "Center")
-        AshenMPRanking.descUI["score_" .. i]:setWidthPixel(15 * fontHgt)
-        AshenMPRanking.summaryUI:addText("ladder_" .. i, "", "Small", "Center")
-        AshenMPRanking.summaryUI["ladder_" .. i]:setWidthPixel(9 * fontHgt)
-        AshenMPRanking.summaryUI:addText("user_" .. i, "", "Small", "Center")
-        AshenMPRanking.summaryUI["user_" .. i]:setWidthPixel(15 * fontHgt)
-        AshenMPRanking.summaryUI:addText("you_" .. i, "", "Small", "Center")
-        AshenMPRanking.summaryUI["you_" .. i]:setWidthPixel(3 * fontHgt)
-        -- set width of the text
-        -- AshenMPRanking.descUI:addText("score_" .. i, "", "Small", "Center")
-        -- set width of the text 250 - 50 - 50 = 150
-        -- AshenMPRanking.descUI["score_" .. i]:setWidthPixel(50)
-        AshenMPRanking.descUI:nextLine()
-        AshenMPRanking.summaryUI:nextLine()
-    end
     AshenMPRanking.descUI:saveLayout()
     AshenMPRanking.descUI:close()
     AshenMPRanking.summaryUI:saveLayout()
@@ -1035,6 +941,12 @@ local function onCharReset()
         btnX, btnY = inst:getX(), inst:getY() + maxBottom + 6
     end
 
+    -- onCharReset runs again on every respawn: remove the previous icon before
+    -- creating a new one, otherwise the old instance stays orphaned in the UIManager
+    if toolbarButton and toolbarButton.removeFromUIManager then
+        toolbarButton:removeFromUIManager()
+    end
+
     toolbarButton = ISButton:new(btnX, btnY, btnW, btnH, "", nil, showWindowToolbar)
     toolbarButton:setImage(AshenMPRanking.textureOff)
     toolbarButton:setDisplayBackground(false)
@@ -1159,7 +1071,9 @@ end
 
 -- PLUGIN
 AshenMPRanking.plugin.addCustomLadder = function (ladderName, ladderLabel)
-    customLadders[ladderName] = ladderLabel
+    -- fallback to the ladder name if a plugin forgets to pass a label, otherwise
+    -- customLadders[ladderName] would never be set (nil values are not stored in Lua tables)
+    customLadders[ladderName] = ladderLabel or ladderName
     customExtraLadders = customExtraLadders + 1
 end
 
