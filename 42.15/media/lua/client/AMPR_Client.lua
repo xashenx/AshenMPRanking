@@ -229,6 +229,40 @@ local function openLadderDesc(_, item)
     end
 end
 
+local ICON_POSITION_FILE = "/AshenMPRanking/icon_position.txt"
+local ICON_DRAG_THRESHOLD = 4
+
+local function clampIconToScreen(x, y, w, h)
+    local maxX = math.max(0, getCore():getScreenWidth() - w)
+    local maxY = math.max(0, getCore():getScreenHeight() - h)
+    return math.max(0, math.min(x, maxX)), math.max(0, math.min(y, maxY))
+end
+
+local function saveIconPosition(x, y)
+    local dataFile = getFileWriter(ICON_POSITION_FILE, true, false)
+    dataFile:write(tostring(x) .. "," .. tostring(y))
+    dataFile:close()
+end
+
+local function loadIconPosition()
+    local dataFile = getFileReader(ICON_POSITION_FILE, false)
+    if dataFile == nil then
+        return nil
+    end
+    local line = dataFile:readLine()
+    dataFile:close()
+    if line == nil then
+        return nil
+    end
+    local parts = string.split(line, ",")
+    local x = parts[1] and tonumber(parts[1])
+    local y = parts[2] and tonumber(parts[2])
+    if x == nil or y == nil then
+        return nil
+    end
+    return x, y
+end
+
 local function showWindowToolbar()
     if AshenMPRanking.mainUI and AshenMPRanking.mainUI:getIsVisible() then
         AshenMPRanking.mainUI:close()
@@ -982,7 +1016,7 @@ local function onCharReset()
     local inst = ISEquippedItem.instance
     local refBtn = inst.invBtn
 
-    -- Calcola Y dal bottom dell'ultimo bottone visibile
+    -- Calcola Y dal bottom dell'ultimo bottone visibile (posizione di default)
     local maxBottom = 0
     for _, child in pairs(inst:getChildren()) do
         if child.Type == "ISButton" and child:isVisible() then
@@ -993,10 +1027,20 @@ local function onCharReset()
     local btnW = refBtn and refBtn:getWidth() or 50
     local btnH = refBtn and refBtn:getHeight() or 50
 
-    toolbarButton = ISButton:new(0, maxBottom + 6, btnW, btnH, "", nil, showWindowToolbar)
+    local savedX, savedY = loadIconPosition()
+    local btnX, btnY
+    if savedX ~= nil then
+        btnX, btnY = clampIconToScreen(savedX, savedY, btnW, btnH)
+    else
+        btnX, btnY = inst:getX(), inst:getY() + maxBottom + 6
+    end
+
+    toolbarButton = ISButton:new(btnX, btnY, btnW, btnH, "", nil, showWindowToolbar)
     toolbarButton:setImage(AshenMPRanking.textureOff)
     toolbarButton:setDisplayBackground(false)
     toolbarButton.internal = "AMPRBtn"
+    -- Se l'utente ha già spostato l'icona in passato, non riposizionarla più automaticamente
+    toolbarButton.userMoved = savedX ~= nil
 
     -- Override render: scala texture al bottone (fix 4K/64px)
     function toolbarButton:render()
@@ -1009,8 +1053,55 @@ local function onCharReset()
         end
     end
 
-    inst:addChild(toolbarButton)
-    inst:shrinkWrap()
+    -- Drag & drop: un click rapido apre/chiude la finestra, un trascinamento sposta l'icona
+    local function applyIconDrag(self, dx, dy)
+        if not self.dragging then return end
+        self.dragDistance = self.dragDistance + math.abs(dx) + math.abs(dy)
+        if self.dragDistance > ICON_DRAG_THRESHOLD then
+            self.pressed = false -- annulla il click: l'utente sta trascinando
+        end
+        local newX, newY = clampIconToScreen(self:getX() + dx, self:getY() + dy, self:getWidth(), self:getHeight())
+        self:setX(newX)
+        self:setY(newY)
+    end
+
+    local function endIconDrag(self)
+        if self.dragging and self.dragDistance > ICON_DRAG_THRESHOLD then
+            self.userMoved = true
+            saveIconPosition(self:getX(), self:getY())
+        end
+        self.dragging = false
+        self.dragDistance = 0
+    end
+
+    function toolbarButton:onMouseDown(x, y)
+        ISButton.onMouseDown(self, x, y)
+        self.dragging = true
+        self.dragDistance = 0
+        self:bringToTop()
+    end
+
+    function toolbarButton:onMouseMove(dx, dy)
+        ISButton.onMouseMove(self, dx, dy)
+        applyIconDrag(self, dx, dy)
+    end
+
+    function toolbarButton:onMouseMoveOutside(dx, dy)
+        ISButton.onMouseMoveOutside(self, dx, dy)
+        applyIconDrag(self, dx, dy)
+    end
+
+    function toolbarButton:onMouseUp(x, y)
+        endIconDrag(self)
+        ISButton.onMouseUp(self, x, y)
+    end
+
+    function toolbarButton:onMouseUpOutside(x, y)
+        endIconDrag(self)
+        ISButton.onMouseUpOutside(self, x, y)
+    end
+
+    toolbarButton:addToUIManager()
 
     player = getSpecificPlayer(0)
     username = player:getUsername()
@@ -1049,18 +1140,19 @@ end
 local original_prerender = ISEquippedItem.prerender
 function ISEquippedItem:prerender()
     original_prerender(self)
-    if self == ISEquippedItem.instance and toolbarButton and toolbarButton:isVisible() then
+    -- Se l'utente ha trascinato l'icona altrove, rispetta la sua posizione
+    if self == ISEquippedItem.instance and toolbarButton and toolbarButton:isVisible() and not toolbarButton.userMoved then
         local maxBottom = 0
         for _, child in pairs(self:getChildren()) do
-            if child == toolbarButton then break end
             if child.Type == "ISButton" and child:isVisible() then
                 maxBottom = math.max(maxBottom, child:getBottom())
             end
         end
-        local targetY = maxBottom + 6
-        if toolbarButton:getY() ~= targetY then
+        local targetX = self:getX()
+        local targetY = self:getY() + maxBottom + 6
+        if toolbarButton:getX() ~= targetX or toolbarButton:getY() ~= targetY then
+            toolbarButton:setX(targetX)
             toolbarButton:setY(targetY)
-            self:shrinkWrap()
         end
     end
 end
