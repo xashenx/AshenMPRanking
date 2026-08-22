@@ -153,7 +153,7 @@ local function openLadderDesc(_, item)
 end
 
 local ICON_POSITION_FILE = "/AshenMPRanking/icon_position.txt"
-local ICON_DRAG_THRESHOLD = 4
+local ICON_DRAG_THRESHOLD = 6
 
 local function clampIconToScreen(x, y, w, h)
     local maxX = math.max(0, getCore():getScreenWidth() - w)
@@ -965,16 +965,19 @@ local function onCharReset()
         end
     end
 
-    -- Drag & drop: un click rapido apre/chiude la finestra, un trascinamento sposta l'icona
+    -- Drag & drop: un click rapido apre/chiude la finestra, un trascinamento sposta l'icona.
+    -- dragDistance è lo spostamento NETTO dal punto di pressione iniziale, non la somma di
+    -- ogni singolo delta: sommare i delta faceva scattare il drag (e annullava il click) anche
+    -- per un piccolo tremolio del mouse durante un semplice click (spostamento netto ~0).
     local function applyIconDrag(self, dx, dy)
         if not self.dragging then return end
-        self.dragDistance = self.dragDistance + math.abs(dx) + math.abs(dy)
-        if self.dragDistance > ICON_DRAG_THRESHOLD then
-            self.pressed = false -- annulla il click: l'utente sta trascinando
-        end
         local newX, newY = clampIconToScreen(self:getX() + dx, self:getY() + dy, self:getWidth(), self:getHeight())
         self:setX(newX)
         self:setY(newY)
+        self.dragDistance = math.abs(newX - self.dragStartX) + math.abs(newY - self.dragStartY)
+        if self.dragDistance > ICON_DRAG_THRESHOLD then
+            self.pressed = false -- annulla il click: l'utente sta trascinando
+        end
     end
 
     local function endIconDrag(self)
@@ -990,6 +993,8 @@ local function onCharReset()
         ISButton.onMouseDown(self, x, y)
         self.dragging = true
         self.dragDistance = 0
+        self.dragStartX = self:getX()
+        self.dragStartY = self:getY()
         self:bringToTop()
     end
 
