@@ -902,7 +902,7 @@ local function onPlayerData(player, playerData)
     end
 
     local username = playerData.username
-    if player:getAccessLevel() == "user" or AshenMPRanking.sandboxSettings.rankStaff then
+    if player:getAccessLevel() == "user" or player:getAccessLevel() == "priority" or AshenMPRanking.sandboxSettings.rankStaff then
         for k,v in pairs(playerData) do
             -- k starts with "custom_" then it's a custom stat, add it to playerData with key without "custom_"
             if string.sub(k, 1, 7) == "custom_" then
