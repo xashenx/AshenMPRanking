@@ -1057,19 +1057,25 @@ end
 local original_prerender = ISEquippedItem.prerender
 function ISEquippedItem:prerender()
     original_prerender(self)
-    -- Se l'utente ha trascinato l'icona altrove, rispetta la sua posizione
-    if self == ISEquippedItem.instance and toolbarButton and toolbarButton:isVisible() and not toolbarButton.userMoved then
-        local maxBottom = 0
-        for _, child in pairs(self:getChildren()) do
-            if child.Type == "ISButton" and child:isVisible() then
-                maxBottom = math.max(maxBottom, child:getBottom())
+    if self == ISEquippedItem.instance and toolbarButton and toolbarButton:isVisible() then
+        -- l'icona è un elemento top-level indipendente: tienila sempre sopra qualsiasi
+        -- altro pannello/tooltip che potrebbe finirci sopra e rubarle i click
+        toolbarButton:bringToTop()
+
+        -- Se l'utente ha trascinato l'icona altrove, rispetta la sua posizione
+        if not toolbarButton.userMoved then
+            local maxBottom = 0
+            for _, child in pairs(self:getChildren()) do
+                if child.Type == "ISButton" and child:isVisible() then
+                    maxBottom = math.max(maxBottom, child:getBottom())
+                end
             end
-        end
-        local targetX = self:getX()
-        local targetY = self:getY() + maxBottom + 6
-        if toolbarButton:getX() ~= targetX or toolbarButton:getY() ~= targetY then
-            toolbarButton:setX(targetX)
-            toolbarButton:setY(targetY)
+            local targetX = self:getX()
+            local targetY = self:getY() + maxBottom + 6
+            if toolbarButton:getX() ~= targetX or toolbarButton:getY() ~= targetY then
+                toolbarButton:setX(targetX)
+                toolbarButton:setY(targetY)
+            end
         end
     end
 end
