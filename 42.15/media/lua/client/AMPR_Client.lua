@@ -187,6 +187,10 @@ local function loadIconPosition()
 end
 
 local function showWindowToolbar()
+    -- onCreateUI (che costruisce mainUI) gira solo dopo ~200 tick da OnCharReset:
+    -- ignora il click se l'utente lo preme prima che la UI sia pronta, altrimenti
+    -- mainUI è ancora {} e :getIsVisible() genera un errore silenzioso
+    if initUI then return end
     if AshenMPRanking.mainUI and AshenMPRanking.mainUI:getIsVisible() then
         AshenMPRanking.mainUI:close()
         toolbarButton:setImage(AshenMPRanking.textureOff)
@@ -522,6 +526,12 @@ local function onCreateUI()
     AshenMPRanking.Options.applyOptions()
 end
 
+-- rimuove i caratteri non ammessi nei nomi di file/cartella su Windows
+-- (il nome del server è impostato liberamente dall'admin e può contenere | \ / : * ? " < >)
+local function sanitizeServerName(name)
+    return tostring(name):gsub('[\\/:*?"<>|]', "_")
+end
+
 local function writeLadder(ladder, label, ladder_name)
     -- text = label .. "\n\n"
     text = label .. ": "
@@ -538,7 +548,7 @@ local function writeLadder(ladder, label, ladder_name)
         end
     end
 
-    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/" .. ladder_name .. ".txt", true, false)
+    local dataFile = getFileWriter("/AshenMPRanking/" .. sanitizeServerName(AshenMPRanking.sandboxSettings.server_name) .. "/" .. ladder_name .. ".txt", true, false)
     dataFile:write(text)
     dataFile:close()
 end

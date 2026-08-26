@@ -570,6 +570,12 @@ local function onCreateUI()
     end
 end
 
+-- rimuove i caratteri non ammessi nei nomi di file/cartella su Windows
+-- (il nome del server è impostato liberamente dall'admin e può contenere | \ / : * ? " < >)
+local function sanitizeServerName(name)
+    return tostring(name):gsub('[\\/:*?"<>|]', "_")
+end
+
 local function writeLadder(ladder, label, ladder_name)
     -- text = label .. "\n\n"
     text = label .. ": "
@@ -589,7 +595,7 @@ local function writeLadder(ladder, label, ladder_name)
         end
     end
 
-    local dataFile = getFileWriter("/AshenMPRanking/" .. AshenMPRanking.sandboxSettings.server_name .. "/" .. ladder_name .. ".txt", true, false)
+    local dataFile = getFileWriter("/AshenMPRanking/" .. sanitizeServerName(AshenMPRanking.sandboxSettings.server_name) .. "/" .. ladder_name .. ".txt", true, false)
     dataFile:write(text)
     dataFile:close()
 end
