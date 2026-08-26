@@ -253,7 +253,7 @@ local function refreshSelfSurvived()
         AshenMPRanking.mainUI["self_survive"]:setText(timeSurvived)
 
         -- check if receive is nil
-        if receiveData ~= nil or receiveData then
+        if receiveData == nil or receiveData then
         -- if receive then
             -- writing to file
             local dataFile = getFileWriter("/AshenMPRanking/self_survive.txt", true, false)
@@ -276,7 +276,7 @@ local function refreshSelfKills()
 
         -- if AshenMPRanking.Options.receiveData then
         -- check if receive is nil
-        if receiveData ~= nil  or receiveData then
+        if receiveData == nil  or receiveData then
             -- write file
             local text
             if  zombieKills > 999 then
@@ -805,7 +805,7 @@ local onLadderUpdate = function(module, command, args)
     local receiveData = AshenMPRanking.Options.receiveData
     -- print('DEBUG AMPR writingCondition', writingCondition, renderItems, renderPerksItems, writeSelfS, writeSelfK)
     -- check if receive is nil
-    if (receiveData ~= nil  or receiveData) and writingCondition then
+    if (receiveData == nil  or receiveData) and writingCondition then
     -- if AshenMPRanking.Options.receiveData and writingCondition then
         writeToFile(ladder)
     end
@@ -845,7 +845,7 @@ local function SendPlayerData()
 
     -- check if receive is nil
     local receiveData = AshenMPRanking.Options.receiveData
-    playerData.receiveData = receiveData ~= nil or receiveData
+    playerData.receiveData = receiveData == nil or receiveData
 
     sendClientCommand(player, "AshenMPRanking", "PlayerData", playerData)
 end
