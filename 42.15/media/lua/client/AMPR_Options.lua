@@ -6,6 +6,7 @@ AshenMPRanking.MODULE_ID = MODULE_ID
 AshenMPRanking.Options = {
     receiveData = false,
     ladderLength = 10,
+    uiLayout = "classic",
     -- Fn = {}
 }
 
@@ -57,6 +58,12 @@ AshenMPRanking.Options.applyOptions = function()
         AshenMPRanking.Options.ladderLength = tonumber(options:getOption("ladderLength"):getValue()) * 5
         AshenMPRanking.Options.hotkey = getHotkeyValue(options:getOption("hotkey"):getValue())
         AshenMPRanking.mainUI:setKeyMN(AshenMPRanking.Options.hotkey)
+
+        local newUiLayout = (options:getOption("uiLayout"):getValue() == 2) and "compact" or "classic"
+        if newUiLayout ~= AshenMPRanking.Options.uiLayout then
+            AshenMPRanking.Options.uiLayout = newUiLayout
+            AshenMPRanking.rebuildUI()
+        end
     else
         print("AshenMPRanking: Could not load saved settings.  Using defaults.")
     end
@@ -94,6 +101,16 @@ local function initConfig()
     for _, hotkey in ipairs(hotkeys) do
         config.hotkey:addItem(hotkey, hotkey == "R-CTRL")
     end
+
+    config.uiLayout = PZOptions:addComboBox(
+        "uiLayout",
+        getText("UI_AshenMPRanking_Options_uiLayout"),
+        AshenMPRanking.Options.uiLayout,
+        getText("UI_AshenMPRanking_Options_uiLayout_Tooltip")
+    )
+
+    config.uiLayout:addItem("Classico", true)
+    config.uiLayout:addItem("Compatto", false)
 
     PZOptions.apply = function ()
         -- applyOptions()

@@ -1,7 +1,3 @@
-require "ISUI/ISComboBox"
-
-ISComboBoxPopupLeaderboard = ISComboBoxPopup:derive("ISComboBoxPopupLeaderboard")
-
 if isServer() then return end;
 AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.sandboxSettings = {}
@@ -96,6 +92,47 @@ local function drawLadderListItem(self, y, listItem, alt)
     return y + listItem.height
 end
 
+-- turns an items[label]/perksItems[label] entry into display rows; shared by the classic
+-- popup (openLadderDesc) and the compact layout's single always-visible list
+local function buildCategoryRows(item)
+    local title = item.title
+    local isSummary = title == labels.summaryLB
+    local rows = {}
+    local foundSelf = false
+
+    for k, v in pairs(item) do
+        if k ~= 'title' and k ~= 'player' then
+            local isSelf = v.user == username
+            if isSelf then foundSelf = true end
+
+            local scoreText = formatScore(isDaysSurvivedEntry(title, v), v.score)
+            local rowText
+
+            if isSummary then
+                local youText = summaryYouText(v)
+                rowText = v.position .. ": " .. v.user .. " (" .. scoreText .. ")"
+                if youText ~= "" then
+                    rowText = rowText .. "  [" .. getText("UI_SummaryYou") .. ": " .. youText .. "]"
+                end
+            else
+                rowText = "#" .. tostring(v.position) .. "  " .. v.user .. " (" .. scoreText .. ")"
+            end
+
+            table.insert(rows, {text = rowText, colorState = isSelf and "self" or nil})
+        end
+    end
+
+    -- if the player isn't in the top N shown above, append their own position/score
+    if not isSummary and not foundSelf and item.player ~= nil then
+        local text = tostring(item.player.position) .. "  " .. item.player.user .. " (" ..
+            formatScore(isDaysSurvivedEntry(title, item.player), item.player.score) .. ")"
+        table.insert(rows, {text = "..."})
+        table.insert(rows, {text = text, colorState = "outOfRange"})
+    end
+
+    return rows
+end
+
 local function openLadderDesc(_, item)
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength) or 10
     if ladderLength == 2 then
@@ -119,36 +156,8 @@ local function openLadderDesc(_, item)
     local list = isSummary and AshenMPRanking.summaryUI["list"] or AshenMPRanking.descUI["list"]
     list:clear()
 
-    local foundSelf = false
-
-    for k, v in pairs(item) do
-        if k ~= 'title' and k ~= 'player' then
-            local isSelf = v.user == username
-            if isSelf then foundSelf = true end
-
-            local scoreText = formatScore(isDaysSurvivedEntry(title, v), v.score)
-            local rowText
-
-            if isSummary then
-                local youText = summaryYouText(v)
-                rowText = v.position .. ": " .. v.user .. " (" .. scoreText .. ")"
-                if youText ~= "" then
-                    rowText = rowText .. "  [" .. getText("UI_SummaryYou") .. ": " .. youText .. "]"
-                end
-            else
-                rowText = "#" .. tostring(v.position) .. "  " .. v.user .. " (" .. scoreText .. ")"
-            end
-
-            list:addItem(rowText, {colorState = isSelf and "self" or nil})
-        end
-    end
-
-    -- if the player isn't in the top N shown above, append their own position/score
-    if not isSummary and not foundSelf and item.player ~= nil then
-        local text = tostring(item.player.position) .. "  " .. item.player.user .. " (" ..
-            formatScore(isDaysSurvivedEntry(title, item.player), item.player.score) .. ")"
-        list:addItem("...", {})
-        list:addItem(text, {colorState = "outOfRange"})
+    for _, row in ipairs(buildCategoryRows(item)) do
+        list:addItem(row.text, {colorState = row.colorState})
     end
 end
 
@@ -187,7 +196,7 @@ local function loadIconPosition()
 end
 
 local function showWindowToolbar()
-    -- onCreateUI (che costruisce mainUI) gira solo dopo ~200 tick da OnCharReset:
+    -- rebuildUI (che costruisce mainUI) gira solo dopo ~200 tick da OnCharReset:
     -- ignora il click se l'utente lo preme prima che la UI sia pronta, altrimenti
     -- mainUI è ancora {} e :getIsVisible() genera un errore silenzioso
     if initUI then return end
@@ -304,74 +313,18 @@ local function LevelPerkListener(player, perk, perkLevel, addBuffer)
     end
 end
 
-local function onComboChange(xxx)
-    i = 1
-    -- get selected item from the combo box
-    local item = AshenMPRanking.mainUI["mycombo"]:getValue()
-    local data = AshenMPRanking.mainUI["mycombo"]:getOptionData(2)
-    local data1 = AshenMPRanking.mainUI["mycombo"]:getOptionData(item)
-    -- print('DEBUG AMPR onComboChange: ', data)
-    -- print('DEBUG AMPR onComboChange: ', data1)
-    for k,v in pairs(data) do
-        -- if i > ladderLength and item.title ~= labels.summaryLB then
-        --     if not foundSelf then
-        --         AshenMPRanking.descUI["position_" .. i]:setText("...")
-        --         AshenMPRanking.descUI["score_" .. i]:setText("")
-        --         AshenMPRanking.descUI["position_" .. i+1]:setText(tostring(item.player.position))
-        --         if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-        --             local text = item.player.user:sub(1,10) .. " (" .. string.format("%.1f", item.player.score) .. ")"
-        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        --         elseif title == labels.lrm or tostring(v.position) == labels.lrm then
-        --             local value = item.player.score * 100
-        --             local text = item.player.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
-        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        --         else
-        --             local text = item.player.user:sub(1,10) .. " (" .. tostring(item.player.score) .. ")"
-        --             AshenMPRanking.descUI["score_" .. i+1]:setText(text)
-        --         end
-        --         AshenMPRanking.descUI["position_" .. i+1]:setColor(1, 1, 0, 0)
-        --         AshenMPRanking.descUI["score_" .. i+1]:setColor(1, 1, 0, 0)
-        --         i = i + 2
-        --     end
-
-        --     break
-        -- end
-
-        if k ~= 'title' then
-            -- AshenMPRanking.descUI["position_" .. i]:setText(tostring(v.position))
-            -- if title == labels.daysSurvived or title == labels.daysSurvivedAbs  then
-            --     local text = v.user:sub(1,10) .. " (" .. string.format("%.1f", v.score) .. ")"
-            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
-            -- elseif tostring(v.position) == labels.daysSurvived or tostring(v.position) == labels.daysSurvivedAbs then
-            --     local text = v.user:sub(1,10) .. " (" .. string.format("%.1f", v.score) .. ")"
-            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
-            -- elseif title == labels.lrm or tostring(v.position) == labels.lrm then
-            --     local value = v.score * 100
-            --     local text = v.user:sub(1,10) .. " (" .. string.format("%.0f", value) .. ")"
-            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
-            -- else
-            --     local text = v.user:sub(1,10) .. " (" .. tostring(v.score) .. ")"
-            --     AshenMPRanking.descUI["score_" .. i]:setText(text)
-            -- end
-
-            -- if v.user == username then
-            --     AshenMPRanking.descUI["position_" .. i]:setColor(1, 0, 1, 0.2)
-            --     AshenMPRanking.descUI["score_" .. i]:setColor(1, 0, 1, 0.2)
-            --     foundSelf = true
-            -- else
-            --     AshenMPRanking.descUI["position_" .. i]:setColor(1, 1, 1, 1)
-            --     AshenMPRanking.descUI["score_" .. i]:setColor(1, 1, 1, 1)
-            -- end
-            i = i + 1
-        else
-            title = v
-            AshenMPRanking.mainUI["comboChange"]:setText(v)
-            -- AshenMPRanking.descUI:setTitle(title)
-        end
+-- returns "classic" (two lists + detail popup) or "compact" (single dropdown-driven panel);
+-- read directly from the saved Mod Option so the correct layout is built on the very first
+-- boot, before AshenMPRanking.Options.applyOptions() has had a chance to run once
+local function readInitialUiLayout()
+    local options = PZAPI.ModOptions:getOptions(AshenMPRanking.MODULE_ID)
+    if options and options:getOption("uiLayout") then
+        return (options:getOption("uiLayout"):getValue() == 2) and "compact" or "classic"
     end
+    return "classic"
 end
 
-local function onCreateUI()
+local function buildClassicUI()
     local fontHgt = getTextManager():getFontHeight(UIFont.Small);
     -- shared cap for every scrollable list in the mod (main list, perks list, desc/summary popups)
     -- so the windows stay a consistent, reasonable size no matter how many ladders are active
@@ -471,23 +424,8 @@ local function onCreateUI()
         AshenMPRanking.mainUI:setLineHeightPixel(height)
     end
 
-    -- AshenMPRanking.mainUI:nextLine()
-    -- add combo box for ladder length
-    -- cycle items and get label to insert into combo box
-    -- local items = {}
-    -- AshenMPRanking.mainUI:addComboBox("mycombo", items)
-    -- AshenMPRanking.mainUI["mycombo"].onChange = onComboChange
-    -- AshenMPRanking.mainUI:nextLine()
-    -- AshenMPRanking.mainUI:addText("comboChange", "XXX", "Small", "Center")
-
-
-    -- when the combo box is changed, update the ladder length
-    -- AshenMPRanking.mainUI["mycombo"]:onTextChange(_, openLadderDesc)
-
     AshenMPRanking.mainUI:saveLayout() -- Create window
     AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
-    -- AshenMPRanking.mainUI:setBorderToAllElements(true)
-    -- AshenMPRanking.mainUI:close()
 
     -- Description UI (scrollable: a ladder can have more entries than fit on screen)
     AshenMPRanking.descUI = NewUI()
@@ -511,19 +449,158 @@ local function onCreateUI()
     AshenMPRanking.descUI:close()
     AshenMPRanking.summaryUI:saveLayout()
     AshenMPRanking.summaryUI:close()
+end
+
+-- returns the items[label]/perksItems[label] entry currently selected in the compact
+-- layout's category combo (nil until the combo has data)
+local function currentCompactItem()
+    local combo = AshenMPRanking.mainUI and AshenMPRanking.mainUI["categoryCombo"]
+    if not combo then return nil end
+    local label = combo:getValue()
+    if not label then return nil end
+    return items[label] or perksItems[label]
+end
+
+-- repopulates the compact layout's single scrollList + "your position" line for whatever
+-- category is currently selected in the combo; called on combo change and whenever fresh
+-- ladder data arrives from the server
+local function refreshCompactSelection()
+    local mainUI = AshenMPRanking.mainUI
+    if not mainUI or not mainUI["list"] then return end
+
+    local item = currentCompactItem()
+    mainUI["list"]:clear()
+
+    if not item then
+        mainUI["selfPosition"]:setText(getText("UI_AMPR_YourPosition") .. ": —")
+        return
+    end
+
+    for _, row in ipairs(buildCategoryRows(item)) do
+        mainUI["list"]:addItem(row.text, {colorState = row.colorState})
+    end
+
+    if item.player then
+        local scoreText = formatScore(isDaysSurvivedEntry(item.title, item.player), item.player.score)
+        mainUI["selfPosition"]:setText(getText("UI_AMPR_YourPosition") .. ": #" .. tostring(item.player.position) ..
+            "  " .. item.player.user .. " (" .. scoreText .. ")")
+    else
+        -- e.g. the "Riepilogo"/summary category never populates .player - show a neutral
+        -- placeholder rather than leaving the line blank, so it reads as intentional
+        mainUI["selfPosition"]:setText(getText("UI_AMPR_YourPosition") .. ": —")
+    end
+end
+
+-- rebuilds the compact layout's category combo from the live items/perksItems tables
+-- (rather than re-deriving sandbox conditionals) so it always matches exactly what data
+-- actually exists, including plugin-registered custom ladders
+local function refreshCompactCategoryCombo()
+    local combo = AshenMPRanking.mainUI and AshenMPRanking.mainUI["categoryCombo"]
+    if not combo then return end
+
+    local previousLabel = combo:getValue()
+
+    local orderedLabels = {}
+    for _, v in pairs(items) do
+        if v.title then table.insert(orderedLabels, v.title) end
+    end
+    for _, v in pairs(perksItems) do
+        if v.title then table.insert(orderedLabels, v.title) end
+    end
+
+    combo:setItems(orderedLabels)
+
+    if previousLabel then
+        for i, label in ipairs(orderedLabels) do
+            if label == previousLabel then
+                combo:setSelected(i)
+                break
+            end
+        end
+    end
+end
+
+local function buildCompactUI()
+    local fontHgt = getTextManager():getFontHeight(UIFont.Small)
+    local POPUP_LIST_HEIGHT = fontHgt * 15
+
+    AshenMPRanking.mainUI = NewUI()
+    AshenMPRanking.mainUI:setTitle(AshenMPRanking.sandboxSettings.mainUiTitle)
+    AshenMPRanking.mainUI:setWidthPixel(21 * fontHgt)
+    AshenMPRanking.mainUI:setKeyMN(157)
+
+    AshenMPRanking.mainUI:addText("self_survive", "", "Small", "Center")
+    AshenMPRanking.mainUI:addText("self_zkills", "", "Small", "Center")
+    AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addText("onlinePlayers", getText("UI_WaitingForUpdate"), "", "Center")
+    AshenMPRanking.mainUI["onlinePlayers"]:setColor(1, 1, 1, 0)
+    AshenMPRanking.mainUI:nextLine()
+
+    AshenMPRanking.mainUI:addText("categoryLabel", getText("UI_AMPR_CategoryPickerLabel"), "Small", "Left")
+    AshenMPRanking.mainUI:nextLine()
+    AshenMPRanking.mainUI:addComboBox("categoryCombo", {})
+    AshenMPRanking.mainUI["categoryCombo"]:setOnChange(_, refreshCompactSelection)
+    AshenMPRanking.mainUI:nextLine()
+
+    AshenMPRanking.mainUI:addScrollList("list", {})
+    AshenMPRanking.mainUI["list"].doDrawItem = drawLadderListItem
+    AshenMPRanking.mainUI:setLineHeightPixel(POPUP_LIST_HEIGHT)
+    AshenMPRanking.mainUI:nextLine()
+
+    AshenMPRanking.mainUI:addText("selfPosition", "", "Small", "Left")
+
+    AshenMPRanking.mainUI:saveLayout()
+    AshenMPRanking.mainUI:setPositionPercent(0.1, 0.1)
+end
+
+-- tears down whatever UI is currently active and builds the layout named by
+-- AshenMPRanking.Options.uiLayout ("classic" or "compact") - used both for the very first
+-- boot and for an immediate, no-restart switch when the player changes the Mod Option
+AshenMPRanking.rebuildUI = function()
+    if AshenMPRanking.mainUI and AshenMPRanking.mainUI.removeFromUIManager then
+        AshenMPRanking.mainUI:removeFromUIManager()
+    end
+    if AshenMPRanking.descUI and AshenMPRanking.descUI.removeFromUIManager then
+        AshenMPRanking.descUI:removeFromUIManager()
+        AshenMPRanking.descUI = nil
+    end
+    if AshenMPRanking.summaryUI and AshenMPRanking.summaryUI.removeFromUIManager then
+        AshenMPRanking.summaryUI:removeFromUIManager()
+        AshenMPRanking.summaryUI = nil
+    end
+
+    if AshenMPRanking.Options.uiLayout == "compact" then
+        buildCompactUI()
+    else
+        buildClassicUI()
+    end
+
     AshenMPRanking.mainUI:close()
-    refreshSelfSurvived()
-    refreshSelfKills()
-    Events.EveryHours.Add(refreshSelfSurvived)
-    Events.OnPlayerUpdate.Add(refreshSelfKills)
+    if toolbarButton and toolbarButton.setImage then
+        toolbarButton:setImage(AshenMPRanking.textureOff)
+    end
+    if AshenMPRanking.Options.hotkey then
+        AshenMPRanking.mainUI:setKeyMN(AshenMPRanking.Options.hotkey)
+    end
 
     ladderLength = tonumber(AshenMPRanking.Options.ladderLength) or 10
     if ladderLength == 2 then
         ladderLength = 10
     end
 
-    -- apply client options
-    AshenMPRanking.Options.applyOptions()
+    -- force a repaint on the freshly built window: refreshSelfSurvived/refreshSelfKills only
+    -- call setText when the value differs from the last poll, so without resetting this cache
+    -- the new "self_survive"/"self_zkills" text elements would stay blank after a rebuild
+    -- whenever the underlying value hasn't actually changed since the last tick
+    timeSurvived = nil
+    zombieKills = -1
+    refreshSelfSurvived()
+    refreshSelfKills()
+    if AshenMPRanking.Options.uiLayout == "compact" then
+        refreshCompactCategoryCombo()
+        refreshCompactSelection()
+    end
+    AshenMPRanking.forceRender = true
 end
 
 -- rimuove i caratteri non ammessi nei nomi di file/cartella su Windows
@@ -763,16 +840,22 @@ local onLadderUpdate = function(module, command, args)
     renderItems = checkForChanges(items, tmpItems)
     -- print('DEBUG AMPR renderItems: ', renderItems)
 
-    if renderItems or AshenMPRanking.forceRender then
-        AshenMPRanking.mainUI["list"]:setItems(items)
-        -- AshenMPRanking.mainUI["mycombo"]:setItems(items)
-    end
-
     renderPerksItems = checkForChanges(perksItems, tmpPerksItems)
     -- print('DEBUG AMPR renderPerksItems: ', renderPerksItems)
 
-    if AshenMPRanking.sandboxSettings.perkScores and (renderPerksItems or AshenMPRanking.forceRender) then
-        AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
+    if AshenMPRanking.Options.uiLayout == "compact" then
+        if renderItems or renderPerksItems or AshenMPRanking.forceRender then
+            refreshCompactCategoryCombo()
+            refreshCompactSelection()
+        end
+    else
+        if renderItems or AshenMPRanking.forceRender then
+            AshenMPRanking.mainUI["list"]:setItems(items)
+        end
+
+        if AshenMPRanking.sandboxSettings.perkScores and (renderPerksItems or AshenMPRanking.forceRender) then
+            AshenMPRanking.mainUI["perksList"]:setItems(perksItems)
+        end
     end
 
     if AshenMPRanking.forceRender then
@@ -905,9 +988,13 @@ local function initClientConfig()
     end
 
     if initUI then
-        onCreateUI()
+        AshenMPRanking.Options.uiLayout = readInitialUiLayout()
+        AshenMPRanking.rebuildUI()
+        AshenMPRanking.Options.applyOptions()
         initUI = false
         Events.OnServerCommand.Add(onLadderUpdate)
+        Events.EveryHours.Add(refreshSelfSurvived)
+        Events.OnPlayerUpdate.Add(refreshSelfKills)
 
         if AshenMPRanking.sandboxSettings.periodicTick == 1 then
             Events.EveryOneMinute.Add(SendPlayerData)

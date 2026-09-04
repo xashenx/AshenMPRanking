@@ -62,5 +62,9 @@
     "UI_AshenMPRanking_Options_ladderLength": "Ladder length",
     "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Max number of players shown in the ladder",
     "UI_AshenMPRanking_Options_hotkey": "Hotkey",
-    "UI_AshenMPRanking_Options_hotkey_Tooltip": "Key used to toggle the main window"
+    "UI_AshenMPRanking_Options_hotkey_Tooltip": "Key used to toggle the main window",
+    "UI_AshenMPRanking_Options_uiLayout": "Leaderboard layout",
+    "UI_AshenMPRanking_Options_uiLayout_Tooltip": "Choose how the leaderboard window is displayed",
+    "UI_AMPR_CategoryPickerLabel": "Leaderboard",
+    "UI_AMPR_YourPosition": "Your position"
 }

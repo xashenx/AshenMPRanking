@@ -62,5 +62,9 @@
     "UI_AshenMPRanking_Options_ladderLength": "排行榜長度",
     "UI_AshenMPRanking_Options_ladderLength_Tooltip": "排行榜中顯示的最大玩家數量",
     "UI_AshenMPRanking_Options_hotkey": "快捷鍵",
-    "UI_AshenMPRanking_Options_hotkey_Tooltip": "用於顯示/隱藏主介面的按鍵"
+    "UI_AshenMPRanking_Options_hotkey_Tooltip": "用於顯示/隱藏主介面的按鍵",
+    "UI_AshenMPRanking_Options_uiLayout": "Leaderboard layout",
+    "UI_AshenMPRanking_Options_uiLayout_Tooltip": "Choose how the leaderboard window is displayed",
+    "UI_AMPR_CategoryPickerLabel": "Leaderboard",
+    "UI_AMPR_YourPosition": "Your position"
 }

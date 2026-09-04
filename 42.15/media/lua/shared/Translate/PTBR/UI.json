@@ -62,5 +62,9 @@
     "UI_AshenMPRanking_Options_ladderLength": "Tamanho do ranking",
     "UI_AshenMPRanking_Options_ladderLength_Tooltip": "Número máximo de jogadores mostrados no ranking",
     "UI_AshenMPRanking_Options_hotkey": "Tecla de atalho",
-    "UI_AshenMPRanking_Options_hotkey_Tooltip": "Usada para mostrar/ocultar a janela principal"
+    "UI_AshenMPRanking_Options_hotkey_Tooltip": "Usada para mostrar/ocultar a janela principal",
+    "UI_AshenMPRanking_Options_uiLayout": "Leaderboard layout",
+    "UI_AshenMPRanking_Options_uiLayout_Tooltip": "Choose how the leaderboard window is displayed",
+    "UI_AMPR_CategoryPickerLabel": "Leaderboard",
+    "UI_AMPR_YourPosition": "Your position"
 }
