@@ -39,6 +39,7 @@ local ROW_DEFAULT_COLOR = { r = 0, g = 0, b = 0, a = 1 }
 -- every row (header, stat, buttons) is prefixed with one of these so nothing sits flush
 -- against the window's left edge
 local LEFT_MARGIN = 8
+local ENTRY_WIDTH = 100
 
 local function addLeftMargin(ui)
     ui:addEmpty(nil, 1, nil, LEFT_MARGIN)
@@ -171,7 +172,12 @@ local function openEditor(username, stats, isInactive)
             label.backgroundColor = (rowIndex % 2 == 0) and ROW_SHADE_COLOR or ROW_DEFAULT_COLOR
 
             ui:addEntry("entry_" .. key, tostring(stats[key] or 0), true)
+            ui["entry_" .. key]:setWidthPixel(ENTRY_WIDTH)
             ui["entry_" .. key]:setBorder(true)
+            -- the entry box ignores its allotted width when left as the last column of the
+            -- row (it keeps stretching to the window edge) - a trailing invisible spacer
+            -- takes the "last column" spot instead, so the entry keeps its fixed width
+            ui:addEmpty(nil, 1)
 
             ui:nextLine()
             rowIndex = rowIndex + 1
