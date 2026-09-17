@@ -73,5 +73,8 @@
     "UI_PlayerStatsUpdated": "玩家 %s 的统计数据已更新",
     "UI_AdminEditStatsInactiveTag": "闲置",
     "UI_AdminEditStatsSave": "保存",
-    "UI_AdminEditStatsCancel": "取消"
+    "UI_AdminEditStatsCancel": "取消",
+    "UI_AdminEditStatsSectionGeneral": "一般",
+    "UI_AdminEditStatsSectionSkills": "技能",
+    "UI_AdminEditStatsSectionCustom": "自定义排行榜"
 }

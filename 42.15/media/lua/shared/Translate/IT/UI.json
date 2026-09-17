@@ -73,5 +73,8 @@
     "UI_PlayerStatsUpdated": "Statistiche di %s aggiornate",
     "UI_AdminEditStatsInactiveTag": "inattivo",
     "UI_AdminEditStatsSave": "Salva",
-    "UI_AdminEditStatsCancel": "Annulla"
+    "UI_AdminEditStatsCancel": "Annulla",
+    "UI_AdminEditStatsSectionGeneral": "Generali",
+    "UI_AdminEditStatsSectionSkills": "Skills",
+    "UI_AdminEditStatsSectionCustom": "Classifiche personalizzate"
 }

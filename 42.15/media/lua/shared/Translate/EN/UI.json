@@ -73,5 +73,8 @@
     "UI_PlayerStatsUpdated": "Stats for %s have been updated",
     "UI_AdminEditStatsInactiveTag": "inactive",
     "UI_AdminEditStatsSave": "Save",
-    "UI_AdminEditStatsCancel": "Cancel"
+    "UI_AdminEditStatsCancel": "Cancel",
+    "UI_AdminEditStatsSectionGeneral": "General",
+    "UI_AdminEditStatsSectionSkills": "Skills",
+    "UI_AdminEditStatsSectionCustom": "Custom leaderboards"
 }

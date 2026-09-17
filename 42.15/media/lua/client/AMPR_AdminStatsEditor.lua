@@ -24,15 +24,19 @@ local STAT_LABEL_KEYS = {
     otherPerks = "UI_otherPerks",
 }
 
--- preferred display order; anything not listed here (e.g. plugin custom_ ladders) is
--- appended afterwards, sorted alphabetically
-local STAT_ORDER = {
+-- grouping + preferred order within each group; anything not listed here (e.g. plugin
+-- custom_ ladders) falls into the "custom" group, sorted alphabetically
+local GENERAL_KEYS = {
     "daysSurvived", "daysSurvivedAbs",
     "zKills", "zKillsAbs", "zKillsTot", "killsPerDay",
     "sKills", "sKillsTot",
     "deaths",
-    "physicalcategory", "farmingcategory", "firearm", "crafting", "combat", "survivalist", "otherPerks",
 }
+local SKILL_KEYS = { "physicalcategory", "farmingcategory", "firearm", "crafting", "combat", "survivalist", "otherPerks" }
+
+local SECTION_HEADER_COLOR = { a = 1, r = 1, g = 0.82, b = 0.35 }
+local ROW_SHADE_COLOR = { r = 0.12, g = 0.12, b = 0.12, a = 1 }
+local ROW_DEFAULT_COLOR = { r = 0, g = 0, b = 0, a = 1 }
 
 local function statLabel(key)
     local textKey = STAT_LABEL_KEYS[key]
@@ -43,24 +47,43 @@ local function statLabel(key)
     return key
 end
 
-local function orderedStatKeys(stats)
-    local ordered = {}
+-- splits the stats received from the server into the sections shown in the editor,
+-- keeping only the ones that actually have at least one field to show
+local function buildSections(stats)
+    local sections = {}
     local seen = {}
-    for _, key in ipairs(STAT_ORDER) do
-        if stats[key] ~= nil then
-            table.insert(ordered, key)
-            seen[key] = true
+
+    local function collect(keys)
+        local out = {}
+        for _, key in ipairs(keys) do
+            if stats[key] ~= nil then
+                table.insert(out, key)
+                seen[key] = true
+            end
         end
+        return out
     end
 
-    local extra = {}
+    local general = collect(GENERAL_KEYS)
+    if #general > 0 then
+        table.insert(sections, { header = getText("UI_AdminEditStatsSectionGeneral"), keys = general })
+    end
+
+    local skills = collect(SKILL_KEYS)
+    if #skills > 0 then
+        table.insert(sections, { header = getText("UI_AdminEditStatsSectionSkills"), keys = skills })
+    end
+
+    local custom = {}
     for key in pairs(stats) do
-        if not seen[key] then table.insert(extra, key) end
+        if not seen[key] then table.insert(custom, key) end
     end
-    table.sort(extra)
-    for _, key in ipairs(extra) do table.insert(ordered, key) end
+    table.sort(custom)
+    if #custom > 0 then
+        table.insert(sections, { header = getText("UI_AdminEditStatsSectionCustom"), keys = custom })
+    end
 
-    return ordered
+    return sections
 end
 
 local function closeEditor()
@@ -99,21 +122,45 @@ local function openEditor(username, stats, isInactive)
         title = title .. " [" .. getText("UI_AdminEditStatsInactiveTag") .. "]"
     end
     ui:setTitle(title)
-    ui:setWidthPixel(320)
+    ui:setWidthPixel(340)
 
-    local statKeys = orderedStatKeys(stats)
-    ui.statKeys = statKeys
-    ui.username = username
+    local sections = buildSections(stats)
+    local allKeys = {}
+    local rowIndex = 0
 
-    for _, key in ipairs(statKeys) do
-        ui:addText("label_" .. key, statLabel(key) .. ":", "Small", "Left")
-        ui["label_" .. key]:setWidthPixel(190)
-        ui:addEntry("entry_" .. key, tostring(stats[key] or 0), true)
+    for sectionIndex, section in ipairs(sections) do
+        local headerName = "sectionHeader" .. sectionIndex
+        ui:addText(headerName, section.header, "Medium", "Left")
+        ui[headerName]:setColor(SECTION_HEADER_COLOR.a, SECTION_HEADER_COLOR.r, SECTION_HEADER_COLOR.g, SECTION_HEADER_COLOR.b)
         ui:nextLine()
+
+        for _, key in ipairs(section.keys) do
+            table.insert(allKeys, key)
+
+            ui:addText("label_" .. key, statLabel(key) .. ":", "Small", "Left")
+            local label = ui["label_" .. key]
+            label:setWidthPixel(190)
+            -- alternate row shading so a long list of stats stays easy to scan
+            label.backgroundColor = (rowIndex % 2 == 0) and ROW_SHADE_COLOR or ROW_DEFAULT_COLOR
+
+            ui:addEntry("entry_" .. key, tostring(stats[key] or 0), true)
+            ui["entry_" .. key]:setBorder(true)
+
+            ui:nextLine()
+            rowIndex = rowIndex + 1
+        end
     end
 
+    ui.statKeys = allKeys
+    ui.username = username
+
     ui:addButton("saveBtn", getText("UI_AdminEditStatsSave"), onSaveClick)
+    ui["saveBtn"]:setBackgroundRGBA(0.16, 0.42, 0.16, 1)
+    ui["saveBtn"]:setBorderRGBA(0.35, 0.75, 0.35, 1)
+
     ui:addButton("cancelBtn", getText("UI_AdminEditStatsCancel"), onCancelClick)
+    ui["cancelBtn"]:setBackgroundRGBA(0.45, 0.16, 0.16, 1)
+    ui["cancelBtn"]:setBorderRGBA(0.75, 0.35, 0.35, 1)
     ui:nextLine()
 
     ui:saveLayout()
