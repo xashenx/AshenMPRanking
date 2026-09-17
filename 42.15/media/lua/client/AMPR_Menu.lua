@@ -40,6 +40,15 @@ function MenuActions:onI2AClick(button)
     end
 end
 
+function MenuActions:onEditStatsClick(button)
+    if button.internal == "OK" then
+        local text = button.parent.entry:getText()
+        if text and text ~= "" then
+            sendClientCommand("AshenMPRanking", "getPlayerStats", { username = text })
+        end
+    end
+end
+
 function MenuActions:onConfirmReset(button)
     if button.internal == "OK" then
         print("RESET CONFIRMED: " .. button.parent.entry:getText())
@@ -81,6 +90,11 @@ local function doMenu(playerIndex, context, worldobjects, test)
         local i2aInput = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", MenuActions, MenuActions.onI2AClick, playerIndex)
         i2aInput:initialise()
         i2aInput:addToUIManager()
+    end)
+    menu:addOption("Edit Player Stats", nil, function()
+        local editStatsInput = ISTextBox:new(0, 0, 280, 180, "Enter Player Username:", "", MenuActions, MenuActions.onEditStatsClick, playerIndex)
+        editStatsInput:initialise()
+        editStatsInput:addToUIManager()
     end)
     menu:addOption("Reset Ranking", nil, function()
         local resetInput = ISTextBox:new(0, 0, 280, 180, "Confirm Reset (type YES):", "", MenuActions, MenuActions.onConfirmReset, playerIndex)

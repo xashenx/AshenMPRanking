@@ -66,5 +66,12 @@
     "UI_AshenMPRanking_Options_uiLayout": "Layout classifiche",
     "UI_AshenMPRanking_Options_uiLayout_Tooltip": "Scegli come viene mostrata la finestra delle classifiche",
     "UI_AMPR_CategoryPickerLabel": "Classifica",
-    "UI_AMPR_YourPosition": "La tua posizione"
+    "UI_AMPR_YourPosition": "La tua posizione",
+    "UI_ErrorNotAdmin": "Solo gli admin possono farlo",
+    "UI_ErrorPlayerNotFound": "Giocatore %s non trovato in classifica",
+    "UI_ErrorInvalidStats": "Valori non validi, campi ignorati: %s",
+    "UI_PlayerStatsUpdated": "Statistiche di %s aggiornate",
+    "UI_AdminEditStatsInactiveTag": "inattivo",
+    "UI_AdminEditStatsSave": "Salva",
+    "UI_AdminEditStatsCancel": "Annulla"
 }

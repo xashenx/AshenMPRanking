@@ -1172,6 +1172,78 @@ local function onPlayerDeathReset(player)
     end
 end
 
+-- fields an admin is allowed to view/edit through the stats editor, based on which
+-- sandbox settings are active plus any plugin-registered custom ladders. Doubles as the
+-- server-side whitelist: setPlayerStats only ever writes keys returned here.
+local function buildEditableFieldList()
+    local fields = {
+        { key = "daysSurvived", path = { "daysSurvived" } },
+        { key = "daysSurvivedAbs", path = { "daysSurvivedAbs" } },
+        { key = "zKills", path = { "zKills" } },
+        { key = "zKillsAbs", path = { "zKillsAbs" } },
+        { key = "zKillsTot", path = { "zKillsTot" } },
+        { key = "deaths", path = { "deaths" } },
+    }
+
+    if AshenMPRanking.sandboxSettings.killsPerDay then
+        table.insert(fields, { key = "killsPerDay", path = { "killsPerDay" } })
+    end
+
+    if AshenMPRanking.sandboxSettings.sKills then
+        table.insert(fields, { key = "sKills", path = { "sKills" } })
+        table.insert(fields, { key = "sKillsTot", path = { "sKillsTot" } })
+    end
+
+    if AshenMPRanking.sandboxSettings.perkScores then
+        for _, perk in ipairs({ "physicalcategory", "farmingcategory", "firearm", "crafting", "combat", "survivalist" }) do
+            table.insert(fields, { key = perk, path = { "perkScores", perk } })
+        end
+        if AshenMPRanking.sandboxSettings.otherPerks then
+            table.insert(fields, { key = "otherPerks", path = { "perkScores", "otherPerks" } })
+        end
+    end
+
+    for k in pairs(ladder) do
+        if string.sub(k, 1, 7) == "custom_" then
+            table.insert(fields, { key = k, path = { k } })
+        end
+    end
+
+    return fields
+end
+
+local function getStatValue(container, path, username)
+    local node = container
+    for i = 1, #path do
+        node = node[path[i]]
+        if node == nil then return nil end
+    end
+    return node[username]
+end
+
+local function setStatValue(container, path, username, value)
+    local node = container
+    for i = 1, #path do
+        if node[path[i]] == nil then node[path[i]] = {} end
+        node = node[path[i]]
+    end
+    node[username] = value
+end
+
+-- finds which container (active ladder or inactive accounts) holds this username, if any
+local function findPlayerContainer(username)
+    if username == nil or username == "" then
+        return nil, false
+    end
+    if lastUpdate[username] ~= nil then
+        return ladder, false
+    end
+    if inactiveAccounts.daysSurvived ~= nil and inactiveAccounts.daysSurvived[username] ~= nil then
+        return inactiveAccounts, true
+    end
+    return nil, false
+end
+
 local clientCommandDispatcher = function(module, command, player, args)
     if module ~= "AshenMPRanking" then
         return
@@ -1246,6 +1318,78 @@ local clientCommandDispatcher = function(module, command, player, args)
         args = {}
         args.success_msg = "UI_ResetRanking"
         sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+    elseif command == "getPlayerStats" then
+        if player:getAccessLevel() ~= "admin" then
+            args.fail_msg = "UI_ErrorNotAdmin"
+            sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+        else
+            local username = args.username
+            local container, isInactive = findPlayerContainer(username)
+
+            if container == nil then
+                sendServerCommand(player, "AshenMPRanking", "ccPlayerStats", { username = username, found = false })
+            else
+                local stats = {}
+                for _, field in ipairs(buildEditableFieldList()) do
+                    stats[field.key] = getStatValue(container, field.path, username) or 0
+                end
+                sendServerCommand(player, "AshenMPRanking", "ccPlayerStats", { username = username, found = true, isInactive = isInactive, stats = stats })
+            end
+        end
+    elseif command == "setPlayerStats" then
+        if player:getAccessLevel() ~= "admin" then
+            args.fail_msg = "UI_ErrorNotAdmin"
+            sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+        else
+            local username = args.username
+            local container, isInactive = findPlayerContainer(username)
+
+            if container == nil then
+                args.fail_msg = "UI_ErrorPlayerNotRanked"
+                sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+            else
+                local allowedFields = {}
+                for _, field in ipairs(buildEditableFieldList()) do
+                    allowedFields[field.key] = field
+                end
+
+                -- server-side validation: only whitelisted stat keys, non-negative finite
+                -- numbers accepted. Anything else is rejected instead of applied, so a bad
+                -- entry can't corrupt the ladder table or break sort_ladders().
+                local rejected = {}
+                local validated = {}
+                for k, v in pairs(args.stats or {}) do
+                    local field = allowedFields[k]
+                    local n = tonumber(v)
+                    if field == nil or n == nil or n ~= n or n == math.huge or n < 0 then
+                        table.insert(rejected, k)
+                    else
+                        validated[k] = n
+                    end
+                end
+
+                for _, field in ipairs(buildEditableFieldList()) do
+                    if validated[field.key] ~= nil then
+                        setStatValue(container, field.path, username, validated[field.key])
+                    end
+                end
+
+                if not isInactive then
+                    sort_ladders()
+                    optimized_data = generateOptimizedData(15)
+                end
+                saveModData(isInactive and tag_inactive or tag_active, container)
+
+                if #rejected > 0 then
+                    args.fail_msg = "UI_ErrorInvalidStats"
+                    args.username = table.concat(rejected, ", ")
+                else
+                    args.success_msg = "UI_PlayerStatsUpdated"
+                    args.username = username
+                end
+                sendServerCommand(player, "AshenMPRanking", "ccServerResponse", args)
+            end
+        end
     elseif command == "ServerUpdateSurvivorKills" then
         local killer = getPlayerByOnlineID(args.killerOnlineID)
         sendServerCommand(killer, "AshenMPRanking", "ClientUpdateSurvivorKills", {})

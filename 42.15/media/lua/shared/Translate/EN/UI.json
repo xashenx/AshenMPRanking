@@ -66,5 +66,12 @@
     "UI_AshenMPRanking_Options_uiLayout": "Leaderboard layout",
     "UI_AshenMPRanking_Options_uiLayout_Tooltip": "Choose how the leaderboard window is displayed",
     "UI_AMPR_CategoryPickerLabel": "Leaderboard",
-    "UI_AMPR_YourPosition": "Your position"
+    "UI_AMPR_YourPosition": "Your position",
+    "UI_ErrorNotAdmin": "Only admins can do this",
+    "UI_ErrorPlayerNotFound": "Player %s was not found in the rankings",
+    "UI_ErrorInvalidStats": "Invalid values, ignored fields: %s",
+    "UI_PlayerStatsUpdated": "Stats for %s have been updated",
+    "UI_AdminEditStatsInactiveTag": "inactive",
+    "UI_AdminEditStatsSave": "Save",
+    "UI_AdminEditStatsCancel": "Cancel"
 }
