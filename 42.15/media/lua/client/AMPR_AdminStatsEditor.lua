@@ -1,5 +1,7 @@
 if isServer() then return end;
 
+require "ISUI/ISModalDialog"
+
 AshenMPRanking = AshenMPRanking or {}
 AshenMPRanking.adminEditor = AshenMPRanking.adminEditor or {}
 
@@ -26,17 +28,21 @@ local STAT_LABEL_KEYS = {
 
 -- grouping + preferred order within each group; anything not listed here (e.g. plugin
 -- custom_ ladders) falls into the "custom" group, sorted alphabetically
-local GENERAL_KEYS = {
-    "daysSurvived", "daysSurvivedAbs",
-    "zKills", "zKillsAbs", "zKillsTot", "killsPerDay",
-    "sKills", "sKillsTot",
-    "deaths",
-}
+local GENERAL_KEYS = { "daysSurvived", "zKills", "sKills", "deaths" }
+local DERIVED_KEYS = { "daysSurvivedAbs", "zKillsAbs", "zKillsTot", "killsPerDay", "sKillsTot" }
 local SKILL_KEYS = { "physicalcategory", "farmingcategory", "firearm", "crafting", "combat", "survivalist", "otherPerks" }
 
 local SECTION_HEADER_COLOR = { a = 1, r = 1, g = 0.82, b = 0.35 }
 local ROW_SHADE_COLOR = { r = 0.12, g = 0.12, b = 0.12, a = 1 }
 local ROW_DEFAULT_COLOR = { r = 0, g = 0, b = 0, a = 1 }
+
+-- every row (header, stat, buttons) is prefixed with one of these so nothing sits flush
+-- against the window's left edge
+local LEFT_MARGIN = 8
+
+local function addLeftMargin(ui)
+    ui:addEmpty(nil, 1, nil, LEFT_MARGIN)
+end
 
 local function statLabel(key)
     local textKey = STAT_LABEL_KEYS[key]
@@ -69,6 +75,11 @@ local function buildSections(stats)
         table.insert(sections, { header = getText("UI_AdminEditStatsSectionGeneral"), keys = general })
     end
 
+    local derived = collect(DERIVED_KEYS)
+    if #derived > 0 then
+        table.insert(sections, { header = getText("UI_AdminEditStatsSectionDerived"), keys = derived })
+    end
+
     local skills = collect(SKILL_KEYS)
     if #skills > 0 then
         table.insert(sections, { header = getText("UI_AdminEditStatsSectionSkills"), keys = skills })
@@ -94,10 +105,7 @@ local function closeEditor()
     AshenMPRanking.adminEditor.ui = nil
 end
 
-local function onSaveClick()
-    local ui = AshenMPRanking.adminEditor.ui
-    if not ui then return end
-
+local function performSave(ui)
     local stats = {}
     for _, key in ipairs(ui.statKeys) do
         -- an emptied entry box parses to nil, which would just drop the key silently -
@@ -107,6 +115,23 @@ local function onSaveClick()
 
     sendClientCommand("AshenMPRanking", "setPlayerStats", { username = ui.username, stats = stats })
     closeEditor()
+end
+
+local function onSaveConfirmResult(_, button)
+    if button.internal == "YES" then
+        performSave(AshenMPRanking.adminEditor.ui)
+    end
+end
+
+-- writes go straight to the ladder with no undo, so Save doesn't apply anything by
+-- itself: it just raises the standard PZ Yes/No confirmation with the same warning
+local function onSaveClick()
+    local ui = AshenMPRanking.adminEditor.ui
+    if not ui then return end
+
+    local confirm = ISModalDialog:new(0, 0, 280, 150, getText("UI_AdminEditStatsDisclaimer"), true, nil, onSaveConfirmResult)
+    confirm:initialise()
+    confirm:addToUIManager()
 end
 
 local function onCancelClick()
@@ -130,6 +155,7 @@ local function openEditor(username, stats, isInactive)
 
     for sectionIndex, section in ipairs(sections) do
         local headerName = "sectionHeader" .. sectionIndex
+        addLeftMargin(ui)
         ui:addText(headerName, section.header, "Medium", "Left")
         ui[headerName]:setColor(SECTION_HEADER_COLOR.a, SECTION_HEADER_COLOR.r, SECTION_HEADER_COLOR.g, SECTION_HEADER_COLOR.b)
         ui:nextLine()
@@ -137,6 +163,7 @@ local function openEditor(username, stats, isInactive)
         for _, key in ipairs(section.keys) do
             table.insert(allKeys, key)
 
+            addLeftMargin(ui)
             ui:addText("label_" .. key, statLabel(key) .. ":", "Small", "Left")
             local label = ui["label_" .. key]
             label:setWidthPixel(190)
@@ -154,6 +181,7 @@ local function openEditor(username, stats, isInactive)
     ui.statKeys = allKeys
     ui.username = username
 
+    addLeftMargin(ui)
     ui:addButton("saveBtn", getText("UI_AdminEditStatsSave"), onSaveClick)
     ui["saveBtn"]:setBackgroundRGBA(0.16, 0.42, 0.16, 1)
     ui["saveBtn"]:setBorderRGBA(0.35, 0.75, 0.35, 1)

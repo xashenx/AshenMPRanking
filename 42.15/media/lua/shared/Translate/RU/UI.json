@@ -75,6 +75,8 @@
     "UI_AdminEditStatsSave": "Сохранить",
     "UI_AdminEditStatsCancel": "Отмена",
     "UI_AdminEditStatsSectionGeneral": "Общее",
+    "UI_AdminEditStatsSectionDerived": "Рекорды и итоги",
     "UI_AdminEditStatsSectionSkills": "Навыки",
-    "UI_AdminEditStatsSectionCustom": "Пользовательские рейтинги"
+    "UI_AdminEditStatsSectionCustom": "Пользовательские рейтинги",
+    "UI_AdminEditStatsDisclaimer": "Внимание: сохранение необратимо перезапишет данные рейтинга этого персонажа на сервере. Это действие нельзя отменить."
 }

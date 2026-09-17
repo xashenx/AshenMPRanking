@@ -75,6 +75,8 @@
     "UI_AdminEditStatsSave": "儲存",
     "UI_AdminEditStatsCancel": "取消",
     "UI_AdminEditStatsSectionGeneral": "一般",
+    "UI_AdminEditStatsSectionDerived": "紀錄與總計",
     "UI_AdminEditStatsSectionSkills": "技能",
-    "UI_AdminEditStatsSectionCustom": "自訂排行榜"
+    "UI_AdminEditStatsSectionCustom": "自訂排行榜",
+    "UI_AdminEditStatsDisclaimer": "警告：按下儲存後，將永久覆寫此角色在伺服器上的排行資料，且無法復原。"
 }

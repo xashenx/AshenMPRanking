@@ -75,6 +75,8 @@
     "UI_AdminEditStatsSave": "Save",
     "UI_AdminEditStatsCancel": "Cancel",
     "UI_AdminEditStatsSectionGeneral": "General",
+    "UI_AdminEditStatsSectionDerived": "Records & Totals",
     "UI_AdminEditStatsSectionSkills": "Skills",
-    "UI_AdminEditStatsSectionCustom": "Custom leaderboards"
+    "UI_AdminEditStatsSectionCustom": "Custom leaderboards",
+    "UI_AdminEditStatsDisclaimer": "Warning: Save permanently overwrites this character's ranking data on the server. This cannot be undone."
 }

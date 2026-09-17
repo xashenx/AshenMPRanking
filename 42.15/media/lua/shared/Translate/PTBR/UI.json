@@ -75,6 +75,8 @@
     "UI_AdminEditStatsSave": "Salvar",
     "UI_AdminEditStatsCancel": "Cancelar",
     "UI_AdminEditStatsSectionGeneral": "Geral",
+    "UI_AdminEditStatsSectionDerived": "Recordes e Totais",
     "UI_AdminEditStatsSectionSkills": "Habilidades",
-    "UI_AdminEditStatsSectionCustom": "Rankings personalizados"
+    "UI_AdminEditStatsSectionCustom": "Rankings personalizados",
+    "UI_AdminEditStatsDisclaimer": "Atencao: Salvar vai sobrescrever permanentemente os dados de ranking deste personagem no servidor. Essa acao nao pode ser desfeita."
 }

@@ -75,6 +75,8 @@
     "UI_AdminEditStatsSave": "Salva",
     "UI_AdminEditStatsCancel": "Annulla",
     "UI_AdminEditStatsSectionGeneral": "Generali",
+    "UI_AdminEditStatsSectionDerived": "Record e Totali",
     "UI_AdminEditStatsSectionSkills": "Skills",
-    "UI_AdminEditStatsSectionCustom": "Classifiche personalizzate"
+    "UI_AdminEditStatsSectionCustom": "Classifiche personalizzate",
+    "UI_AdminEditStatsDisclaimer": "Attenzione: premendo Salva sovrascriverai in modo permanente i dati di classifica di questo personaggio sul server. L'operazione non è reversibile."
 }

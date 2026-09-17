@@ -75,6 +75,8 @@
     "UI_AdminEditStatsSave": "保存",
     "UI_AdminEditStatsCancel": "取消",
     "UI_AdminEditStatsSectionGeneral": "一般",
+    "UI_AdminEditStatsSectionDerived": "纪录与总计",
     "UI_AdminEditStatsSectionSkills": "技能",
-    "UI_AdminEditStatsSectionCustom": "自定义排行榜"
+    "UI_AdminEditStatsSectionCustom": "自定义排行榜",
+    "UI_AdminEditStatsDisclaimer": "警告：点击保存后，将永久覆盖此角色在服务器上的排行数据，且无法撤销。"
 }
